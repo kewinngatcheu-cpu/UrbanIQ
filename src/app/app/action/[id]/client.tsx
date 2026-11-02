@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import { useActionState, useState } from "react";
 import { Copy, Check, Mail } from "lucide-react";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import { initialState } from "@/lib/action-state";
 import { saveDraft } from "../../_actions/action";
 
 export function DraftEditor({ id, draft, missing }: { id: string; draft: string; missing: string[] }) {
+  const tr = useT();
   const [text, setText] = useState(draft);
   const [copied, setCopied] = useState(false);
   const [state, action] = useActionState(saveDraft, initialState);
@@ -16,27 +18,27 @@ export function DraftEditor({ id, draft, missing }: { id: string; draft: string;
   const body = text.replace(/^Subject:.*\n+/m, "");
   return (
     <Card>
-      <CardHeader title="Draft" description="Edit freely. Placeholders in [BRACKETS] need your details." />
+      <CardHeader title={tr("Draft")} description={tr("Edit freely. Placeholders in [BRACKETS] need your details.")} />
       <CardBody>
         <form action={action} className="space-y-4">
           <input type="hidden" name="id" value={id} />
-          <Textarea name="draft" value={text} onChange={(e) => setText(e.target.value)} className="min-h-72 font-mono text-[13px]" placeholder="No draft for this action yet. Write one here if you need it." aria-label="Draft" />
-          <Field label="Missing information (one per line)" htmlFor="d-missing">
+          <Textarea name="draft" value={text} onChange={(e) => setText(e.target.value)} className="min-h-72 font-mono text-[13px]" placeholder={tr("No draft for this action yet. Write one here if you need it.")} aria-label={tr("Draft")} />
+          <Field label={tr("Missing information (one per line)")} htmlFor="d-missing">
             <Textarea id="d-missing" name="missing" defaultValue={missing.join("\n")} className="min-h-20" />
           </Field>
           <FormMessage state={state} />
           <div className="flex flex-wrap gap-2">
-            <SubmitButton variant="secondary" pendingText="Saving…">Save</SubmitButton>
+            <SubmitButton variant="secondary" pendingText={tr("Saving…")}>{tr("Save")}</SubmitButton>
             <Button type="button" variant="soft" disabled={!text} onClick={async () => { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1800); }}>
-              {copied ? <><Check /> Copied</> : <><Copy /> Copy draft</>}
+              {copied ? <><Check /> {tr("Copied")}</> : <><Copy /> {tr("Copy draft")}</>}
             </Button>
             {text && (
               <a className="inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-medium text-muted hover:bg-fog hover:text-ink" href={`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}>
-                <Mail className="size-4" /> Open in my email app
+                <Mail className="size-4" /> {tr("Open in my email app")}
               </a>
             )}
           </div>
-          <p className="text-xs text-muted">“Open in my email app” only creates a draft in your own email program — nothing is sent until you press send there.</p>
+          <p className="text-xs text-muted">{tr("“Open in my email app” only creates a draft in your own email program — nothing is sent until you press send there.")}</p>
         </form>
       </CardBody>
     </Card>

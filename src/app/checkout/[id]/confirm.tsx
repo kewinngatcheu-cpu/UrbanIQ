@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -8,6 +9,7 @@ import { initialState, type ActionState } from "@/lib/action-state";
 import { confirmCheckoutAction } from "./actions";
 
 export function ConfirmCheckout({ id, planName }: { id: string; planName: string }) {
+  const tr = useT();
   const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
     const res = await confirmCheckoutAction(prev, form);
     // Full navigation from the callback: the page may re-render (new session cookie) before an effect could run.
@@ -18,14 +20,15 @@ export function ConfirmCheckout({ id, planName }: { id: string; planName: string
     <form action={action} className="space-y-3">
       <input type="hidden" name="id" value={id} />
       <FormMessage state={state} />
-      <SubmitButton size="lg" className="w-full" pendingText="Confirming…">Confirm demo payment & activate {planName}</SubmitButton>
-      <Link href="/app" className="block text-center text-sm text-muted hover:text-ink">Not now — continue on Free</Link>
+      <SubmitButton size="lg" className="w-full" pendingText={tr("Confirming…")}>{tr("Confirm demo payment & activate {plan}", { plan: planName })}</SubmitButton>
+      <Link href="/app" className="block text-center text-sm text-muted hover:text-ink">{tr("Not now — continue on Free")}</Link>
     </form>
   );
 }
 
 /** Stripe: the plan is activated by the signed webhook, not by this redirect. Poll until it arrives. */
 export function AwaitPayment() {
+  const tr = useT();
   const router = useRouter();
   const [tries, setTries] = useState(0);
   useEffect(() => {
@@ -36,11 +39,11 @@ export function AwaitPayment() {
   return (
     <div className="text-center text-sm text-muted">
       {tries < 20 ? (
-        <p className="inline-flex items-center gap-2"><Loader2 className="size-4 animate-spin text-primary" /> Confirming your payment with Stripe…</p>
+        <p className="inline-flex items-center gap-2"><Loader2 className="size-4 animate-spin text-primary" /> {tr("Confirming your payment with Stripe…")}</p>
       ) : (
-        <p>This is taking longer than usual. Your plan activates automatically as soon as Stripe confirms the payment — you can safely continue.</p>
+        <p>{tr("This is taking longer than usual. Your plan activates automatically as soon as Stripe confirms the payment — you can safely continue.")}</p>
       )}
-      <Link href="/app" className="mt-4 block text-accent-strong hover:underline">Continue to ONE</Link>
+      <Link href="/app" className="mt-4 block text-accent-strong hover:underline">{tr("Continue to ONE")}</Link>
     </div>
   );
 }

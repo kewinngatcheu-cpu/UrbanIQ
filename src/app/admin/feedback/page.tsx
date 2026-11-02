@@ -1,3 +1,4 @@
+import { getT, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { MessageSquare } from "lucide-react";
 import { requireOwner } from "@/lib/auth";
@@ -8,32 +9,37 @@ import { EmptyState } from "@/components/ui/misc";
 import { setFeedbackStatus } from "../actions";
 import { cn, formatDateTime } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Feedback" };
+export async function generateMetadata(): Promise<Metadata> {
+  const tr = await getT();
+  return { title: tr("Feedback") };
+}
 
 export default async function AdminFeedback() {
+  const tr = await getT();
+  const locale = await getLocale();
   await requireOwner();
   const items = await systemDb().select("feedback", { order: { column: "created_at", ascending: false }, limit: 300 });
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Feedback & bug reports</h1>
-        <p className="text-sm text-muted">{items.filter((i) => i.status === "new").length} new · {items.length} total</p>
+        <h1 className="text-2xl font-semibold text-ink">{tr("Feedback & bug reports")}</h1>
+        <p className="text-sm text-muted">{tr("{new} new · {total} total", { new: items.filter((i) => i.status === "new").length, total: items.length })}</p>
       </div>
-      {items.length === 0 ? <EmptyState icon={<MessageSquare />} title="No feedback yet" /> : (
+      {items.length === 0 ? <EmptyState icon={<MessageSquare />} title={tr("No feedback yet")} /> : (
         <div className="space-y-3">
           {items.map((f) => (
             <Card key={f.id} className={cn(f.status === "resolved" && "opacity-60")}>
               <CardBody>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge tone={f.kind === "bug" ? "rose" : f.kind === "idea" ? "lavender" : "blue"}>{f.kind}</Badge>
-                  <Badge tone={f.status === "new" ? "peach" : f.status === "reviewed" ? "gray" : "mint"}>{f.status}</Badge>
-                  <span className="text-[12px] text-muted">{f.email ?? "deleted user"} · {formatDateTime(f.created_at)}</span>
+                  <Badge tone={f.kind === "bug" ? "rose" : f.kind === "idea" ? "lavender" : "blue"}>{tr(f.kind)}</Badge>
+                  <Badge tone={f.status === "new" ? "peach" : f.status === "reviewed" ? "gray" : "mint"}>{tr(f.status)}</Badge>
+                  <span className="text-[12px] text-muted">{f.email ?? tr("deleted user")} · {formatDateTime(f.created_at, locale)}</span>
                   <div className="ml-auto flex gap-1">
                     {(["new", "reviewed", "resolved"] as const).filter((s) => s !== f.status).map((s) => (
                       <form key={s} action={setFeedbackStatus}>
                         <input type="hidden" name="id" value={f.id} />
                         <input type="hidden" name="status" value={s} />
-                        <button className="rounded-lg px-2.5 py-1 text-[12px] text-muted ring-1 ring-line hover:text-ink">Mark {s}</button>
+                        <button className="rounded-lg px-2.5 py-1 text-[12px] text-muted ring-1 ring-line hover:text-ink">{tr("Mark as {status}", { status: tr(s) })}</button>
                       </form>
                     ))}
                   </div>

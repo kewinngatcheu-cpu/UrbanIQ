@@ -1,3 +1,4 @@
+import { getT, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Brain, Pin, Search, Upload, Plus, X } from "lucide-react";
@@ -14,7 +15,10 @@ import { KIND_ICON, KIND_LABEL } from "@/components/app/kind";
 import { cn, relativeTime } from "@/lib/utils";
 import type { Memory } from "@/lib/db/types";
 
-export const metadata: Metadata = { title: "Memory" };
+export async function generateMetadata(): Promise<Metadata> {
+  const tr = await getT();
+  return { title: tr("Memory") };
+}
 
 const FILTERS: { id: string; label: string }[] = [
   { id: "", label: "All" },
@@ -38,6 +42,8 @@ function href(sp: SP, patch: Partial<SP>) {
 }
 
 export default async function MemoryPage({ searchParams }: { searchParams: Promise<SP> }) {
+  const tr = await getT();
+  const locale = await getLocale();
   const sp = await searchParams;
   const user = await requireUser();
   const db = await userDb(user.id);
@@ -71,11 +77,11 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
   return (
     <div>
       <PageHeader
-        title="Memory"
-        description="Everything you want to remember — searchable, connected and always yours."
+        title={tr("Memory")}
+        description={tr("Everything you want to remember — searchable, connected and always yours.")}
         actions={
           <>
-            {flags.document_uploads && <UploadDialog trigger={<span className={buttonVariants({ variant: "secondary" })}><Upload /> Upload</span>} />}
+            {flags.document_uploads && <UploadDialog trigger={<span className={buttonVariants({ variant: "secondary" })}><Upload /> {tr("Upload")}</span>} />}
             <NewMemoryDialog categories={categories} triggerIcon={<Plus />} />
           </>
         }
@@ -87,9 +93,9 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
         <input
           name="q"
           defaultValue={sp.q}
-          placeholder="Search your memory — titles, notes and document text"
+          placeholder={tr("Search your memory — titles, notes and document text")}
           className="h-12 w-full rounded-2xl border border-line bg-white pl-11 pr-4 text-[15px] shadow-soft placeholder:text-muted/70 focus:border-primary focus:outline-none focus:ring-4 focus:ring-sky/70"
-          aria-label="Search memory"
+          aria-label={tr("Search memory")}
         />
       </form>
 
@@ -97,12 +103,12 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
         {FILTERS.map((f) => (
           <Link key={f.id} href={href(sp, { kind: f.id || undefined })}
             className={cn("rounded-full px-3 py-1.5 text-[13px] transition", (sp.kind ?? "") === f.id ? "bg-ink text-white" : "bg-fog text-muted hover:text-ink")}>
-            {f.label}
+            {tr(f.label)}
           </Link>
         ))}
         <span className="mx-1 h-5 w-px bg-line" />
         <Link href={href(sp, { sort: sp.sort === "oldest" ? undefined : "oldest" })} className="rounded-full px-3 py-1.5 text-[13px] text-muted hover:text-ink">
-          {sp.sort === "oldest" ? "Oldest first" : "Newest first"}
+          {sp.sort === "oldest" ? tr("Oldest first") : tr("Newest first")}
         </Link>
       </div>
       {(tags.length > 0 || categories.length > 0) && (
@@ -124,17 +130,17 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
 
       {(q || sp.tag || sp.cat) && (
         <p className="mb-4 flex items-center gap-2 text-sm text-muted">
-          {items.length} {items.length === 1 ? "result" : "results"}
-          <Link href="/app/memory" className="inline-flex items-center gap-1 text-accent-strong hover:underline"><X className="size-3" /> Clear</Link>
+          {tr(items.length === 1 ? "{n} result" : "{n} results", { n: items.length })}
+          <Link href="/app/memory" className="inline-flex items-center gap-1 text-accent-strong hover:underline"><X className="size-3" /> {tr("Clear")}</Link>
         </p>
       )}
 
       {items.length === 0 ? (
         <EmptyState
           icon={<Brain />}
-          title={all.length ? "Nothing found" : "Start your memory"}
-          description={all.length ? "Try another search term or filter." : "Save notes, ideas and documents. ONE keeps them safe and finds them when you need them."}
-          action={!all.length ? <NewMemoryDialog categories={categories} triggerLabel="Save your first memory" /> : undefined}
+          title={all.length ? tr("Nothing found") : tr("Start your memory")}
+          description={all.length ? tr("Try another search term or filter.") : tr("Save notes, ideas and documents. ONE keeps them safe and finds them when you need them.")}
+          action={!all.length ? <NewMemoryDialog categories={categories} triggerLabel={tr("Save your first memory")} /> : undefined}
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -144,15 +150,15 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
             return (
               <Link key={m.id} href={`/app/memory/${m.id}`} className="group flex flex-col rounded-2xl border border-line bg-white p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:border-cloud hover:shadow-lift">
                 <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-muted"><I className="size-3.5 text-accent" /> {KIND_LABEL[m.kind]}</span>
-                  {m.pinned && <Pin className="size-3.5 text-accent" aria-label="Pinned" />}
+                  <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-muted"><I className="size-3.5 text-accent" /> {tr(KIND_LABEL[m.kind])}</span>
+                  {m.pinned && <Pin className="size-3.5 text-accent" aria-label={tr("Pinned")} />}
                 </div>
                 <h3 className="mt-3 line-clamp-2 text-[15px] font-semibold text-ink">{m.title}</h3>
                 <p className="mt-1.5 line-clamp-3 flex-1 text-[13px] leading-relaxed text-muted">{m.summary ?? (m.content || (m.document_id ? "Document" : ""))}</p>
                 <div className="mt-4 flex flex-wrap items-center gap-1.5">
                   {cat && <Badge tone="outline"><span className="size-1.5 rounded-full" style={{ background: cat.color }} /> {cat.name}</Badge>}
                   {m.tags.slice(0, 3).map((t) => <Badge key={t}>#{t}</Badge>)}
-                  <span className="ml-auto text-[11.5px] text-muted">{relativeTime(m.created_at)}</span>
+                  <span className="ml-auto text-[11.5px] text-muted">{relativeTime(m.created_at, undefined, locale)}</span>
                 </div>
               </Link>
             );

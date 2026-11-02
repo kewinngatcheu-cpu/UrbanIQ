@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { Plus, Target, FolderKanban } from "lucide-react";
 import { Input, Field, Textarea } from "@/components/ui/input";
@@ -12,9 +13,10 @@ import { cn } from "@/lib/utils";
 const COLORS = ["#6aafe8", "#5bbf94", "#8b7fe0", "#e8a26a", "#e88a9a", "#e8c46a", "#438ed4", "#7cc7a4"];
 
 function ColorPicker({ name }: { name: string }) {
+  const tr = useT();
   const [c, setC] = useState(COLORS[0]);
   return (
-    <div className="flex gap-2" role="radiogroup" aria-label="Color">
+    <div className="flex gap-2" role="radiogroup" aria-label={tr("Color")}>
       <input type="hidden" name={name} value={c} />
       {COLORS.map((x) => (
         <button key={x} type="button" role="radio" aria-checked={c === x} aria-label={x} onClick={() => setC(x)}
@@ -25,38 +27,41 @@ function ColorPicker({ name }: { name: string }) {
 }
 
 export function ReminderForm({ defaultDate }: { defaultDate: string }) {
+  const tr = useT();
   const [state, action] = useActionState(saveReminder, initialState);
   const ref = useRef<HTMLFormElement>(null);
   useEffect(() => { if (state.ok) ref.current?.reset(); }, [state.ts, state.ok]);
   return (
     <form ref={ref} action={action} className="space-y-3">
       <input type="hidden" name="tz_offset" value={String(new Date().getTimezoneOffset())} />
-      <Field label="What?" htmlFor="r-title"><Input id="r-title" name="title" required maxLength={200} placeholder="e.g. Call grandma" /></Field>
+      <Field label={tr("What?")} htmlFor="r-title"><Input id="r-title" name="title" required maxLength={200} placeholder={tr("e.g. Call grandma")} /></Field>
       <div className="grid grid-cols-2 gap-2">
-        <Field label="Date" htmlFor="r-date"><Input id="r-date" type="date" name="date" defaultValue={defaultDate} required /></Field>
-        <Field label="Time" htmlFor="r-time"><Input id="r-time" type="time" name="time" defaultValue="09:00" /></Field>
+        <Field label={tr("Date")} htmlFor="r-date"><Input id="r-date" type="date" name="date" defaultValue={defaultDate} required /></Field>
+        <Field label={tr("Time")} htmlFor="r-time"><Input id="r-time" type="time" name="time" defaultValue="09:00" /></Field>
       </div>
       <FormMessage state={state} />
-      <SubmitButton className="w-full" pendingText="Saving…"><Plus /> Add reminder</SubmitButton>
+      <SubmitButton className="w-full" pendingText={tr("Saving…")}><Plus /> {tr("Add reminder")}</SubmitButton>
     </form>
   );
 }
 
 export function CategoryForm() {
+  const tr = useT();
   const [state, action] = useActionState(saveCategory, initialState);
   const ref = useRef<HTMLFormElement>(null);
   useEffect(() => { if (state.ok) ref.current?.reset(); }, [state.ts, state.ok]);
   return (
     <form ref={ref} action={action} className="space-y-3">
-      <Field label="Name" htmlFor="c-name"><Input id="c-name" name="name" required maxLength={40} placeholder="e.g. Finance" /></Field>
-      <Field label="Color"><ColorPicker name="color" /></Field>
+      <Field label={tr("Name")} htmlFor="c-name"><Input id="c-name" name="name" required maxLength={40} placeholder={tr("e.g. Finance")} /></Field>
+      <Field label={tr("Color")}><ColorPicker name="color" /></Field>
       <FormMessage state={state} />
-      <SubmitButton className="w-full" pendingText="Saving…"><Plus /> Create category</SubmitButton>
+      <SubmitButton className="w-full" pendingText={tr("Saving…")}><Plus /> {tr("Create category")}</SubmitButton>
     </form>
   );
 }
 
 export function ProjectDialog({ kind }: { kind: "project" | "goal" }) {
+  const tr = useT();
   const [open, setOpen] = useState(false);
   const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
     const res = await saveProject(prev, form);
@@ -66,17 +71,17 @@ export function ProjectDialog({ kind }: { kind: "project" | "goal" }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={kind === "goal" ? "secondary" : "primary"}>{kind === "goal" ? <Target /> : <FolderKanban />} New {kind}</Button>
+        <Button variant={kind === "goal" ? "secondary" : "primary"}>{kind === "goal" ? <Target /> : <FolderKanban />} {kind === "goal" ? tr("New goal") : tr("New project")}</Button>
       </DialogTrigger>
-      <DialogContent title={kind === "goal" ? "New personal goal" : "New project"} description={kind === "goal" ? "Something you want to achieve — with an optional target date." : "Group related tasks together."}>
+      <DialogContent title={kind === "goal" ? tr("New personal goal") : tr("New project")} description={kind === "goal" ? tr("Something you want to achieve — with an optional target date.") : tr("Group related tasks together.")}>
         <form action={action} className="space-y-4">
           <input type="hidden" name="kind" value={kind} />
-          <Field label="Name" htmlFor="p-name"><Input id="p-name" name="name" required maxLength={120} placeholder={kind === "goal" ? "e.g. Run a half marathon" : "e.g. Move to Hamburg"} /></Field>
-          <Field label="Description" htmlFor="p-desc"><Textarea id="p-desc" name="description" className="min-h-20" /></Field>
-          <Field label="Target date" htmlFor="p-date"><Input id="p-date" type="date" name="target_date" /></Field>
-          <Field label="Color"><ColorPicker name="color" /></Field>
+          <Field label={tr("Name")} htmlFor="p-name"><Input id="p-name" name="name" required maxLength={120} placeholder={kind === "goal" ? "e.g. Run a half marathon" : "e.g. Move to Hamburg"} /></Field>
+          <Field label={tr("Description")} htmlFor="p-desc"><Textarea id="p-desc" name="description" className="min-h-20" /></Field>
+          <Field label={tr("Target date")} htmlFor="p-date"><Input id="p-date" type="date" name="target_date" /></Field>
+          <Field label={tr("Color")}><ColorPicker name="color" /></Field>
           <FormMessage state={state} />
-          <div className="flex justify-end"><SubmitButton pendingText="Saving…">Create</SubmitButton></div>
+          <div className="flex justify-end"><SubmitButton pendingText={tr("Saving…")}>{tr("Create")}</SubmitButton></div>
         </form>
       </DialogContent>
     </Dialog>

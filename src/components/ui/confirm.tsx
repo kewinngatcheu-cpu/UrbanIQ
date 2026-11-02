@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import * as React from "react";
 import { useActionState } from "react";
 import { Dialog, DialogContent, DialogTrigger, DialogClose } from "./dialog";
@@ -35,6 +36,7 @@ export function ConfirmAction({
   children?: React.ReactNode;
   onDone?: (s: ActionState) => void;
 }) {
+  const tr = useT();
   const [open, setOpen] = React.useState(false);
   const [state, formAction] = useActionState(async (prev: ActionState, form: FormData) => {
     const res = await action(prev, form);
@@ -59,7 +61,7 @@ export function ConfirmAction({
           <FormMessage state={state} />
           <div className="flex justify-end gap-2 pt-2">
             <DialogClose asChild>
-              <Button variant="ghost" type="button">Cancel</Button>
+              <Button variant="ghost" type="button">{tr("Cancel")}</Button>
             </DialogClose>
             <SubmitButton variant={danger ? "danger" : "primary"}>{confirmLabel}</SubmitButton>
           </div>

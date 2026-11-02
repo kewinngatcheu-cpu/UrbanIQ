@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
+import { getT } from "@/lib/i18n/server";
 import { LegalPage } from "./legal";
-export const metadata = { title: "Terms" };
-export default function Terms() {
+export async function generateMetadata(): Promise<Metadata> {
+  const tr = await getT();
+  return { title: tr("Terms") };
+}
+export default async function Terms() {
+  const tr = await getT();
   return (
-    <LegalPage title="Terms of Service" sections={[
+    <LegalPage title={tr("Terms of Service")} sections={[
       ["Draft notice", "These terms are a placeholder for the product prototype and must be replaced by reviewed terms before public launch."],
       ["The service", "ONE helps you store information, organise your life and prepare actions. ONE never sends messages, signs contracts or makes bookings on your behalf without your explicit confirmation."],
       ["AI output", "AI suggestions can be incomplete or wrong. Always review drafts and important information before acting on them."],

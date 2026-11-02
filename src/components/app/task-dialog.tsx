@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import * as React from "react";
 import { useActionState, useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -29,6 +30,7 @@ export function TaskDialog({
   defaultKind?: Task["kind"];
   defaultDate?: string;
 }) {
+  const tr = useT();
   const [open, setOpen] = useState(false);
   const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
     const res = await saveTask(prev, form);
@@ -43,61 +45,61 @@ export function TaskDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><Button variant={triggerVariant} size={triggerSize}>{trigger}</Button></DialogTrigger>
-      <DialogContent title={task ? "Edit item" : "New item"} description="Tasks, appointments and deadlines all live in Life.">
+      <DialogContent title={task ? tr("Edit item") : tr("New item")} description={tr("Tasks, appointments and deadlines all live in Life.")}>
         <form action={action} className="space-y-4">
           {task && <input type="hidden" name="id" value={task.id} />}
           <input type="hidden" name="tz_offset" value={String(new Date().getTimezoneOffset())} />
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Type" htmlFor="t-kind">
+            <Field label={tr("Type")} htmlFor="t-kind">
               <Select id="t-kind" name="kind" defaultValue={task?.kind ?? defaultKind}>
-                <option value="task">Task</option>
-                <option value="appointment">Appointment</option>
-                <option value="deadline">Deadline</option>
+                <option value="task">{tr("Task")}</option>
+                <option value="appointment">{tr("Appointment")}</option>
+                <option value="deadline">{tr("Deadline")}</option>
               </Select>
             </Field>
-            <Field label="Priority" htmlFor="t-prio">
+            <Field label={tr("Priority")} htmlFor="t-prio">
               <Select id="t-prio" name="priority" defaultValue={task?.priority ?? "normal"}>
-                <option value="low">Low</option>
-                <option value="normal">Normal</option>
-                <option value="high">High</option>
+                <option value="low">{tr("Low")}</option>
+                <option value="normal">{tr("Normal")}</option>
+                <option value="high">{tr("High")}</option>
               </Select>
             </Field>
           </div>
-          <Field label="Title" htmlFor="t-title"><Input id="t-title" name="title" required defaultValue={task?.title} maxLength={200} autoFocus /></Field>
+          <Field label={tr("Title")} htmlFor="t-title"><Input id="t-title" name="title" required defaultValue={task?.title} maxLength={200} autoFocus /></Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Date" htmlFor="t-date"><Input id="t-date" type="date" name="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
-            <Field label="Time" htmlFor="t-time"><Input id="t-time" type="time" name="time" value={time} onChange={(e) => setTime(e.target.value)} /></Field>
+            <Field label={tr("Date")} htmlFor="t-date"><Input id="t-date" type="date" name="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
+            <Field label={tr("Time")} htmlFor="t-time"><Input id="t-time" type="time" name="time" value={time} onChange={(e) => setTime(e.target.value)} /></Field>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Project / goal" htmlFor="t-proj">
+            <Field label={tr("Project / goal")} htmlFor="t-proj">
               <Select id="t-proj" name="project_id" defaultValue={task?.project_id ?? ""}>
-                <option value="">None</option>
+                <option value="">{tr("None")}</option>
                 {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </Select>
             </Field>
-            <Field label="Category" htmlFor="t-cat">
+            <Field label={tr("Category")} htmlFor="t-cat">
               <Select id="t-cat" name="category_id" defaultValue={task?.category_id ?? ""}>
-                <option value="">None</option>
+                <option value="">{tr("None")}</option>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </Select>
             </Field>
           </div>
-          <Field label="Repeat" htmlFor="t-rec" hint={canRecur ? undefined : "Recurring tasks are part of Premium."}>
+          <Field label={tr("Repeat")} htmlFor="t-rec" hint={canRecur ? undefined : tr("Recurring tasks are part of Premium.")}>
             <Select id="t-rec" name="recurrence" defaultValue={task?.recurrence ?? "none"} disabled={!canRecur}>
-              <option value="none">Does not repeat</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
+              <option value="none">{tr("Does not repeat")}</option>
+              <option value="daily">{tr("Daily")}</option>
+              <option value="weekly">{tr("Weekly")}</option>
+              <option value="monthly">{tr("Monthly")}</option>
             </Select>
           </Field>
-          <Field label="Notes" htmlFor="t-notes"><Textarea id="t-notes" name="notes" className="min-h-20" defaultValue={task?.notes ?? ""} /></Field>
+          <Field label={tr("Notes")} htmlFor="t-notes"><Textarea id="t-notes" name="notes" className="min-h-20" defaultValue={task?.notes ?? ""} /></Field>
           {!task && (
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input type="checkbox" name="remind" className="size-4 accent-[#438ed4]" /> Remind me 1 hour before
+              <input type="checkbox" name="remind" className="size-4 accent-[#438ed4]" /> {tr("Remind me 1 hour before")}
             </label>
           )}
           <FormMessage state={state} />
-          <div className="flex justify-end"><SubmitButton pendingText="Saving…">{task ? "Save changes" : "Add"}</SubmitButton></div>
+          <div className="flex justify-end"><SubmitButton pendingText={tr("Saving…")}>{task ? tr("Save changes") : tr("Add")}</SubmitButton></div>
         </form>
       </DialogContent>
     </Dialog>

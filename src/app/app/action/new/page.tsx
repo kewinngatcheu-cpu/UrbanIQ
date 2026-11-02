@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -7,9 +8,13 @@ import { env } from "@/lib/config/env";
 import { PageHeader } from "@/components/ui/misc";
 import { NewActionForm } from "./form";
 
-export const metadata: Metadata = { title: "New action" };
+export async function generateMetadata(): Promise<Metadata> {
+  const tr = await getT();
+  return { title: tr("New action") };
+}
 
 export default async function NewActionPage({ searchParams }: { searchParams: Promise<{ type?: string; memory?: string }> }) {
+  const tr = await getT();
   const sp = await searchParams;
   const user = await requireUser();
   const db = await userDb(user.id);
@@ -17,8 +22,8 @@ export default async function NewActionPage({ searchParams }: { searchParams: Pr
   const preset = sp.memory ? memories.find((m) => m.id === sp.memory) : undefined;
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/app/action" className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft className="size-4" /> Action</Link>
-      <PageHeader title="What do you need to get done?" description="ONE prepares the steps and drafts. Nothing is sent or signed without you." />
+      <Link href="/app/action" className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft className="size-4" /> {tr("Action")}</Link>
+      <PageHeader title={tr("What do you need to get done?")} description={tr("ONE prepares the steps and drafts. Nothing is sent or signed without you.")} />
       <NewActionForm
         initialType={sp.type}
         memories={memories.map((m) => ({ id: m.id, title: m.title }))}

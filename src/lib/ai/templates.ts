@@ -18,6 +18,8 @@ export function actionLabel(type: ActionType) {
 interface Template {
   steps: string[];
   draft: (title: string, details: string) => string | null;
+  /** German version of the draft (letters must read naturally, not word-by-word). */
+  draftDe?: (title: string, details: string) => string | null;
   missing: (details: string) => string[];
 }
 
@@ -34,6 +36,8 @@ export const TEMPLATES: Record<ActionType, Template> = {
     ],
     draft: (title, d) =>
       `Subject: Cancellation of my contract\n\nDear Sir or Madam,\n\nI hereby cancel my contract${/\d{4,}/.test(d) ? ` (customer/contract no. ${d.match(/\d{4,}/)![0]})` : " (customer/contract no. [NUMBER])"} at the earliest possible date.\n\nPlease send me a written confirmation of the cancellation including the exact end date.\n\nI also withdraw any consent to contact me for advertising purposes.\n\nKind regards,\n[YOUR NAME]\n[YOUR ADDRESS]\n\n— Context: ${title}`,
+    draftDe: (title, d) =>
+      `Betreff: Kündigung meines Vertrags\n\nSehr geehrte Damen und Herren,\n\nhiermit kündige ich meinen Vertrag${/\d{4,}/.test(d) ? ` (Kunden-/Vertragsnummer ${d.match(/\d{4,}/)![0]})` : " (Kunden-/Vertragsnummer [NUMMER])"} fristgerecht zum nächstmöglichen Zeitpunkt.\n\nBitte senden Sie mir eine schriftliche Bestätigung der Kündigung unter Angabe des Beendigungsdatums.\n\nEiner weiteren Nutzung meiner Daten für Werbezwecke widerspreche ich.\n\nMit freundlichen Grüßen\n[DEIN NAME]\n[DEINE ADRESSE]\n\n— Kontext: ${title}`,
     missing: (d) => needs(d, [[/\d{4,}/, "Customer or contract number"], [/(gmbh|ag|inc|ltd|provider|anbieter|[A-Z][a-z]+)/, "Provider name"]]),
   },
   complaint: {
@@ -46,6 +50,8 @@ export const TEMPLATES: Record<ActionType, Template> = {
     ],
     draft: (title, d) =>
       `Subject: Complaint — ${title}\n\nDear Sir or Madam,\n\nI am writing to complain about the following: ${d || "[DESCRIBE THE PROBLEM]"}.\n\nOrder/reference number: [NUMBER]\nDate of purchase: [DATE]\n\nI kindly ask you to [repair / replace / refund] this within 14 days.\n\nKind regards,\n[YOUR NAME]`,
+    draftDe: (title, d) =>
+      `Betreff: Reklamation — ${title}\n\nSehr geehrte Damen und Herren,\n\nich möchte Folgendes reklamieren: ${d || "[PROBLEM BESCHREIBEN]"}.\n\nBestell-/Referenznummer: [NUMMER]\nKaufdatum: [DATUM]\n\nBitte [reparieren / ersetzen / erstatten] Sie dies innerhalb von 14 Tagen.\n\nMit freundlichen Grüßen\n[DEIN NAME]`,
     missing: (d) => needs(d, [[/\d{3,}/, "Order or reference number"], [/(refund|replace|repair|erstatt|ersatz|reparatur)/i, "What outcome you want"]]),
   },
   understand_invoice: {
@@ -74,6 +80,7 @@ export const TEMPLATES: Record<ActionType, Template> = {
   email: {
     steps: ["Clarify the goal of the email", "Review the draft below", "Add recipient and personal details", "Send it from your own email account"],
     draft: (title, d) => `Subject: ${title}\n\nHello [NAME],\n\n${d || "[YOUR MESSAGE]"}\n\nBest regards,\n[YOUR NAME]`,
+    draftDe: (title, d) => `Betreff: ${title}\n\nHallo [NAME],\n\n${d || "[DEINE NACHRICHT]"}\n\nViele Grüße\n[DEIN NAME]`,
     missing: (d) => needs(d, [[/(@|mr|mrs|herr|frau|team|hello|hallo)/i, "Recipient"]]),
   },
   appointment: {

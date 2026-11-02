@@ -15,25 +15,28 @@ export function sourceHref(s: Pick<Source, "type" | "id">): string {
   }
 }
 
-export function formatDate(iso: string | null | undefined, opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric" }) {
+type Lang = "en" | "de";
+const tag = (l: Lang) => (l === "de" ? "de-DE" : "en-GB");
+
+export function formatDate(iso: string | null | undefined, opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric" }, lang: Lang = "en") {
   if (!iso) return "";
-  return new Date(iso).toLocaleDateString("en-GB", opts);
+  return new Date(iso).toLocaleDateString(tag(lang), opts);
 }
 
-export function formatDateTime(iso: string | null | undefined) {
+export function formatDateTime(iso: string | null | undefined, lang: Lang = "en") {
   if (!iso) return "";
-  return new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleString(tag(lang), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
-export function relativeTime(iso: string, now = Date.now()) {
+export function relativeTime(iso: string, now: number = Date.now(), lang: Lang = "en") {
   const diff = (Date.parse(iso) - now) / 1000;
   const abs = Math.abs(diff);
-  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-  if (abs < 60) return "just now";
+  const rtf = new Intl.RelativeTimeFormat(lang, { numeric: "auto" });
+  if (abs < 60) return lang === "de" ? "gerade eben" : "just now";
   if (abs < 3600) return rtf.format(Math.round(diff / 60), "minute");
   if (abs < 86400) return rtf.format(Math.round(diff / 3600), "hour");
   if (abs < 86400 * 30) return rtf.format(Math.round(diff / 86400), "day");
-  return formatDate(iso);
+  return formatDate(iso, undefined, lang);
 }
 
 export function formatBytes(n: number) {

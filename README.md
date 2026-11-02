@@ -155,6 +155,23 @@ See [`.env.example`](.env.example). Summary:
 npm run test:db      # applies migrations to a throwaway DB with Supabase stubs and runs the RLS tests
 ```
 
+## Languages (German / English)
+
+Every page has a **DE / EN switch** (landing header, sign-in pages, onboarding, sidebar, admin header). The choice is stored in the `one_lang` cookie; without a choice ONE follows the browser language (German browsers get German).
+
+- Translations live in [`src/lib/i18n/de.ts`](src/lib/i18n/de.ts). The **English text is the key**, so components simply call `tr("Some English text")` (server: `await getT()`, client: `useT()`). Missing translations fall back to English — nothing breaks.
+- Variables: `tr("Upgrade to {plan}", { plan })`. Server-action messages are translated centrally in `lib/safe-action.ts`; dynamic service messages via patterns in `lib/i18n/index.ts`.
+- Dates use the viewer's language and timezone. Emails, demo answers, starter content and action-letter templates are localised; real AI answers follow the language of the question.
+- Adding a language: add the locale to `LOCALES`, create a dictionary file next to `de.ts`, and extend `translate()`.
+
+## Roles: owner (admin) vs. users
+
+| | Owner (you) | Everyone else |
+| --- | --- | --- |
+| After login | lands in **/admin** (admin view) | lands in **/app** (personal ONE) |
+| Admin area | full access; “My personal ONE” link to use the app yourself | **does not exist for them**: `/admin` answers with a plain 404 (no redirect that would reveal it), no admin link anywhere |
+| Private content of others | only via a user-granted, time-limited, logged support grant | — |
+
 ## Admin / owner setup
 
 **Local backend**

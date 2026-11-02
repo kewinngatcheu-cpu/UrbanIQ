@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -13,15 +14,16 @@ const ITEMS = [
 ];
 
 export function AdminNav() {
+  const tr = useT();
   const path = usePathname();
   return (
-    <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-5 pb-2" aria-label="Admin">
+    <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-5 pb-2" aria-label={tr("Admin")}>
       {ITEMS.map((i) => {
         const active = i.href === "/admin" ? path === "/admin" : path.startsWith(i.href);
         return (
           <Link key={i.href} href={i.href} aria-current={active ? "page" : undefined}
             className={cn("shrink-0 rounded-lg px-3 py-1.5 text-[13px] transition", active ? "bg-mist font-medium text-accent-strong" : "text-muted hover:bg-fog hover:text-ink")}>
-            {i.label}
+            {tr(i.label)}
           </Link>
         );
       })}

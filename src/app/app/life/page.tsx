@@ -1,3 +1,4 @@
+import { getT, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bell, CalendarDays, ChevronLeft, ChevronRight, FolderKanban, Plus, Tags, Target, Pencil, Archive, ArchiveRestore } from "lucide-react";
@@ -17,7 +18,10 @@ import { ReminderForm, ProjectDialog, CategoryForm } from "./client";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/lib/db/types";
 
-export const metadata: Metadata = { title: "Life" };
+export async function generateMetadata(): Promise<Metadata> {
+  const tr = await getT();
+  return { title: tr("Life") };
+}
 
 const VIEWS = [
   { id: "today", label: "Today", icon: CalendarDays },
@@ -31,6 +35,8 @@ const VIEWS = [
 type SP = { view?: string; week?: string; filter?: string; project?: string };
 
 export default async function LifePage({ searchParams }: { searchParams: Promise<SP> }) {
+  const tr = await getT();
+  const locale = await getLocale();
   const sp = await searchParams;
   const view = VIEWS.some((v) => v.id === sp.view) ? sp.view! : "today";
   const user = await requireUser();
@@ -50,20 +56,20 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
   const editBtns = (t: Task) => (
     <div className="flex shrink-0 items-center opacity-0 transition group-hover:opacity-100 focus-within:opacity-100">
       <TaskDialog task={t} {...dialogProps} trigger={<Pencil />} triggerVariant="ghost" triggerSize="icon" />
-      <ConfirmAction action={deleteTask} fields={{ id: t.id }} trigger="Delete" triggerVariant="ghost" danger title="Delete this item?" confirmLabel="Delete" />
+      <ConfirmAction action={deleteTask} fields={{ id: t.id }} trigger={tr("Delete")} triggerVariant="ghost" danger title={tr("Delete this item?")} confirmLabel={tr("Delete")} />
     </div>
   );
 
   return (
     <div>
-      <PageHeader title="Life" description="Your tasks, appointments, deadlines, goals and reminders — calmly organised."
-        actions={<TaskDialog {...dialogProps} trigger={<><Plus /> New item</>} defaultDate={view === "today" ? today : undefined} />} />
+      <PageHeader title={tr("Life")} description={tr("Your tasks, appointments, deadlines, goals and reminders — calmly organised.")}
+        actions={<TaskDialog {...dialogProps} trigger={<><Plus /> {tr("New item")}</>} defaultDate={view === "today" ? today : undefined} />} />
 
-      <nav className="mb-6 flex gap-1 overflow-x-auto rounded-2xl bg-fog p-1" aria-label="Life views">
+      <nav className="mb-6 flex gap-1 overflow-x-auto rounded-2xl bg-fog p-1" aria-label={tr("Life views")}>
         {VIEWS.map((v) => (
           <Link key={v.id} href={`/app/life?view=${v.id}`} aria-current={view === v.id ? "page" : undefined}
             className={cn("flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] transition", view === v.id ? "bg-white font-medium text-ink shadow-soft" : "text-muted hover:text-ink")}>
-            <v.icon className="size-3.5" /> {v.label}
+            <v.icon className="size-3.5" /> {tr(v.label)}
           </Link>
         ))}
       </nav>
@@ -76,24 +82,24 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
         return (
           <div className="grid gap-6 lg:grid-cols-3">
             <Card className="lg:col-span-2">
-              <CardHeader title={fmt(new Date(), tz, { weekday: "long", day: "numeric", month: "long" })} description={due.length ? `${doneToday} of ${due.length} done` : "Nothing scheduled"} />
+              <CardHeader title={fmt(new Date(), tz, { weekday: "long", day: "numeric", month: "long" }, locale)} description={due.length ? tr("{done} of {total} done", { done: doneToday, total: due.length }) : tr("Nothing scheduled")} />
               <CardBody className="pt-3">
                 {due.length > 0 && <Progress value={(doneToday / due.length) * 100} className="mb-3" />}
                 {overdue.length > 0 && (
                   <div className="mb-4">
-                    <p className="px-2 pb-1 text-[11.5px] font-semibold uppercase tracking-wider text-rose-ink">Overdue</p>
+                    <p className="px-2 pb-1 text-[11.5px] font-semibold uppercase tracking-wider text-rose-ink">{tr("Overdue")}</p>
                     {overdue.map((t) => <TaskRow key={t.id} task={t} extra={editBtns(t)} />)}
                   </div>
                 )}
                 {due.length === 0 && overdue.length === 0 ? (
-                  <EmptyState icon={<CalendarDays />} title="Nothing scheduled today" description="Enjoy the space — or plan something below." />
+                  <EmptyState icon={<CalendarDays />} title={tr("Nothing scheduled today")} description={tr("Enjoy the space — or plan something below.")} />
                 ) : due.map((t) => <TaskRow key={t.id} task={t} extra={editBtns(t)} />)}
               </CardBody>
             </Card>
             <Card>
-              <CardHeader title="Anytime" description="Open tasks without a date" />
+              <CardHeader title={tr("Anytime")} description={tr("Open tasks without a date")} />
               <CardBody className="pt-3">
-                {anytime.length === 0 ? <p className="text-sm text-muted">All clear.</p> : anytime.slice(0, 12).map((t) => <TaskRow key={t.id} task={t} compact extra={editBtns(t)} />)}
+                {anytime.length === 0 ? <p className="text-sm text-muted">{tr("All clear.")}</p> : anytime.slice(0, 12).map((t) => <TaskRow key={t.id} task={t} compact extra={editBtns(t)} />)}
               </CardBody>
             </Card>
           </div>
@@ -109,12 +115,12 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
           <div>
             <div className="mb-4 flex items-center justify-between">
               <p className="text-[15px] font-semibold text-ink">
-                {fmt(`${days[0]}T12:00:00Z`, "UTC", { day: "numeric", month: "short" })} – {fmt(`${days[6]}T12:00:00Z`, "UTC", { day: "numeric", month: "short", year: "numeric" })}
+                {fmt(`${days[0]}T12:00:00Z`, "UTC", { day: "numeric", month: "short" }, locale)} – {fmt(`${days[6]}T12:00:00Z`, "UTC", { day: "numeric", month: "short", year: "numeric" }, locale)}
               </p>
               <div className="flex items-center gap-1">
-                <Link href={`/app/life?view=week&week=${offset - 1}`} className="rounded-lg p-2 text-muted hover:bg-fog hover:text-ink" aria-label="Previous week"><ChevronLeft className="size-4" /></Link>
-                {offset !== 0 && <Link href="/app/life?view=week" className="rounded-lg px-3 py-1.5 text-[13px] text-accent-strong hover:bg-mist">This week</Link>}
-                <Link href={`/app/life?view=week&week=${offset + 1}`} className="rounded-lg p-2 text-muted hover:bg-fog hover:text-ink" aria-label="Next week"><ChevronRight className="size-4" /></Link>
+                <Link href={`/app/life?view=week&week=${offset - 1}`} className="rounded-lg p-2 text-muted hover:bg-fog hover:text-ink" aria-label={tr("Previous week")}><ChevronLeft className="size-4" /></Link>
+                {offset !== 0 && <Link href="/app/life?view=week" className="rounded-lg px-3 py-1.5 text-[13px] text-accent-strong hover:bg-mist">{tr("This week")}</Link>}
+                <Link href={`/app/life?view=week&week=${offset + 1}`} className="rounded-lg p-2 text-muted hover:bg-fog hover:text-ink" aria-label={tr("Next week")}><ChevronRight className="size-4" /></Link>
               </div>
             </div>
             <div className="grid gap-3 md:grid-cols-7">
@@ -125,13 +131,13 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
                 return (
                   <div key={d} className={cn("min-h-40 rounded-2xl border p-3", isToday ? "border-cloud bg-mist/50" : "border-line bg-white")}>
                     <div className="mb-2 flex items-baseline justify-between">
-                      <span className={cn("text-[12px] font-semibold uppercase tracking-wider", isToday ? "text-accent-strong" : "text-muted")}>{fmt(`${d}T12:00:00Z`, "UTC", { weekday: "short" })}</span>
+                      <span className={cn("text-[12px] font-semibold uppercase tracking-wider", isToday ? "text-accent-strong" : "text-muted")}>{fmt(`${d}T12:00:00Z`, "UTC", { weekday: "short" }, locale)}</span>
                       <span className={cn("text-[15px] font-semibold", isToday ? "flex size-7 items-center justify-center rounded-full bg-accent text-white" : "text-ink")}>{Number(d.slice(8))}</span>
                     </div>
                     <div className="space-y-1">
                       {items.map((t) => (
                         <div key={t.id} className={cn("rounded-lg px-2 py-1.5 text-[12.5px] leading-snug", t.status === "done" ? "bg-fog text-muted line-through" : t.kind === "deadline" ? "bg-peach text-peach-ink" : t.kind === "appointment" ? "bg-lavender text-lavender-ink" : "bg-snow text-ink")}>
-                          {t.kind === "appointment" && <span className="font-semibold">{fmt(t.due_at!, tz, { hour: "2-digit", minute: "2-digit" })} </span>}
+                          {t.kind === "appointment" && <span className="font-semibold">{fmt(t.due_at!, tz, { hour: "2-digit", minute: "2-digit" }, locale)} </span>}
                           {t.title}
                         </div>
                       ))}
@@ -145,9 +151,9 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
               })}
             </div>
             <p className="mt-4 flex flex-wrap gap-3 text-[12px] text-muted">
-              <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded bg-snow ring-1 ring-line" /> Task</span>
-              <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded bg-lavender" /> Appointment</span>
-              <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded bg-peach" /> Deadline</span>
+              <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded bg-snow ring-1 ring-line" /> {tr("Task")}</span>
+              <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded bg-lavender" /> {tr("Appointment")}</span>
+              <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded bg-peach" /> {tr("Deadline")}</span>
             </p>
           </div>
         );
@@ -160,16 +166,16 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
         list = [...list.filter((t) => t.due_at), ...list.filter((t) => !t.due_at)];
         return (
           <Card>
-            <CardHeader title="All tasks" description={`${list.length} ${list.length === 1 ? "item" : "items"}`}
+            <CardHeader title={tr("All tasks")} description={tr(list.length === 1 ? "{n} item" : "{n} items", { n: list.length })}
               action={
                 <div className="flex gap-1 rounded-xl bg-fog p-1 text-[12.5px]">
                   {["open", "done", "all"].map((f) => (
-                    <Link key={f} href={`/app/life?view=all&filter=${f}${sp.project ? `&project=${sp.project}` : ""}`} className={cn("rounded-lg px-2.5 py-1 capitalize", filter === f ? "bg-white text-ink shadow-soft" : "text-muted")}>{f}</Link>
+                    <Link key={f} href={`/app/life?view=all&filter=${f}${sp.project ? `&project=${sp.project}` : ""}`} className={cn("rounded-lg px-2.5 py-1 capitalize", filter === f ? "bg-white text-ink shadow-soft" : "text-muted")}>{tr(f)}</Link>
                   ))}
                 </div>
               } />
             <CardBody className="pt-3">
-              {list.length === 0 ? <EmptyState icon={<FolderKanban />} title="No tasks here" description="Create one with “New item”." /> : (
+              {list.length === 0 ? <EmptyState icon={<FolderKanban />} title={tr("No tasks here")} description={tr("Create one with “New item”.")} /> : (
                 <div className="divide-y divide-line/60">
                   {list.map((t) => {
                     const p = projects.find((x) => x.id === t.project_id);
@@ -198,7 +204,7 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
             <ProjectDialog kind="project" />
           </div>
           {projects.length === 0 ? (
-            <EmptyState icon={<Target />} title="No projects or goals yet" description="Group related tasks into projects, or set personal goals with a target date." />
+            <EmptyState icon={<Target />} title={tr("No projects or goals yet")} description={tr("Group related tasks into projects, or set personal goals with a target date.")} />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {projects.map((p) => {
@@ -208,23 +214,23 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
                   <Card key={p.id} className={cn(p.status === "archived" && "opacity-60")}>
                     <CardBody>
                       <div className="flex items-center justify-between">
-                        <Badge tone={p.kind === "goal" ? "mint" : "blue"}>{p.kind === "goal" ? <Target /> : <FolderKanban />} {p.kind === "goal" ? "Goal" : "Project"}</Badge>
+                        <Badge tone={p.kind === "goal" ? "mint" : "blue"}>{p.kind === "goal" ? <Target /> : <FolderKanban />} {p.kind === "goal" ? tr("Goal") : tr("Project")}</Badge>
                         <span className="size-3 rounded-full" style={{ background: p.color }} />
                       </div>
                       <h3 className="mt-3 text-[16px] font-semibold text-ink">{p.name}</h3>
                       {p.description && <p className="mt-1 line-clamp-2 text-[13px] text-muted">{p.description}</p>}
-                      {p.target_date && <p className="mt-2 text-[12.5px] text-muted">Target: {fmt(`${p.target_date}T12:00:00Z`, "UTC", { day: "numeric", month: "long", year: "numeric" })}</p>}
+                      {p.target_date && <p className="mt-2 text-[12.5px] text-muted">{tr("Target:")} {fmt(`${p.target_date}T12:00:00Z`, "UTC", { day: "numeric", month: "long", year: "numeric" }, locale)}</p>}
                       <div className="mt-4 flex items-center gap-2">
                         <Progress value={pt.length ? (done / pt.length) * 100 : 0} />
                         <span className="shrink-0 text-[12px] text-muted">{done}/{pt.length}</span>
                       </div>
                       <div className="mt-4 flex flex-wrap items-center gap-1">
-                        <Link href={`/app/life?view=all&filter=all&project=${p.id}`} className="rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-accent-strong hover:bg-mist">View tasks</Link>
+                        <Link href={`/app/life?view=all&filter=all&project=${p.id}`} className="rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-accent-strong hover:bg-mist">{tr("View tasks")}</Link>
                         <form action={archiveProject}>
                           <input type="hidden" name="id" value={p.id} />
-                          <Button variant="ghost" size="sm">{p.status === "active" ? <><Archive /> Archive</> : <><ArchiveRestore /> Restore</>}</Button>
+                          <Button variant="ghost" size="sm">{p.status === "active" ? <><Archive /> {tr("Archive")}</> : <><ArchiveRestore /> {tr("Restore")}</>}</Button>
                         </form>
-                        <ConfirmAction action={deleteProject} fields={{ id: p.id }} trigger="Delete" triggerVariant="ghost" danger title={`Delete “${p.name}”?`} description="Tasks in it are kept, but unlinked." confirmLabel="Delete" />
+                        <ConfirmAction action={deleteProject} fields={{ id: p.id }} trigger={tr("Delete")} triggerVariant="ghost" danger title={tr("Delete “{name}”?", { name: p.name })} description={tr("Tasks in it are kept, but unlinked.")} confirmLabel={tr("Delete")} />
                       </div>
                     </CardBody>
                   </Card>
@@ -238,9 +244,9 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
       {view === "reminders" && (
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2">
-            <CardHeader title="Reminders" description="ONE shows due reminders on your dashboard. Push & email notifications are on the roadmap." />
+            <CardHeader title={tr("Reminders")} description={tr("ONE shows due reminders on your dashboard. Push & email notifications are on the roadmap.")} />
             <CardBody className="pt-3">
-              {reminders.length === 0 ? <EmptyState icon={<Bell />} title="No reminders" description="Add one on the right." /> : (
+              {reminders.length === 0 ? <EmptyState icon={<Bell />} title={tr("No reminders")} description={tr("Add one on the right.")} /> : (
                 <ul className="divide-y divide-line/60">
                   {reminders.map((r) => {
                     const due = Date.parse(r.remind_at) <= Date.now();
@@ -248,13 +254,13 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
                       <li key={r.id} className="flex items-center gap-3 py-2.5">
                         <form action={toggleReminder}>
                           <input type="hidden" name="id" value={r.id} />
-                          <button aria-label={r.done ? "Mark as not done" : "Mark as done"} className={cn("flex size-[18px] items-center justify-center rounded-full border-2", r.done ? "border-mint-ink bg-mint-ink text-white" : "border-cloud hover:border-primary")}>
+                          <button aria-label={r.done ? tr("Mark as not done") : tr("Mark as done")} className={cn("flex size-[18px] items-center justify-center rounded-full border-2", r.done ? "border-mint-ink bg-mint-ink text-white" : "border-cloud hover:border-primary")}>
                             {r.done && <span className="text-[10px]">✓</span>}
                           </button>
                         </form>
                         <span className={cn("flex-1 text-[14px]", r.done ? "text-muted line-through" : "text-ink")}>{r.title}</span>
-                        <span className={cn("text-[12.5px]", due && !r.done ? "font-medium text-peach-ink" : "text-muted")}>{fmt(r.remind_at, tz, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
-                        <ConfirmAction action={deleteReminder} fields={{ id: r.id }} trigger="Delete" triggerVariant="ghost" danger title="Delete reminder?" confirmLabel="Delete" />
+                        <span className={cn("text-[12.5px]", due && !r.done ? "font-medium text-peach-ink" : "text-muted")}>{fmt(r.remind_at, tz, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }, locale)}</span>
+                        <ConfirmAction action={deleteReminder} fields={{ id: r.id }} trigger={tr("Delete")} triggerVariant="ghost" danger title={tr("Delete reminder?")} confirmLabel={tr("Delete")} />
                       </li>
                     );
                   })}
@@ -263,7 +269,7 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
             </CardBody>
           </Card>
           <Card>
-            <CardHeader title="New reminder" />
+            <CardHeader title={tr("New reminder")} />
             <CardBody><ReminderForm defaultDate={today} /></CardBody>
           </Card>
         </div>
@@ -272,16 +278,16 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
       {view === "categories" && (
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2">
-            <CardHeader title="Your categories" description="Use them for tasks and memories." />
+            <CardHeader title={tr("Your categories")} description={tr("Use them for tasks and memories.")} />
             <CardBody className="pt-3">
-              {categories.length === 0 ? <EmptyState icon={<Tags />} title="No categories yet" description="Create your own, e.g. Home, Finance, Health." /> : (
+              {categories.length === 0 ? <EmptyState icon={<Tags />} title={tr("No categories yet")} description={tr("Create your own, e.g. Home, Finance, Health.")} /> : (
                 <ul className="divide-y divide-line/60">
                   {categories.map((c) => (
                     <li key={c.id} className="flex items-center gap-3 py-2.5">
                       <span className="size-3 rounded-full" style={{ background: c.color }} />
                       <span className="flex-1 text-[14px] text-ink">{c.name}</span>
-                      <span className="text-[12px] text-muted">{tasks.filter((t) => t.category_id === c.id).length} tasks</span>
-                      <ConfirmAction action={deleteCategory} fields={{ id: c.id }} trigger="Delete" triggerVariant="ghost" danger title={`Delete “${c.name}”?`} description="Items in this category are kept." confirmLabel="Delete" />
+                      <span className="text-[12px] text-muted">{tr("{n} tasks", { n: tasks.filter((t) => t.category_id === c.id).length })}</span>
+                      <ConfirmAction action={deleteCategory} fields={{ id: c.id }} trigger={tr("Delete")} triggerVariant="ghost" danger title={tr("Delete “{name}”?", { name: c.name })} description={tr("Items in this category are kept.")} confirmLabel={tr("Delete")} />
                     </li>
                   ))}
                 </ul>
@@ -289,7 +295,7 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
             </CardBody>
           </Card>
           <Card>
-            <CardHeader title="New category" />
+            <CardHeader title={tr("New category")} />
             <CardBody><CategoryForm /></CardBody>
           </Card>
         </div>

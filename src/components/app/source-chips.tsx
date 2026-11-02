@@ -1,3 +1,5 @@
+"use client";
+import { useT } from "@/components/i18n";
 import Link from "next/link";
 import { Brain, CheckSquare, FileText, Zap } from "lucide-react";
 import type { Source } from "@/lib/db/types";
@@ -6,10 +8,11 @@ import { sourceHref } from "@/lib/utils";
 const ICON = { memory: Brain, task: CheckSquare, action: Zap, document: FileText };
 
 export function SourceChips({ sources, numbered }: { sources: Source[]; numbered?: boolean }) {
+  const tr = useT();
   if (!sources.length) return null;
   return (
     <div className="mt-3 flex flex-wrap items-center gap-1.5">
-      <span className="text-[11px] font-medium uppercase tracking-wider text-muted">Based on</span>
+      <span className="text-[11px] font-medium uppercase tracking-wider text-muted">{tr("Based on")}</span>
       {sources.map((s, i) => {
         const I = ICON[s.type];
         return (

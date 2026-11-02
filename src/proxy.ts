@@ -36,6 +36,10 @@ export async function proxy(req: NextRequest) {
     hasSession = !!req.cookies.get("one_session")?.value;
   }
 
+  // The admin area is invisible to anyone without a session (no redirect that would reveal it).
+  if (!hasSession && (req.nextUrl.pathname === "/admin" || req.nextUrl.pathname.startsWith("/admin/"))) {
+    return NextResponse.rewrite(new URL("/__not-found", req.url), { status: 404 });
+  }
   if (isProtected && !hasSession) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";

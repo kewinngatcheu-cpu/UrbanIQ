@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import * as React from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
@@ -19,6 +20,7 @@ export function SubmitButton({ children, pendingText, ...props }: ButtonProps & 
 }
 
 export function FormMessage({ state, className }: { state: ActionState; className?: string }) {
+  const tr = useT();
   if (state.error) {
     return (
       <div role="alert" className={cn("flex flex-wrap items-center gap-2 rounded-xl border border-[#ffd9de] bg-rose px-3.5 py-2.5 text-[13px] text-rose-ink", className)}>
@@ -26,7 +28,7 @@ export function FormMessage({ state, className }: { state: ActionState; classNam
         <span className="flex-1">{state.error}</span>
         {state.upgradeTo && (
           <Link href={`/app/settings/billing?plan=${state.upgradeTo}`} className="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-accent-strong shadow-soft hover:bg-snow">
-            <Sparkles className="size-3" /> Upgrade to {PLANS[state.upgradeTo].name}
+            <Sparkles className="size-3" /> {tr("Upgrade to {plan}", { plan: PLANS[state.upgradeTo].name })}
           </Link>
         )}
       </div>

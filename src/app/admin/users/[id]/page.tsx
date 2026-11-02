@@ -1,3 +1,4 @@
+import { getT, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -13,9 +14,14 @@ import { Notice } from "@/components/ui/misc";
 import { formatBytes, formatDate, formatDateTime } from "@/lib/utils";
 import { UserAdminForms } from "./forms";
 
-export const metadata: Metadata = { title: "User" };
+export async function generateMetadata(): Promise<Metadata> {
+  const tr = await getT();
+  return { title: tr("User") };
+}
 
 export default async function AdminUser({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ support?: string }> }) {
+  const tr = await getT();
+  const locale = await getLocale();
   const { id } = await params;
   const sp = await searchParams;
   const owner = await requireOwner();
@@ -42,37 +48,37 @@ export default async function AdminUser({ params, searchParams }: { params: Prom
 
   return (
     <div className="space-y-6">
-      <Link href="/admin/users" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft className="size-4" /> Users</Link>
+      <Link href="/admin/users" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft className="size-4" /> {tr("Users")}</Link>
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-semibold text-ink">{user.full_name || user.email}</h1>
         <Badge tone={user.status === "active" ? "mint" : "rose"}>{user.status}</Badge>
         <Badge tone="blue">{PLANS[user.plan].name}</Badge>
-        {user.role === "owner" && <Badge tone="lavender">Owner</Badge>}
+        {user.role === "owner" && <Badge tone="lavender">{tr("Owner")}</Badge>}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Card>
-            <CardHeader title="Account" />
+            <CardHeader title={tr("Account")} />
             <CardBody className="grid gap-4 text-[13.5px] sm:grid-cols-2">
               {[
                 ["Email", user.email],
                 ["User ID", user.id],
-                ["Email verified", user.email_verified ? "Yes" : "No"],
-                ["Onboarding", user.onboarding_completed ? "Completed" : "Not completed"],
-                ["Registered", formatDateTime(user.created_at)],
-                ["Last active", user.last_active_at ? formatDateTime(user.last_active_at) : "—"],
+                ["Email verified", user.email_verified ? tr("Yes") : tr("No")],
+                ["Onboarding", user.onboarding_completed ? tr("Completed") : tr("Not completed")],
+                ["Registered", formatDateTime(user.created_at, locale)],
+                ["Last active", user.last_active_at ? formatDateTime(user.last_active_at, locale) : "—"],
                 ["Subscription", sub ? `${PLANS[sub.plan].name} · ${sub.status} · ${sub.provider}` : "—"],
-                ["Period end", sub?.current_period_end ? formatDate(sub.current_period_end) : "—"],
+                ["Period end", sub?.current_period_end ? formatDate(sub.current_period_end, undefined, locale) : "—"],
                 ["AI requests (this month)", String(usage?.ai_requests ?? 0)],
                 ["Storage used", formatBytes(storage)],
               ].map(([k, v]) => (
-                <div key={k}><p className="text-[12px] text-muted">{k}</p><p className="break-all text-ink">{v}</p></div>
+                <div key={k}><p className="text-[12px] text-muted">{tr(k)}</p><p className="break-all text-ink">{v}</p></div>
               ))}
             </CardBody>
           </Card>
           <Card>
-            <CardHeader title="Usage (counts only)" description="Aggregate numbers — no content." />
+            <CardHeader title={tr("Usage (counts only)")} description={tr("Aggregate numbers — no content.")} />
             <CardBody className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               {["Memories", "Documents", "Tasks", "Actions"].map((l, i) => (
                 <div key={l}><p className="text-2xl font-semibold text-ink">{counts[i]}</p><p className="text-[12px] text-muted">{l}</p></div>
@@ -80,34 +86,34 @@ export default async function AdminUser({ params, searchParams }: { params: Prom
             </CardBody>
           </Card>
           <Card>
-            <CardHeader title={<span className="flex items-center gap-2"><ShieldCheck className="size-4 text-accent" /> Support access</span>} />
+            <CardHeader title={<span className="flex items-center gap-2"><ShieldCheck className="size-4 text-accent" /> {tr("Support access")}</span>} />
             <CardBody className="space-y-3">
               {activeGrant ? (
                 <>
-                  <Notice tone="peach">The user granted support access until {formatDateTime(activeGrant.expires_at)}. Reason: “{activeGrant.reason}”. Every view is logged.</Notice>
+                  <Notice tone="peach">{tr("The user granted support access until {date}. Reason: “{reason}”. Every view is logged.", { date: formatDateTime(activeGrant.expires_at, locale), reason: activeGrant.reason })}</Notice>
                   {supportItems ? (
                     <ul className="divide-y divide-line/70 rounded-xl border border-line">
-                      {supportItems.length === 0 && <li className="px-3 py-2 text-sm text-muted">No memories.</li>}
+                      {supportItems.length === 0 && <li className="px-3 py-2 text-sm text-muted">{tr("No memories.")}</li>}
                       {supportItems.map((m, i) => (
-                        <li key={i} className="flex justify-between gap-3 px-3 py-2 text-[13px]"><span className="truncate text-ink">{m.title}</span><span className="shrink-0 text-muted">{m.kind} · {formatDate(m.created_at)}</span></li>
+                        <li key={i} className="flex justify-between gap-3 px-3 py-2 text-[13px]"><span className="truncate text-ink">{m.title}</span><span className="shrink-0 text-muted">{m.kind} · {formatDate(m.created_at, undefined, locale)}</span></li>
                       ))}
                     </ul>
                   ) : (
-                    <Link href={`/admin/users/${id}?support=1`} className="inline-block rounded-xl bg-white px-3 py-2 text-sm font-medium text-accent-strong shadow-soft ring-1 ring-line hover:bg-snow">Open support view (logged)</Link>
+                    <Link href={`/admin/users/${id}?support=1`} className="inline-block rounded-xl bg-white px-3 py-2 text-sm font-medium text-accent-strong shadow-soft ring-1 ring-line hover:bg-snow">{tr("Open support view (logged)")}</Link>
                   )}
                 </>
               ) : (
-                <Notice tone="blue"><Lock /> Private content is not accessible. The user can grant time-limited support access in their privacy settings.</Notice>
+                <Notice tone="blue"><Lock /> {tr("Private content is not accessible. The user can grant time-limited support access in their privacy settings.")}</Notice>
               )}
             </CardBody>
           </Card>
           <Card>
-            <CardHeader title="Audit trail" description="Recent actions affecting this user" />
+            <CardHeader title={tr("Audit trail")} description={tr("Recent actions affecting this user")} />
             <CardBody className="pt-3">
-              {logs.length === 0 ? <p className="text-sm text-muted">No entries.</p> : (
+              {logs.length === 0 ? <p className="text-sm text-muted">{tr("No entries.")}</p> : (
                 <ul className="space-y-1.5 text-[13px]">
                   {logs.map((l) => (
-                    <li key={l.id} className="flex justify-between gap-3"><span className="font-mono text-[12px] text-ink">{l.action}</span><span className="text-muted">{formatDateTime(l.created_at)}</span></li>
+                    <li key={l.id} className="flex justify-between gap-3"><span className="font-mono text-[12px] text-ink">{l.action}</span><span className="text-muted">{formatDateTime(l.created_at, locale)}</span></li>
                   ))}
                 </ul>
               )}
@@ -116,7 +122,7 @@ export default async function AdminUser({ params, searchParams }: { params: Prom
         </div>
         <aside>
           {user.id === owner.id ? (
-            <Notice tone="blue">This is your owner account. Role and status are managed via server configuration only.</Notice>
+            <Notice tone="blue">{tr("This is your owner account. Role and status are managed via server configuration only.")}</Notice>
           ) : (
             <UserAdminForms id={user.id} status={user.status} plan={user.plan} />
           )}

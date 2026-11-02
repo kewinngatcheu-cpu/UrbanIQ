@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import type { ActionState } from "./action-state";
+import { getT } from "@/lib/i18n/server";
 import { AuthError } from "@/lib/auth";
 import { LimitError } from "@/lib/permissions/entitlements";
 import { AiError } from "@/lib/ai/provider";
@@ -23,11 +24,17 @@ export function toActionError(e: unknown): ActionState {
 }
 
 export async function run(fn: () => Promise<ActionState | void>): Promise<ActionState> {
+  let state: ActionState;
   try {
-    return (await fn()) ?? { ok: true, ts: Date.now() };
+    state = (await fn()) ?? { ok: true, ts: Date.now() };
   } catch (e) {
-    return toActionError(e);
+    state = toActionError(e);
   }
+  // Messages are written in English and translated for the viewer here (see lib/i18n).
+  const tr = await getT();
+  if (state.error) state.error = tr(state.error);
+  if (state.message) state.message = tr(state.message);
+  return state;
 }
 
 export function fd(form: FormData, key: string): string {

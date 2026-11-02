@@ -2,7 +2,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { emailSchema, passwordSchema } from "@/lib/validation";
-import { signIn, signUp, signOut, resendVerification, getCurrentUser, AuthError, requestPasswordReset, completePasswordReset } from "@/lib/auth";
+import { signIn, signUp, signOut, resendVerification, getCurrentUser, AuthError, requestPasswordReset, completePasswordReset, isOwner } from "@/lib/auth";
 import { rateLimit } from "@/lib/auth/rate-limit";
 import { isEnabled } from "@/lib/features";
 import { audit } from "@/lib/audit";
@@ -31,11 +31,15 @@ export async function loginAction(_: ActionState, form: FormData): Promise<Actio
     if (!rateLimit(`login-email:${e}`, 8, 10 * 60 * 1000)) throw new AuthError("Too many attempts. Please wait a few minutes.");
     const profile = await signIn(e, pw);
     await audit(profile.id, "auth.login");
-    return { ok: true, data: { verified: profile.email_verified, onboarded: profile.onboarding_completed } };
+    return { ok: true, data: { verified: profile.email_verified, onboarded: profile.onboarding_completed, owner: isOwner(profile) } };
   });
   if (res.error) return res;
   // Full navigation on the client (login-form.tsx) so the app shell starts with a fresh router.
-  const target = !res.data?.verified ? "/verify-email" : res.data?.onboarded ? safeNext(fd(form, "next")) : "/onboarding";
+  // The owner lands in the admin view; everyone else in their personal ONE.
+  const next = fd(form, "next");
+  const target = !res.data?.verified ? "/verify-email"
+    : res.data?.owner ? (next.startsWith("/admin") || !next || next === "/app" ? "/admin" : safeNext(next))
+    : res.data?.onboarded ? safeNext(next) : "/onboarding";
   return { ok: true, data: { target }, ts: Date.now() };
 }
 

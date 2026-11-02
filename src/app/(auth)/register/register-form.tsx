@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Check } from "lucide-react";
@@ -10,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { registerAction } from "../actions";
 
 export function RegisterForm({ initialPlan }: { initialPlan: PlanId }) {
+  const tr = useT();
   const [state, action] = useActionState(registerAction, initialState);
   const [plan, setPlan] = useState<PlanId>(initialPlan);
   const [pw, setPw] = useState("");
@@ -20,11 +22,11 @@ export function RegisterForm({ initialPlan }: { initialPlan: PlanId }) {
   ] as const;
   return (
     <form action={action} className="space-y-5">
-      <Field label="Email" htmlFor="email">
-        <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@example.com" autoFocus />
+      <Field label={tr("Email")} htmlFor="email">
+        <Input id="email" name="email" type="email" autoComplete="email" required placeholder={tr("you@example.com")} autoFocus />
       </Field>
-      <Field label="Password" htmlFor="password">
-        <Input id="password" name="password" type="password" autoComplete="new-password" required value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Create a strong password" />
+      <Field label={tr("Password")} htmlFor="password">
+        <Input id="password" name="password" type="password" autoComplete="new-password" required value={pw} onChange={(e) => setPw(e.target.value)} placeholder={tr("Create a strong password")} />
         <div className="mt-2 flex flex-wrap gap-3 text-xs">
           {checks.map(([ok, label]) => (
             <span key={label} className={cn("inline-flex items-center gap-1 transition", ok ? "text-mint-ink" : "text-muted")}>
@@ -34,7 +36,7 @@ export function RegisterForm({ initialPlan }: { initialPlan: PlanId }) {
         </div>
       </Field>
       <fieldset>
-        <legend className="mb-1.5 text-[13px] font-medium text-ink">Choose your plan</legend>
+        <legend className="mb-1.5 text-[13px] font-medium text-ink">{tr("Choose your plan")}</legend>
         <input type="hidden" name="plan" value={plan} />
         <div className="grid grid-cols-3 gap-2" role="radiogroup">
           {PLAN_ORDER.map((id) => (
@@ -50,22 +52,22 @@ export function RegisterForm({ initialPlan }: { initialPlan: PlanId }) {
               )}
             >
               <span className="block text-[13px] font-semibold text-ink">{PLANS[id].name}</span>
-              <span className="block text-xs text-muted">{formatPrice(PLANS[id].priceMonthlyEur)}/mo</span>
+              <span className="block text-xs text-muted">{formatPrice(PLANS[id].priceMonthlyEur)}{tr("/mo")}</span>
             </button>
           ))}
         </div>
         <p className="mt-2 text-xs text-muted">
-          {plan === "free" ? "Free forever. Upgrade anytime." : "You'll confirm the payment after verifying your email. Until then you start on Free."}
+          {plan === "free" ? tr("Free forever. Upgrade anytime.") : tr("You'll confirm the payment after verifying your email. Until then you start on Free.")}
         </p>
       </fieldset>
       <label className="flex items-start gap-2.5 text-[13px] text-muted">
         <input type="checkbox" name="terms" className="mt-0.5 size-4 rounded border-line accent-[#438ed4]" required />
-        <span>I agree to the <Link href="/terms" className="text-accent-strong hover:underline">Terms</Link> and the <Link href="/privacy" className="text-accent-strong hover:underline">Privacy Policy</Link>.</span>
+        <span>{tr("I agree to the")} <Link href="/terms" className="text-accent-strong hover:underline">{tr("Terms")}</Link> {tr("and the")} <Link href="/privacy" className="text-accent-strong hover:underline">{tr("Privacy Policy")}</Link>.</span>
       </label>
       <FormMessage state={state} />
-      <SubmitButton className="w-full" size="lg" pendingText="Creating your account…">Create account</SubmitButton>
+      <SubmitButton className="w-full" size="lg" pendingText={tr("Creating your account…")}>{tr("Create account")}</SubmitButton>
       <p className="text-center text-sm text-muted">
-        Already have an account? <Link href="/login" className="font-medium text-accent-strong hover:underline">Sign in</Link>
+        {tr("Already have an account?")} <Link href="/login" className="font-medium text-accent-strong hover:underline">{tr("Sign in")}</Link>
       </p>
     </form>
   );

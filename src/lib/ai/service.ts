@@ -1,4 +1,5 @@
 import "server-only";
+import { getLocale, getT } from "@/lib/i18n/server";
 import { userDb, type UserDb } from "@/lib/db";
 import type { ActionItem, Memory, Profile, Source } from "@/lib/db/types";
 import { consumeAiRequest, hasFeature, planOf, requireFeature, LimitError } from "@/lib/permissions/entitlements";
@@ -65,6 +66,7 @@ export async function askOne(user: Profile, question: string, history: { role: "
   const corpus = await buildCorpus(db);
   const toSource = (d: Doc): Source => ({ type: d.type, id: d.id, title: d.title });
 
+  const tr = await getT();
   if (!aiAvailable()) {
     // Without a model, be strict: only show items that match most of the question.
     const hits = search(corpus, question, 8, 0.5).map((h) => h.doc);
@@ -72,15 +74,15 @@ export async function askOne(user: Profile, question: string, history: { role: "
       return {
         mode: "demo",
         sources: [],
-        answer: "**Demo mode — no AI model is connected.** I searched your stored information but found nothing matching your question. ONE never makes up memories: save a note or upload a document about it, and I'll find it next time.",
+        answer: tr("**Demo mode — no AI model is connected.** I searched your stored information but found nothing matching your question. ONE never makes up memories: save a note or upload a document about it, and I'll find it next time."),
       };
     }
     return {
       mode: "demo",
       sources: hits.slice(0, 5).map(toSource),
-      answer: `**Demo mode — no AI model is connected**, so I can't write a real answer yet. Here is what I found in your own stored information (keyword search):\n\n${hits
+      answer: `${tr("**Demo mode — no AI model is connected**, so I can't write a real answer yet. Here is what I found in your own stored information (keyword search):")}\n\n${hits
         .slice(0, 5)
-        .map((d, i) => `${i + 1}. **${d.title}** (${d.type}) — ${d.text.replace(/\s+/g, " ").slice(0, 160)}${d.text.length > 160 ? "…" : ""}`)
+        .map((d, i) => `${i + 1}. **${d.title}** (${tr(d.type)}) — ${d.text.replace(/\s+/g, " ").slice(0, 160)}${d.text.length > 160 ? "…" : ""}`)
         .join("\n")}`,
     };
   }
@@ -199,7 +201,8 @@ export async function planAction(user: Profile, action: Pick<ActionItem, "type" 
   const t = TEMPLATES[action.type];
   const details = `${action.description ?? ""}\n${context ? `${context.title}\n${context.content}` : ""}`.trim();
   if (!aiAvailable()) {
-    return { steps: t.steps, draft: t.draft(action.title, action.description ?? ""), missing: t.missing(details), mode: "template" };
+    const de = (await getLocale()) === "de" && t.draftDe;
+    return { steps: t.steps, draft: (de ? t.draftDe! : t.draft)(action.title, action.description ?? ""), missing: t.missing(details), mode: "template" };
   }
   requireFeature(user, "actionPlans");
   await guard();

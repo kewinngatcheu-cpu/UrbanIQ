@@ -25,8 +25,8 @@ export function addDays(key: string, n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-export function fmt(d: Date | string | number, tz: string, opts: Intl.DateTimeFormatOptions) {
-  return new Intl.DateTimeFormat("en-GB", { timeZone: tz, ...opts }).format(new Date(d));
+export function fmt(d: Date | string | number, tz: string, opts: Intl.DateTimeFormatOptions, lang: "en" | "de" = "en") {
+  return new Intl.DateTimeFormat(lang === "de" ? "de-DE" : "en-GB", { timeZone: tz, ...opts }).format(new Date(d));
 }
 
 /** Hour of day in tz (for greetings). */

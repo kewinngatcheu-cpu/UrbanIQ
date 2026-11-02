@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import { useActionState, useState } from "react";
 import { ArrowLeft, ArrowRight, Brain, CalendarDays, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { INTERESTS } from "./interests";
 const STEPS = ["Welcome", "Your plan", "What matters", "Ready"];
 
 export function OnboardingFlow({ email, requestedPlan }: { email: string; requestedPlan: PlanId }) {
+  const tr = useT();
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [plan, setPlan] = useState<PlanId>(requestedPlan);
@@ -42,10 +44,10 @@ export function OnboardingFlow({ email, requestedPlan }: { email: string; reques
 
         {step === 0 && (
           <div>
-            <p className="text-[13px] font-semibold tracking-[0.18em] text-accent-strong">WELCOME TO ONE</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink">Nice to meet you.</h1>
-            <p className="mt-2 text-[15px] leading-relaxed text-muted">Your email <span className="text-ink">{email}</span> is verified. What should ONE call you?</p>
-            <Input className="mt-6" placeholder="Your first name" value={name} onChange={(e) => setName(e.target.value)} autoFocus maxLength={80} aria-label="Your name" />
+            <p className="text-[13px] font-semibold tracking-[0.18em] text-accent-strong">{tr("WELCOME TO ONE")}</p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink">{tr("Nice to meet you.")}</h1>
+            <p className="mt-2 text-[15px] leading-relaxed text-muted">{tr("Your email")} <span className="text-ink">{email}</span> {tr("is verified. What should ONE call you?")}</p>
+            <Input className="mt-6" placeholder={tr("Your first name")} value={name} onChange={(e) => setName(e.target.value)} autoFocus maxLength={80} aria-label={tr("Your name")} />
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {[
                 [Brain, "Memory", "Save notes, ideas and documents. Find them instantly."],
@@ -58,8 +60,8 @@ export function OnboardingFlow({ email, requestedPlan }: { email: string; reques
                   <div key={t as string} className="flex gap-3 rounded-2xl bg-snow p-4">
                     <I className="mt-0.5 size-5 shrink-0 text-accent" />
                     <div>
-                      <p className="text-sm font-semibold text-ink">{t as string}</p>
-                      <p className="text-[13px] text-muted">{d as string}</p>
+                      <p className="text-sm font-semibold text-ink">{tr(t as string)}</p>
+                      <p className="text-[13px] text-muted">{tr(d as string)}</p>
                     </div>
                   </div>
                 );
@@ -70,17 +72,17 @@ export function OnboardingFlow({ email, requestedPlan }: { email: string; reques
 
         {step === 1 && (
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-ink">Choose your plan</h1>
-            <p className="mt-2 text-[15px] text-muted">You can change it anytime in Settings.</p>
+            <h1 className="text-3xl font-semibold tracking-tight text-ink">{tr("Choose your plan")}</h1>
+            <p className="mt-2 text-[15px] text-muted">{tr("You can change it anytime in Settings.")}</p>
             <div className="mt-6 space-y-3" role="radiogroup">
               {PLAN_ORDER.map((id) => (
                 <button key={id} type="button" role="radio" aria-checked={plan === id} onClick={() => setPlan(id)}
                   className={cn("flex w-full items-start justify-between gap-4 rounded-2xl border p-5 text-left transition", plan === id ? "border-primary bg-mist/70 shadow-[0_0_0_3px_rgba(187,223,255,0.6)]" : "border-line hover:border-cloud")}>
                   <div>
-                    <p className="font-semibold text-ink">{PLANS[id].name} {PLANS[id].highlight && <span className="ml-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-white">POPULAR</span>}</p>
-                    <p className="mt-0.5 text-[13px] text-muted">{PLANS[id].bullets.slice(1, 4).join(" · ")}</p>
+                    <p className="font-semibold text-ink">{PLANS[id].name} {PLANS[id].highlight && <span className="ml-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-white">{tr("POPULAR")}</span>}</p>
+                    <p className="mt-0.5 text-[13px] text-muted">{PLANS[id].bullets.slice(1, 4).map((b) => tr(b)).join(" · ")}</p>
                   </div>
-                  <p className="shrink-0 text-right"><span className="text-lg font-semibold text-ink">{formatPrice(PLANS[id].priceMonthlyEur)}</span><span className="block text-xs text-muted">per month</span></p>
+                  <p className="shrink-0 text-right"><span className="text-lg font-semibold text-ink">{formatPrice(PLANS[id].priceMonthlyEur)}</span><span className="block text-xs text-muted">{tr("per month")}</span></p>
                 </button>
               ))}
             </div>
@@ -89,8 +91,8 @@ export function OnboardingFlow({ email, requestedPlan }: { email: string; reques
 
         {step === 2 && (
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-ink">What would you like ONE to help with?</h1>
-            <p className="mt-2 text-[15px] text-muted">Optional — this helps ONE set you up with a few useful starting points.</p>
+            <h1 className="text-3xl font-semibold tracking-tight text-ink">{tr("What would you like ONE to help with?")}</h1>
+            <p className="mt-2 text-[15px] text-muted">{tr("Optional — this helps ONE set you up with a few useful starting points.")}</p>
             <div className="mt-6 grid grid-cols-2 gap-2.5">
               {INTERESTS.map((i) => (
                 <button key={i.id} type="button" aria-pressed={interests.includes(i.id)} onClick={() => toggle(i.id)}
@@ -105,9 +107,9 @@ export function OnboardingFlow({ email, requestedPlan }: { email: string; reques
         {step === 3 && (
           <div className="text-center">
             <div className="mx-auto flex size-16 items-center justify-center rounded-3xl bg-mist animate-float"><Sparkles className="size-7 text-accent" /></div>
-            <h1 className="mt-5 text-3xl font-semibold tracking-tight text-ink">You&apos;re all set{name ? `, ${name}` : ""}.</h1>
+            <h1 className="mt-5 text-3xl font-semibold tracking-tight text-ink">{name ? tr("You're all set, {name}.", { name }) : tr("You're all set.")}</h1>
             <p className="mx-auto mt-2 max-w-md text-[15px] text-muted">
-              {plan === "free" ? "Your dashboard is ready. Start by telling ONE something you want to remember." : `Next, confirm your ${PLANS[plan].name} plan. Until then, you're on Free.`}
+              {plan === "free" ? tr("Your dashboard is ready. Start by telling ONE something you want to remember.") : tr("Next, confirm your {plan} plan. Until then, you're on Free.", { plan: PLANS[plan].name })}
             </p>
             <FormMessage state={state} className="mt-6 text-left" />
           </div>
@@ -115,15 +117,15 @@ export function OnboardingFlow({ email, requestedPlan }: { email: string; reques
 
         <div className="mt-10 flex items-center justify-between">
           {step > 0 ? (
-            <Button type="button" variant="ghost" onClick={() => setStep(step - 1)}><ArrowLeft /> Back</Button>
+            <Button type="button" variant="ghost" onClick={() => setStep(step - 1)}><ArrowLeft /> {tr("Back")}</Button>
           ) : <span />}
           {step < 3 ? (
             <div className="flex items-center gap-2">
-              {step === 2 && <Button type="button" variant="ghost" onClick={() => { setInterests([]); setStep(3); }}>Skip</Button>}
-              <Button type="button" onClick={() => setStep(step + 1)}>Continue <ArrowRight /></Button>
+              {step === 2 && <Button type="button" variant="ghost" onClick={() => { setInterests([]); setStep(3); }}>{tr("Skip")}</Button>}
+              <Button type="button" onClick={() => setStep(step + 1)}>{tr("Continue")} <ArrowRight /></Button>
             </div>
           ) : (
-            <SubmitButton size="lg" pendingText="Setting up…">{plan === "free" ? "Go to my dashboard" : "Continue to checkout"} <ArrowRight /></SubmitButton>
+            <SubmitButton size="lg" pendingText={tr("Setting up…")}>{plan === "free" ? tr("Go to my dashboard") : tr("Continue to checkout")} <ArrowRight /></SubmitButton>
           )}
         </div>
       </form>

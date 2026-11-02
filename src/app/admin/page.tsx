@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireOwner } from "@/lib/auth";
@@ -10,11 +11,15 @@ import { Badge } from "@/components/ui/badge";
 import { Notice } from "@/components/ui/misc";
 import { FlaskConical } from "lucide-react";
 
-export const metadata: Metadata = { title: "Overview" };
+export async function generateMetadata(): Promise<Metadata> {
+  const tr = await getT();
+  return { title: tr("Overview") };
+}
 
 const DAY = 86400000;
 
 export default async function AdminOverview() {
+  const tr = await getT();
   await requireOwner();
   const db = systemDb();
   const [profiles, subs, usage, feedback, checkouts] = await Promise.all([
@@ -42,7 +47,7 @@ export default async function AdminOverview() {
 
   const stat = (label: string, value: string | number, hint?: string) => (
     <Card><CardBody>
-      <p className="text-[12.5px] text-muted">{label}</p>
+      <p className="text-[12.5px] text-muted">{tr(label)}</p>
       <p className="mt-1 text-3xl font-semibold tracking-tight text-ink">{value}</p>
       {hint && <p className="mt-1 text-[12px] text-muted">{hint}</p>}
     </CardBody></Card>
@@ -51,21 +56,21 @@ export default async function AdminOverview() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Overview</h1>
-        <p className="text-sm text-muted">Aggregated platform metrics. Private user content is never shown here.</p>
+        <h1 className="text-2xl font-semibold text-ink">{tr("Overview")}</h1>
+        <p className="text-sm text-muted">{tr("Aggregated platform metrics. Private user content is never shown here.")}</p>
       </div>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {stat("Registered users", profiles.length, `${new7} new in 7 days · ${new30} in 30 days`)}
-        {stat("Active users (30d)", active30, `${profiles.length - active30} inactive`)}
-        {stat("Paid subscriptions", paidSubs.length, `${cancellations30} cancellations in 30 days`)}
-        {stat("AI requests this month", aiRequests, env.aiMode === "demo" ? "AI in demo mode" : env.aiModel)}
+        {stat("Registered users", profiles.length, tr("{a} new in 7 days · {b} in 30 days", { a: new7, b: new30 }))}
+        {stat("Active users (30d)", active30, tr("{n} inactive", { n: profiles.length - active30 }))}
+        {stat("Paid subscriptions", paidSubs.length, tr("{n} cancellations in 30 days", { n: cancellations30 }))}
+        {stat("AI requests this month", aiRequests, env.aiMode === "demo" ? tr("AI in demo mode") : env.aiModel)}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader title="New registrations" description="Last 14 days" />
+          <CardHeader title={tr("New registrations")} description={tr("Last 14 days")} />
           <CardBody>
-            <div className="flex h-40 items-end gap-1.5" role="img" aria-label="Registrations per day for the last 14 days">
+            <div className="flex h-40 items-end gap-1.5" role="img" aria-label={tr("Registrations per day for the last 14 days")}>
               {days.map((x) => (
                 <div key={x.d} className="group flex flex-1 flex-col items-center gap-1">
                   <span className="text-[10px] text-muted opacity-0 group-hover:opacity-100">{x.n}</span>
@@ -77,7 +82,7 @@ export default async function AdminOverview() {
           </CardBody>
         </Card>
         <Card>
-          <CardHeader title="Memberships" />
+          <CardHeader title={tr("Memberships")} />
           <CardBody className="space-y-3">
             {PLAN_ORDER.map((p) => (
               <div key={p} className="flex items-center justify-between">
@@ -85,37 +90,37 @@ export default async function AdminOverview() {
                 <span className="text-lg font-semibold text-ink">{byPlan[p]}</span>
               </div>
             ))}
-            <Link href="/admin/users" className="block pt-2 text-[13px] font-medium text-accent-strong hover:underline">Manage users</Link>
+            <Link href="/admin/users" className="block pt-2 text-[13px] font-medium text-accent-strong hover:underline">{tr("Manage users")}</Link>
           </CardBody>
         </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card>
-          <CardHeader title="Revenue (MRR)" />
+          <CardHeader title={tr("Revenue (MRR)")} />
           <CardBody>
             {realRevenueSubs.length ? (
               <p className="text-3xl font-semibold text-ink">€{mrr.toFixed(2)}</p>
             ) : (
-              <Notice tone="lavender"><FlaskConical /> No real payment data. {env.billingMode === "demo" ? `Billing is in demo mode (${checkouts.filter((c) => c.status === "paid").length} demo checkouts, excluded from revenue).` : "No Stripe subscriptions yet."}</Notice>
+              <Notice tone="lavender"><FlaskConical /> {tr("No real payment data.")} {env.billingMode === "demo" ? tr("Billing is in demo mode ({n} demo checkouts, excluded from revenue).", { n: checkouts.filter((c) => c.status === "paid").length }) : tr("No Stripe subscriptions yet.")}</Notice>
             )}
           </CardBody>
         </Card>
         <Card>
-          <CardHeader title="Feedback" />
+          <CardHeader title={tr("Feedback")} />
           <CardBody>
             <p className="text-3xl font-semibold text-ink">{feedback.length}</p>
-            <p className="text-[12.5px] text-muted">new items waiting</p>
-            <Link href="/admin/feedback" className="mt-2 block text-[13px] font-medium text-accent-strong hover:underline">Review feedback</Link>
+            <p className="text-[12.5px] text-muted">{tr("new items waiting")}</p>
+            <Link href="/admin/feedback" className="mt-2 block text-[13px] font-medium text-accent-strong hover:underline">{tr("Review feedback")}</Link>
           </CardBody>
         </Card>
         <Card>
-          <CardHeader title="System" />
+          <CardHeader title={tr("System")} />
           <CardBody className="space-y-2 text-[13px]">
-            <p className="flex justify-between"><span className="text-muted">Database</span><Badge tone={env.backend === "supabase" ? "mint" : "peach"}>{env.backend === "supabase" ? "Supabase" : "Local demo store"}</Badge></p>
-            <p className="flex justify-between"><span className="text-muted">AI</span><Badge tone={env.aiMode === "anthropic" ? "mint" : "lavender"}>{env.aiMode === "anthropic" ? "Connected" : "Demo mode"}</Badge></p>
-            <p className="flex justify-between"><span className="text-muted">Billing</span><Badge tone={env.billingMode === "stripe" ? "mint" : "lavender"}>{env.billingMode}</Badge></p>
-            <Link href="/admin/system" className="block pt-1 font-medium text-accent-strong hover:underline">System status</Link>
+            <p className="flex justify-between"><span className="text-muted">{tr("Database")}</span><Badge tone={env.backend === "supabase" ? "mint" : "peach"}>{env.backend === "supabase" ? tr("Supabase") : tr("Local demo store")}</Badge></p>
+            <p className="flex justify-between"><span className="text-muted">{tr("AI")}</span><Badge tone={env.aiMode === "anthropic" ? "mint" : "lavender"}>{env.aiMode === "anthropic" ? tr("Connected") : tr("Demo mode")}</Badge></p>
+            <p className="flex justify-between"><span className="text-muted">{tr("Billing")}</span><Badge tone={env.billingMode === "stripe" ? "mint" : "lavender"}>{env.billingMode}</Badge></p>
+            <Link href="/admin/system" className="block pt-1 font-medium text-accent-strong hover:underline">{tr("System status")}</Link>
           </CardBody>
         </Card>
       </div>

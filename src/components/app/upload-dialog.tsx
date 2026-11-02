@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import * as React from "react";
 import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ import { uploadDocument } from "@/app/app/_actions/memory";
 import { formatBytes } from "@/lib/utils";
 
 export function UploadDialog({ trigger }: { trigger: React.ReactNode }) {
+  const tr = useT();
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const router = useRouter();
@@ -27,30 +29,30 @@ export function UploadDialog({ trigger }: { trigger: React.ReactNode }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><button type="button">{trigger}</button></DialogTrigger>
-      <DialogContent title="Upload to Memory" description="PDFs, text files, images — and voice notes when enabled. Text from PDFs and text files becomes searchable.">
+      <DialogContent title={tr("Upload to Memory")} description={tr("PDFs, text files, images — and voice notes when enabled. Text from PDFs and text files becomes searchable.")}>
         <form action={action} className="space-y-4">
           <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-cloud bg-snow px-6 py-8 text-center transition hover:border-primary hover:bg-mist">
             {file ? (
               <>
                 <FileText className="size-7 text-accent" />
                 <span className="mt-2 max-w-full truncate text-sm font-medium text-ink">{file.name}</span>
-                <span className="text-xs text-muted">{formatBytes(file.size)} · click to change</span>
+                <span className="text-xs text-muted">{formatBytes(file.size)} {" "}{tr("· click to change")}</span>
               </>
             ) : (
               <>
                 <UploadCloud className="size-7 text-primary" />
-                <span className="mt-2 text-sm font-medium text-ink">Choose a file</span>
-                <span className="text-xs text-muted">PDF, TXT, MD, CSV, JSON, PNG, JPG, WEBP, audio</span>
+                <span className="mt-2 text-sm font-medium text-ink">{tr("Choose a file")}</span>
+                <span className="text-xs text-muted">{tr("PDF, TXT, MD, CSV, JSON, PNG, JPG, WEBP, audio")}</span>
               </>
             )}
             <input type="file" name="file" className="sr-only" required onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               accept=".pdf,.txt,.md,.csv,.json,.html,.png,.jpg,.jpeg,.webp,.gif,.heic,.mp3,.m4a,.wav,.webm,.ogg,application/pdf,text/*,image/*,audio/*" />
           </label>
-          <Field label="Title (optional)" htmlFor="up-title"><Input id="up-title" name="title" placeholder="e.g. Rental contract 2025" /></Field>
-          <Field label="Note (optional)" htmlFor="up-note"><Textarea id="up-note" name="note" className="min-h-20" placeholder="Anything you want to remember about this file" /></Field>
-          <Field label="Tags" htmlFor="up-tags" hint="Comma separated, e.g. home, contracts"><Input id="up-tags" name="tags" placeholder="home, contracts" /></Field>
+          <Field label={tr("Title (optional)")} htmlFor="up-title"><Input id="up-title" name="title" placeholder={tr("e.g. Rental contract 2025")} /></Field>
+          <Field label={tr("Note (optional)")} htmlFor="up-note"><Textarea id="up-note" name="note" className="min-h-20" placeholder={tr("Anything you want to remember about this file")} /></Field>
+          <Field label={tr("Tags")} htmlFor="up-tags" hint={tr("Comma separated, e.g. home, contracts")}><Input id="up-tags" name="tags" placeholder={tr("home, contracts")} /></Field>
           <FormMessage state={state} />
-          <div className="flex justify-end"><SubmitButton pendingText="Uploading…">Upload</SubmitButton></div>
+          <div className="flex justify-end"><SubmitButton pendingText={tr("Uploading…")}>{tr("Upload")}</SubmitButton></div>
         </form>
       </DialogContent>
     </Dialog>

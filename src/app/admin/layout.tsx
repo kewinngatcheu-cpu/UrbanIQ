@@ -1,3 +1,5 @@
+import { LanguageSwitch } from "@/components/language-switch";
+import { getT } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Shield } from "lucide-react";
@@ -8,6 +10,7 @@ import { AdminNav } from "./nav";
 export const metadata: Metadata = { title: { default: "Admin", template: "%s · ONE Admin" }, robots: { index: false } };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const tr = await getT();
   await requireOwner();
   return (
     <div className="min-h-screen bg-snow/60">
@@ -15,9 +18,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
           <div className="flex items-center gap-3">
             <Logo size="sm" />
-            <span className="inline-flex items-center gap-1 rounded-full bg-ink px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-white"><Shield className="size-3" /> OWNER</span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-ink px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-white"><Shield className="size-3" /> {tr("OWNER")}</span>
           </div>
-          <Link href="/app" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft className="size-4" /> Back to app</Link>
+          <div className="flex items-center gap-3">
+            <LanguageSwitch />
+            <Link href="/app" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft className="size-4" /> {tr("My personal ONE")}</Link>
+          </div>
         </div>
         <AdminNav />
       </header>

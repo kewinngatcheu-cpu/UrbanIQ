@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import * as React from "react";
 import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ import { createMemory } from "@/app/app/_actions/memory";
 import type { Category } from "@/lib/db/types";
 
 export function NewMemoryDialog({ categories, triggerLabel = "New memory", triggerIcon }: { categories: Pick<Category, "id" | "name">[]; triggerLabel?: string; triggerIcon?: React.ReactNode }) {
+  const tr = useT();
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
@@ -20,30 +22,30 @@ export function NewMemoryDialog({ categories, triggerLabel = "New memory", trigg
   }, initialState);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button>{triggerIcon}{triggerLabel}</Button></DialogTrigger>
-      <DialogContent title="Save to Memory" description="Notes, ideas, important information or a personal goal.">
+      <DialogTrigger asChild><Button>{triggerIcon}{tr(triggerLabel)}</Button></DialogTrigger>
+      <DialogContent title={tr("Save to Memory")} description={tr("Notes, ideas, important information or a personal goal.")}>
         <form action={action} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Type" htmlFor="m-kind">
+            <Field label={tr("Type")} htmlFor="m-kind">
               <Select id="m-kind" name="kind" defaultValue="note">
-                <option value="note">Note</option>
-                <option value="idea">Idea</option>
-                <option value="info">Important info</option>
-                <option value="goal">Personal goal</option>
+                <option value="note">{tr("Note")}</option>
+                <option value="idea">{tr("Idea")}</option>
+                <option value="info">{tr("Important info")}</option>
+                <option value="goal">{tr("Personal goal")}</option>
               </Select>
             </Field>
-            <Field label="Category" htmlFor="m-cat">
+            <Field label={tr("Category")} htmlFor="m-cat">
               <Select id="m-cat" name="category_id" defaultValue="">
-                <option value="">None</option>
+                <option value="">{tr("None")}</option>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </Select>
             </Field>
           </div>
-          <Field label="Title" htmlFor="m-title"><Input id="m-title" name="title" placeholder="Leave empty to use the first line" maxLength={200} /></Field>
-          <Field label="Content" htmlFor="m-content"><Textarea id="m-content" name="content" className="min-h-40" required placeholder="What do you want to remember?" /></Field>
-          <Field label="Tags" htmlFor="m-tags" hint="Comma separated"><Input id="m-tags" name="tags" placeholder="finance, insurance" /></Field>
+          <Field label={tr("Title")} htmlFor="m-title"><Input id="m-title" name="title" placeholder={tr("Leave empty to use the first line")} maxLength={200} /></Field>
+          <Field label={tr("Content")} htmlFor="m-content"><Textarea id="m-content" name="content" className="min-h-40" required placeholder={tr("What do you want to remember?")} /></Field>
+          <Field label={tr("Tags")} htmlFor="m-tags" hint={tr("Comma separated")}><Input id="m-tags" name="tags" placeholder={tr("finance, insurance")} /></Field>
           <FormMessage state={state} />
-          <div className="flex justify-end"><SubmitButton pendingText="Saving…">Save</SubmitButton></div>
+          <div className="flex justify-end"><SubmitButton pendingText={tr("Saving…")}>{tr("Save")}</SubmitButton></div>
         </form>
       </DialogContent>
     </Dialog>

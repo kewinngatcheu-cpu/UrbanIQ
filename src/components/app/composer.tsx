@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/components/i18n";
 import * as React from "react";
 import { useActionState, useRef, useState } from "react";
 import Link from "next/link";
@@ -20,6 +21,7 @@ const MODES: { id: Mode; label: string; icon: typeof Brain; placeholder: string 
 ];
 
 export function Composer({ aiDemo }: { aiDemo: boolean }) {
+  const tr = useT();
   const [mode, setMode] = useState<Mode>("ask");
   const [text, setText] = useState("");
   const [askState, askAction, asking] = useActionState<AskState, FormData>(async (prev, form) => {
@@ -46,7 +48,7 @@ export function Composer({ aiDemo }: { aiDemo: boolean }) {
         className="relative rounded-3xl border border-cloud/80 bg-white p-2 shadow-glow transition focus-within:border-primary"
       >
         <input type="hidden" name="mode" value={mode} />
-        <label htmlFor="one-input" className="sr-only">{current.placeholder}</label>
+        <label htmlFor="one-input" className="sr-only">{tr(current.placeholder)}</label>
         <textarea
           id="one-input"
           ref={ref}
@@ -60,12 +62,12 @@ export function Composer({ aiDemo }: { aiDemo: boolean }) {
             }
           }}
           rows={2}
-          placeholder={current.placeholder}
+          placeholder={tr(current.placeholder)}
           className="block w-full resize-none bg-transparent px-4 pt-3 pb-1 text-[16px] leading-relaxed text-ink placeholder:text-muted/70 focus:outline-none"
           maxLength={4000}
         />
         <div className="flex items-center justify-between gap-2 px-2 pb-1 pt-1">
-          <div className="flex flex-wrap items-center gap-1" role="tablist" aria-label="Input mode">
+          <div className="flex flex-wrap items-center gap-1" role="tablist" aria-label={tr("Input mode")}>
             {MODES.map((m) => (
               <button
                 key={m.id}
@@ -75,15 +77,15 @@ export function Composer({ aiDemo }: { aiDemo: boolean }) {
                 onClick={() => { setMode(m.id); ref.current?.focus(); }}
                 className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] transition", mode === m.id ? "bg-mist font-medium text-accent-strong" : "text-muted hover:bg-fog hover:text-ink")}
               >
-                <m.icon className="size-3.5" /> {m.label}
+                <m.icon className="size-3.5" /> {tr(m.label)}
               </button>
             ))}
-            <UploadDialog trigger={<span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] text-muted transition hover:bg-fog hover:text-ink"><Paperclip className="size-3.5" /> Upload</span>} />
+            <UploadDialog trigger={<span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] text-muted transition hover:bg-fog hover:text-ink"><Paperclip className="size-3.5" /> {tr("Upload")}</span>} />
           </div>
           <button
             type="submit"
             disabled={!text.trim() || pending}
-            aria-label="Send"
+            aria-label={tr("Send")}
             className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent text-white shadow-[0_6px_16px_-6px_rgba(67,142,212,0.8)] transition hover:bg-[#3a82c6] disabled:bg-sky disabled:shadow-none"
           >
             {pending ? <Loader2 className="size-4 animate-spin" /> : <ArrowUp className="size-4" />}
@@ -96,24 +98,24 @@ export function Composer({ aiDemo }: { aiDemo: boolean }) {
         {mode === "ask" && askState.error && <FormMessage state={askState} className="mt-3" />}
         {mode === "ask" && asking && (
           <div className="mt-4 flex items-center gap-2 rounded-2xl bg-snow px-5 py-4 text-sm text-muted">
-            <Loader2 className="size-4 animate-spin text-primary" /> ONE is looking through your memory…
+            <Loader2 className="size-4 animate-spin text-primary" /> {tr("ONE is looking through your memory…")}
           </div>
         )}
         {mode === "ask" && !asking && askState.answer && (
           <div className="animate-fade-up mt-4 rounded-2xl border border-line bg-snow/70 px-5 py-4">
-            <p className="mb-2 text-[13px] font-medium text-muted">You asked: <span className="text-ink">{askState.question}</span></p>
+            <p className="mb-2 text-[13px] font-medium text-muted">{tr("You asked:")} <span className="text-ink">{askState.question}</span></p>
             {askState.mode === "demo" && (
-              <p className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-lavender px-2.5 py-0.5 text-[11.5px] font-medium text-lavender-ink"><FlaskConical className="size-3" /> Demo mode</p>
+              <p className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-lavender px-2.5 py-0.5 text-[11.5px] font-medium text-lavender-ink"><FlaskConical className="size-3" /> {tr("Demo mode")}</p>
             )}
             <Markdown text={askState.answer} />
             <SourceChips sources={askState.sources ?? []} numbered={askState.mode === "ai"} />
             <Link href={`/app/intelligence?c=${askState.conversationId}`} className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-accent-strong hover:underline">
-              Continue this conversation <ArrowRight className="size-3.5" />
+              {tr("Continue this conversation")} <ArrowRight className="size-3.5" />
             </Link>
           </div>
         )}
         {aiDemo && mode === "ask" && !askState.answer && !asking && (
-          <p className="mt-3 px-2 text-xs text-muted">ONE is running without an AI model — questions are answered with a keyword search over your own data.</p>
+          <p className="mt-3 px-2 text-xs text-muted">{tr("ONE is running without an AI model — questions are answered with a keyword search over your own data.")}</p>
         )}
       </div>
     </div>

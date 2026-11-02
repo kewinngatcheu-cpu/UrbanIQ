@@ -1,3 +1,4 @@
+import { getT, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Search } from "lucide-react";
@@ -9,11 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/misc";
 import { cn, formatDate, relativeTime } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Users" };
+export async function generateMetadata(): Promise<Metadata> {
+  const tr = await getT();
+  return { title: tr("Users") };
+}
 
 type SP = { q?: string; plan?: string; status?: string; activity?: string };
 
 export default async function AdminUsers({ searchParams }: { searchParams: Promise<SP> }) {
+  const tr = await getT();
+  const locale = await getLocale();
   const sp = await searchParams;
   await requireOwner();
   const db = systemDb();
@@ -37,28 +43,28 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Users</h1>
-        <p className="text-sm text-muted">{profiles.length} registered · account metadata only, no private content</p>
+        <h1 className="text-2xl font-semibold text-ink">{tr("Users")}</h1>
+        <p className="text-sm text-muted">{tr("{n} registered · account metadata only, no private content", { n: profiles.length })}</p>
       </div>
       <form className="relative max-w-md" action="/admin/users">
         <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
-        <input name="q" defaultValue={sp.q} placeholder="Search email, name or user id" aria-label="Search users"
+        <input name="q" defaultValue={sp.q} placeholder={tr("Search email, name or user id")} aria-label={tr("Search users")}
           className="h-11 w-full rounded-xl border border-line bg-white pl-10 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-4 focus:ring-sky/70" />
       </form>
       <div className="flex flex-wrap gap-1.5">
-        <Link href={link({ plan: undefined })} className={chip(!sp.plan)}>All plans</Link>
+        <Link href={link({ plan: undefined })} className={chip(!sp.plan)}>{tr("All plans")}</Link>
         {PLAN_ORDER.map((p) => <Link key={p} href={link({ plan: p })} className={chip(sp.plan === p)}>{PLANS[p].name}</Link>)}
         <span className="mx-1 w-px bg-line" />
-        <Link href={link({ status: sp.status === "suspended" ? undefined : "suspended" })} className={chip(sp.status === "suspended")}>Suspended</Link>
-        <Link href={link({ activity: sp.activity === "active" ? undefined : "active" })} className={chip(sp.activity === "active")}>Active 30d</Link>
-        <Link href={link({ activity: sp.activity === "inactive" ? undefined : "inactive" })} className={chip(sp.activity === "inactive")}>Inactive</Link>
+        <Link href={link({ status: sp.status === "suspended" ? undefined : "suspended" })} className={chip(sp.status === "suspended")}>{tr("Suspended")}</Link>
+        <Link href={link({ activity: sp.activity === "active" ? undefined : "active" })} className={chip(sp.activity === "active")}>{tr("Active 30d")}</Link>
+        <Link href={link({ activity: sp.activity === "inactive" ? undefined : "inactive" })} className={chip(sp.activity === "inactive")}>{tr("Inactive")}</Link>
       </div>
       <Card className="overflow-hidden">
-        {list.length === 0 ? <EmptyState title="No users match" className="m-4" /> : (
+        {list.length === 0 ? <EmptyState title={tr("No users match")} className="m-4" /> : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[13.5px]">
               <thead className="border-b border-line bg-snow text-[12px] uppercase tracking-wider text-muted">
-                <tr><th className="px-4 py-3 font-medium">User</th><th className="px-4 py-3 font-medium">Plan</th><th className="px-4 py-3 font-medium">Status</th><th className="px-4 py-3 font-medium">Registered</th><th className="px-4 py-3 font-medium">Last active</th></tr>
+                <tr><th className="px-4 py-3 font-medium">{tr("User")}</th><th className="px-4 py-3 font-medium">{tr("Plan")}</th><th className="px-4 py-3 font-medium">{tr("Status")}</th><th className="px-4 py-3 font-medium">{tr("Registered")}</th><th className="px-4 py-3 font-medium">{tr("Last active")}</th></tr>
               </thead>
               <tbody className="divide-y divide-line/70">
                 {list.map((p) => {
@@ -69,13 +75,13 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
                         <Link href={`/admin/users/${p.id}`} className="font-medium text-ink hover:text-accent-strong">{p.full_name || p.email}</Link>
                         <p className="text-[12px] text-muted">{p.email}{p.role === "owner" && " · owner"}</p>
                       </td>
-                      <td className="px-4 py-3"><Badge tone={p.plan === "free" ? "gray" : p.plan === "premium" ? "blue" : "lavender"}>{PLANS[p.plan].name}</Badge>{s?.provider === "admin_grant" && <span className="ml-1 text-[11px] text-muted">granted</span>}</td>
+                      <td className="px-4 py-3"><Badge tone={p.plan === "free" ? "gray" : p.plan === "premium" ? "blue" : "lavender"}>{PLANS[p.plan].name}</Badge>{s?.provider === "admin_grant" && <span className="ml-1 text-[11px] text-muted">{tr("granted")}</span>}</td>
                       <td className="px-4 py-3">
                         <Badge tone={p.status === "active" ? "mint" : "rose"}>{p.status}</Badge>
-                        {!p.email_verified && <Badge tone="peach" className="ml-1">unverified</Badge>}
+                        {!p.email_verified && <Badge tone="peach" className="ml-1">{tr("unverified")}</Badge>}
                       </td>
-                      <td className="px-4 py-3 text-muted">{formatDate(p.created_at)}</td>
-                      <td className="px-4 py-3 text-muted">{p.last_active_at ? relativeTime(p.last_active_at) : "—"}</td>
+                      <td className="px-4 py-3 text-muted">{formatDate(p.created_at, undefined, locale)}</td>
+                      <td className="px-4 py-3 text-muted">{p.last_active_at ? relativeTime(p.last_active_at, undefined, locale) : "—"}</td>
                     </tr>
                   );
                 })}

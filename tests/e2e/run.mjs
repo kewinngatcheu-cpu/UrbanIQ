@@ -74,7 +74,9 @@ await step("Landing page renders hero, modules, pricing, FAQ", async () => {
 });
 
 await step("Protected routes redirect anonymous visitors to login", async () => {
-  for (const path of ["/app", "/admin", "/app/memory", "/onboarding"]) {
+  const adminRes = await page.goto(`${BASE}/admin`);
+  assert(adminRes.status() === 404 && !page.url().includes("/login"), `anonymous /admin should be a plain 404, got ${adminRes.status()} ${page.url()}`);
+  for (const path of ["/app", "/app/memory", "/onboarding"]) {
     await page.goto(BASE + path); await page.waitForLoadState("networkidle");
     assert(page.url().includes("/login"), `${path} not protected: ${page.url()}`);
   }
@@ -327,21 +329,22 @@ await step("User B: Premium features show upgrade prompts", async () => {
   await shot(pb, "14-free-upgrade");
 });
 
-await step("Normal user cannot access /admin", async () => {
-  await pb.goto(`${BASE}/admin`); await pb.waitForLoadState("networkidle");
-  assert(!pb.url().includes("/admin"), `non-owner reached admin: ${pb.url()}`);
-  await pb.goto(`${BASE}/admin/users`); await pb.waitForLoadState("networkidle");
-  assert(!pb.url().includes("/admin"), "non-owner reached admin users");
+await step("Normal user cannot see or reach the admin area", async () => {
+  const r1 = await pb.goto(`${BASE}/admin`); await pb.waitForLoadState("networkidle");
+  assert(r1.status() === 404, `non-owner /admin should be 404, got ${r1.status()}`);
+  assert(!(await pb.getByText("Registered users").count()), "non-owner sees admin content");
+  const r2 = await pb.goto(`${BASE}/admin/users`); await pb.waitForLoadState("networkidle");
+  assert(r2.status() === 404, "non-owner /admin/users should be 404");
+  assert(!(await pb.locator('a[href="/admin"]').count()), "non-owner sees an Admin link");
 });
 
 // ─── Owner ───
 const ctxO = await browser.newContext({ viewport: { width: 1360, height: 900 } });
 const po = await ctxO.newPage();
 globalThis.po = po;
-await step("Owner can open admin dashboard and sees metadata only", async () => {
+await step("Owner lands in the admin view after login and sees metadata only", async () => {
   await login(po, { email: OWNER_EMAIL, password: OWNER_PASSWORD });
-  await po.waitForURL("**/app"); await po.waitForLoadState("networkidle");
-  await po.goto(`${BASE}/admin`); await po.waitForLoadState("networkidle");
+  await po.waitForURL("**/admin"); await po.waitForLoadState("networkidle"); // owner lands in the admin view
   await po.getByText("Registered users").first().waitFor({ timeout: 15000 });
   await shot(po, "15-admin");
   await po.goto(`${BASE}/admin/users?q=${encodeURIComponent(A.email)}`); await po.waitForLoadState("networkidle");
@@ -474,6 +477,19 @@ await step("Account deletion requires DELETE + password and removes all data", a
   await pb.waitForURL(`${BASE}/?deleted=1`); await pb.waitForLoadState("networkidle");
   await login(pb, B);
   await pb.getByText("Email or password is incorrect.").waitFor();
+});
+
+await step("Language switch: German UI, persisted, back to English", async () => {
+  await page.goto(`${BASE}/app`); await page.waitForLoadState("networkidle");
+  await page.click('[aria-label="Language / Sprache"] >> visible=true >> button:has-text("de")');
+  await page.getByText("Was möchtest du heute erledigen?").waitFor();
+  await page.goto(`${BASE}/app/life`); await page.waitForLoadState("networkidle");
+  await page.getByText("Neuer Eintrag").first().waitFor();
+  await page.goto(`${BASE}/app/settings`); await page.waitForLoadState("networkidle");
+  await page.getByText("Passwort ändern").first().waitFor();
+  await page.screenshot({ path: `${SHOTS}18-german.png`, fullPage: true });
+  await page.click('[aria-label="Language / Sprache"] >> visible=true >> button:has-text("en")');
+  await page.getByText("Change password").first().waitFor();
 });
 
 await step("No uncaught client-side errors", async () => {

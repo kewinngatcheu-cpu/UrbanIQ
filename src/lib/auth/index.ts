@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { env } from "@/lib/config/env";
 import { systemDb } from "@/lib/db";
@@ -10,6 +10,7 @@ import { createSession, destroySession, readSession } from "./session";
 import { hashPassword, randomToken, sha256, verifyPassword } from "./password";
 import { supabaseUserClient } from "@/lib/supabase/server";
 import { sendMail } from "@/lib/mail";
+import { getT } from "@/lib/i18n/server";
 
 export const DEMO_VERIFY_COOKIE = "one_demo_verify";
 
@@ -95,10 +96,13 @@ export async function requireUser(opts: { allowUnverified?: boolean } = {}): Pro
   return user;
 }
 
-/** Server-side owner gate. Non-owners get a 404-style redirect — the admin area is not advertised. */
+/**
+ * Server-side owner gate. For everyone else the admin area does not exist (404) —
+ * it is never advertised, not even through a redirect.
+ */
 export async function requireOwner(): Promise<Profile> {
-  const user = await requireUser();
-  if (!isOwner(user)) redirect("/app");
+  const user = await getCurrentUser();
+  if (!user || user.status !== "active" || !user.email_verified || !isOwner(user)) notFound();
   return user;
 }
 
@@ -166,13 +170,14 @@ export async function signUp(email: string, password: string, requestedPlan: Pla
  */
 async function deliverVerification(email: string, token: string) {
   const url = `${env.appUrl}/auth/verify?token=${encodeURIComponent(token)}`;
+  const tr = await getT();
   const { delivered } = await sendMail({
     to: email,
-    subject: "Confirm your email for ONE",
-    heading: "Welcome to ONE",
-    body: "Please confirm your email address to activate your account. The link is valid for 24 hours.",
-    cta: { label: "Confirm email", url },
-    footer: "If you didn't create a ONE account, you can ignore this email.",
+    subject: tr("Confirm your email for ONE"),
+    heading: tr("Welcome to ONE"),
+    body: tr("Please confirm your email address to activate your account. The link is valid for 24 hours."),
+    cta: { label: tr("Confirm email"), url },
+    footer: tr("If you didn't create a ONE account, you can ignore this email."),
   });
   if (delivered) return;
   const store = await cookies();
@@ -281,13 +286,14 @@ export async function requestPasswordReset(email: string): Promise<void> {
     reset_expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
   });
   const url = `${env.appUrl}/reset-password?token=${encodeURIComponent(token)}`;
+  const tr = await getT();
   const { delivered } = await sendMail({
     to: email,
-    subject: "Reset your ONE password",
-    heading: "Reset your password",
-    body: "Someone (hopefully you) asked to reset the password of your ONE account. The link is valid for 1 hour.",
-    cta: { label: "Choose a new password", url },
-    footer: "If you didn't ask for this, you can ignore this email — your password stays the same.",
+    subject: tr("Reset your ONE password"),
+    heading: tr("Reset your password"),
+    body: tr("Someone (hopefully you) asked to reset the password of your ONE account. The link is valid for 1 hour."),
+    cta: { label: tr("Choose a new password"), url },
+    footer: tr("If you didn't ask for this, you can ignore this email — your password stays the same."),
   });
   if (!delivered && env.logDemoMail) console.info(`[ONE demo mail] Password reset link for ${email}: ${url}`);
 }
