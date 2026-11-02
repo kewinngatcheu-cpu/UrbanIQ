@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { FlaskConical } from "lucide-react";
+import { FlaskConical, Info, CreditCard } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";
 import { systemDb } from "@/lib/db";
 import { env } from "@/lib/config/env";
@@ -16,7 +17,7 @@ import { UpgradeButtons } from "./upgrade";
 
 export const metadata: Metadata = { title: "Plan & billing" };
 
-export default async function BillingPage({ searchParams }: { searchParams: Promise<{ plan?: string }> }) {
+export default async function BillingPage({ searchParams }: { searchParams: Promise<{ plan?: string; checkout?: string; error?: string }> }) {
   const sp = await searchParams;
   const user = await requireUser();
   const sub = await systemDb().selectOne("subscriptions", { user_id: user.id });
@@ -30,6 +31,12 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
     <div className="space-y-6">
       {env.billingMode === "demo" && (
         <Notice tone="lavender"><FlaskConical /> Billing runs in demo mode — no real payments are processed. Plans activate only after a server-side confirmed (demo) checkout.</Notice>
+      )}
+      {sp.checkout === "canceled" && <Notice tone="blue"><Info /> Checkout was canceled — nothing was charged.</Notice>}
+      {sp.error && <Notice tone="rose"><Info /> {sp.error.slice(0, 200)}</Notice>}
+      {sub?.status === "past_due" && <Notice tone="peach"><Info /> Your last payment failed. Please update your payment method to keep {plan.name}.</Notice>}
+      {sub?.cancel_at_period_end && sub.current_period_end && (
+        <Notice tone="peach"><Info /> Your {plan.name} plan ends on {formatDate(sub.current_period_end)}. You can resume it in “Manage billing”.</Notice>
       )}
       <Card>
         <CardHeader title={<span className="flex items-center gap-2">Your plan: {plan.name} <Badge tone={user.plan === "free" ? "gray" : "blue"}>{formatPrice(plan.priceMonthlyEur)}/mo</Badge></span>}
@@ -46,10 +53,15 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
             </div>
           ))}
         </CardBody>
-        {user.plan !== "free" && (
-          <div className="border-t border-line px-5 py-4">
-            <ConfirmAction action={cancelPlan} trigger="Cancel plan" triggerVariant="ghost" danger title={`Cancel ${plan.name}?`}
-              description="You'll move to Free right away (demo billing). Your data stays — but features and limits of Free apply." confirmLabel="Cancel plan" />
+        {(sub?.stripe_customer_id || user.plan !== "free") && (
+          <div className="flex flex-wrap items-center gap-2 border-t border-line px-5 py-4">
+            {env.billingMode === "stripe" && sub?.stripe_customer_id && (
+              <form action="/api/billing/portal" method="post">
+                <button className={buttonVariants({ variant: "secondary", size: "sm" })}><CreditCard /> Manage billing & invoices</button>
+              </form>
+            )}
+            {user.plan !== "free" && !sub?.cancel_at_period_end && <ConfirmAction action={cancelPlan} trigger="Cancel plan" triggerVariant="ghost" danger title={`Cancel ${plan.name}?`}
+              description={sub?.provider === "stripe" ? "Your plan stays active until the end of the paid period, then you move to Free. Your data stays." : "You'll move to Free right away. Your data stays — but features and limits of Free apply."} confirmLabel="Cancel plan" />}
           </div>
         )}
       </Card>

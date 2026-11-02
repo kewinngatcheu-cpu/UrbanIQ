@@ -214,4 +214,37 @@ export async function planAction(user: Profile, action: Pick<ActionItem, "type" 
   return { steps: (res?.steps ?? t.steps).slice(0, 10), draft: res?.draft ?? null, missing: res?.missing_info ?? [], mode: "ai" };
 }
 
+// ───────────────────────── File analysis (OCR / scanned PDFs) ─────────────────────────
+
+const VISION_MIME = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
+const MAX_VISION_BYTES = 5 * 1024 * 1024; // API limit for images
+
+/** Can ONE's AI read this file for this user right now? (no quota is used by asking) */
+export function canAnalyzeFile(user: Profile, mime: string, size: number, hasText: boolean) {
+  if (!aiAvailable() || !hasFeature(user, "documentAnalysis")) return false;
+  if (VISION_MIME.has(mime)) return size <= MAX_VISION_BYTES;
+  return mime === "application/pdf" && !hasText; // scanned PDF without a text layer
+}
+
+/**
+ * Recognises the text in an image or scanned PDF and adds a short factual description.
+ * Uses one AI request. The model is told to transcribe only what is visible.
+ */
+export async function recognizeFileText(user: Profile, data: Buffer, mime: string, fileName: string): Promise<string> {
+  await guard();
+  requireFeature(user, "documentAnalysis");
+  await consumeAiRequest(user);
+  const b64 = data.toString("base64");
+  const file = mime === "application/pdf"
+    ? ({ type: "document", source: { type: "base64", media_type: "application/pdf", data: b64 } } as const)
+    : ({ type: "image", source: { type: "base64", media_type: mime as "image/png" | "image/jpeg" | "image/webp" | "image/gif", data: b64 } } as const);
+  const text = await complete({
+    system: "You turn the user's own uploaded files into searchable text. Transcribe all readable text exactly as written (keep numbers, dates, names, amounts). Do not guess unreadable parts — mark them as [unreadable]. After the transcription write a line with three dashes and then one or two sentences describing what the file is. If there is no text, only write the description. Never add information that is not visible.",
+    effort: "low",
+    maxTokens: 12000,
+    messages: [{ role: "user", content: [file, { type: "text", text: `File name: ${fileName}` }] }],
+  });
+  return (text ?? "").slice(0, 200_000);
+}
+
 export { AiError, LimitError };

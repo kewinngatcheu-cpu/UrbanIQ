@@ -408,6 +408,60 @@ await step("Feature flag: pausing registrations blocks sign-up", async () => {
   await anon.close();
 });
 
+await step("Change password: wrong current password rejected; new password works", async () => {
+  await pb.goto(`${BASE}/app/settings`); await pb.waitForLoadState("networkidle");
+  await pb.fill("#pw-current", "not-my-password-1");
+  await pb.fill("#pw-new", "MaxNewSecure2027");
+  await pb.fill("#pw-confirm", "MaxNewSecure2027");
+  await pb.click('button:has-text("Change password")');
+  await pb.getByText("current password is incorrect").waitFor();
+  await pb.fill("#pw-current", B.password);
+  await pb.fill("#pw-new", "MaxNewSecure2027");
+  await pb.fill("#pw-confirm", "MaxNewSecure2027");
+  await pb.click('button:has-text("Change password")');
+  await pb.getByText("Password changed.").waitFor();
+  B.password = "MaxNewSecure2027";
+  await pb.goto(`${BASE}/app`); await pb.waitForLoadState("networkidle");
+  assert(pb.url().endsWith("/app"), "current session should stay signed in");
+});
+
+await step("Forgot password: same neutral answer for unknown and known addresses", async () => {
+  const c = await browser.newContext();
+  const p = await c.newPage();
+  for (const email of ["nobody.here@one.test", A.email]) {
+    await p.goto(`${BASE}/forgot-password`); await p.waitForLoadState("networkidle");
+    await p.fill("#email", email);
+    await p.click('button:has-text("Send reset link")');
+    await p.getByText("If an account exists for this address").waitFor();
+  }
+  await c.close();
+});
+
+if (process.env.SERVER_LOG) {
+  await step("Password reset via emailed link signs out old sessions", async () => {
+    const { readFileSync } = await import("node:fs");
+    const links = [...readFileSync(process.env.SERVER_LOG, "utf8").matchAll(new RegExp(`Password reset link for ${A.email.replace(/[.+]/g, "\\$&")}: (\\S+)`, "g"))];
+    assert(links.length, "no reset link in server log");
+    const link = links.at(-1)[1];
+    const c = await browser.newContext();
+    const p = await c.newPage();
+    await p.goto(link); await p.waitForLoadState("networkidle");
+    await p.fill("#password", "LenaReset2027");
+    await p.fill("#confirm", "LenaReset2027");
+    await p.click('button:has-text("Save new password")');
+    await p.waitForURL("**/app"); await p.waitForLoadState("networkidle");
+    // the link is single-use
+    await p.goto(link); await p.waitForLoadState("networkidle");
+    await p.getByText("This link has expired").waitFor();
+    // the old session (ctxA) was revoked
+    await page.goto(`${BASE}/app`); await page.waitForLoadState("networkidle");
+    assert(page.url().includes("/login"), `old session still valid: ${page.url()}`);
+    await login(page, { email: A.email, password: "LenaReset2027" });
+    await page.waitForURL("**/app");
+    await c.close();
+  });
+}
+
 await step("Account deletion requires DELETE + password and removes all data", async () => {
   await pb.goto(`${BASE}/app/settings/privacy`); await pb.waitForLoadState("networkidle");
   await pb.fill("#d-confirm", "DELETE");

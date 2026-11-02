@@ -7,9 +7,9 @@ import { assertUser } from "@/lib/auth";
 import { userDb } from "@/lib/db";
 import type { MemoryKind } from "@/lib/db/types";
 import { assertCanStore, assertMemoryCapacity, requireFeature } from "@/lib/permissions/entitlements";
-import { summarize, extractTasks } from "@/lib/ai/service";
+import { summarize, extractTasks, canAnalyzeFile, recognizeFileText } from "@/lib/ai/service";
 import { isEnabled } from "@/lib/features";
-import { putFile, deleteFiles } from "@/lib/storage";
+import { putFile, deleteFiles, getFile } from "@/lib/storage";
 import { extractText, kindForMime, ALLOWED_MIME } from "@/lib/documents";
 import { fd, run } from "@/lib/safe-action";
 import { parseTags } from "@/lib/utils";
@@ -133,7 +133,7 @@ export async function uploadDocument(_: ActionState, form: FormData): Promise<Ac
     const { text, status } = await extractText(buf, mime);
     const doc = await db.insert("documents", {
       file_name: safeName, mime_type: mime, size_bytes: file.size, storage_path: storagePath,
-      extracted_text: text, extraction_status: status,
+      extracted_text: text, extraction_status: status, extraction_method: text ? "parser" : null,
     });
     const note = fd(form, "note");
     const m = await db.insert("memories", {
@@ -205,5 +205,27 @@ export async function addDetectedTasks(_: ActionState, form: FormData): Promise<
     }
     revalidatePath("/app", "layout");
     return { ok: true, message: `${items.length} ${items.length === 1 ? "item" : "items"} added to Life.`, ts: Date.now() };
+  });
+}
+
+/** OCR for images / scanned PDFs via the AI (explicit user action, uses one AI request). */
+export async function recognizeText(_: ActionState, form: FormData): Promise<ActionState> {
+  return run(async () => {
+    const user = await assertUser();
+    requireFeature(user, "documentAnalysis");
+    const db = await userDb(user.id);
+    const m = await db.get("memories", fd(form, "id"));
+    const doc = m?.document_id ? await db.get("documents", m.document_id) : null;
+    if (!m || !doc) throw new AuthError("Document not found.");
+    if (!canAnalyzeFile(user, doc.mime_type, doc.size_bytes, doc.extraction_method === "parser" && !!doc.extracted_text)) {
+      throw new AuthError("ONE can't read this file type with AI yet.");
+    }
+    const data = await getFile(doc.storage_path);
+    if (!data) throw new AuthError("The file could not be loaded.");
+    const text = await recognizeFileText(user, data, doc.mime_type, doc.file_name);
+    await db.update("documents", doc.id, { extracted_text: text, extraction_status: "done", extraction_method: "ai" });
+    await db.update("memories", m.id, { summary: null, summary_source: null });
+    revalidatePath(`/app/memory/${m.id}`);
+    return { ok: true, message: "Text recognised — it's now searchable.", ts: Date.now() };
   });
 }

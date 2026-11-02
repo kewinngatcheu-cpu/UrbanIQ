@@ -35,9 +35,9 @@ const passwordHash = `scrypt$16384$8$1$${salt.toString("base64")}$${hash.toStrin
 
 let cred = db.local_credentials.find((c) => c.email === email);
 if (cred) {
-  Object.assign(cred, { password_hash: passwordHash, verify_token_hash: null, verify_expires_at: null, updated_at: now });
+  Object.assign(cred, { password_hash: passwordHash, verify_token_hash: null, verify_expires_at: null, reset_token_hash: null, reset_expires_at: null, password_changed_at: now, updated_at: now });
 } else {
-  cred = { id: randomUUID(), email, password_hash: passwordHash, verify_token_hash: null, verify_expires_at: null, created_at: now, updated_at: now };
+  cred = { id: randomUUID(), email, password_hash: passwordHash, verify_token_hash: null, verify_expires_at: null, reset_token_hash: null, reset_expires_at: null, password_changed_at: null, created_at: now, updated_at: now };
   db.local_credentials.push(cred);
 }
 const id = cred.id;
@@ -48,7 +48,7 @@ else {
   db.profiles.push(profile);
 }
 if (!db.subscriptions.some((s) => s.user_id === id)) {
-  db.subscriptions.push({ id: randomUUID(), user_id: id, plan: profile.plan, status: "active", provider: "admin_grant", provider_ref: null, price_monthly_eur: 0, current_period_end: null, canceled_at: null, created_at: now, updated_at: now });
+  db.subscriptions.push({ id: randomUUID(), user_id: id, plan: profile.plan, status: "active", provider: "admin_grant", provider_ref: null, stripe_customer_id: null, cancel_at_period_end: false, price_monthly_eur: 0, current_period_end: null, canceled_at: null, created_at: now, updated_at: now });
 }
 if (!db.user_preferences.some((s) => s.user_id === id)) {
   db.user_preferences.push({ id: randomUUID(), user_id: id, interests: [], requested_plan: null, timezone: null, created_at: now, updated_at: now });

@@ -27,6 +27,8 @@ export interface Subscription {
   status: SubscriptionStatus;
   provider: BillingProvider;
   provider_ref: string | null;
+  stripe_customer_id: string | null;
+  cancel_at_period_end: boolean;
   price_monthly_eur: number;
   current_period_end: string | null;
   canceled_at: string | null;
@@ -71,6 +73,8 @@ export interface DocumentRow {
   storage_path: string;
   extracted_text: string | null;
   extraction_status: "done" | "unsupported" | "failed" | "pending";
+  /** How the text was obtained: file parser, or AI recognition (OCR / scanned PDF). */
+  extraction_method: "parser" | "ai" | null;
   created_at: string;
   updated_at: string;
 }
@@ -252,6 +256,14 @@ export interface SupportAccessGrant {
   updated_at: string;
 }
 
+/** Processed payment-provider webhook events (idempotency). */
+export interface BillingEvent {
+  id: string; // provider event id
+  type: string;
+  created_at: string;
+  updated_at: string;
+}
+
 /** Local-backend only: credentials & verification (Supabase Auth handles this in supabase mode). */
 export interface LocalCredential {
   id: string; // = user id
@@ -259,6 +271,10 @@ export interface LocalCredential {
   password_hash: string;
   verify_token_hash: string | null;
   verify_expires_at: string | null;
+  reset_token_hash: string | null;
+  reset_expires_at: string | null;
+  /** Sessions issued before this instant are invalid (set on password change/reset). */
+  password_changed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -283,6 +299,7 @@ export interface Tables {
   billing_checkouts: BillingCheckout;
   support_access_grants: SupportAccessGrant;
   local_credentials: LocalCredential;
+  billing_events: BillingEvent;
 }
 
 export type TableName = keyof Tables;

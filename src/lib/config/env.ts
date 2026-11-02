@@ -56,4 +56,14 @@ export const env = {
   },
   stripeSecretKey: read("STRIPE_SECRET_KEY"),
   stripeWebhookSecret: read("STRIPE_WEBHOOK_SECRET"),
+  stripePricePremium: read("STRIPE_PRICE_PREMIUM"),
+  stripePriceExclusive: read("STRIPE_PRICE_EXCLUSIVE"),
+
+  // Email (optional; Resend)
+  resendApiKey: read("RESEND_API_KEY"),
+  mailFrom: read("ONE_MAIL_FROM"),
+  /** Local demos/tests only: write undeliverable auth emails (links) to the server log, even in `next start`. */
+  get logDemoMail(): boolean {
+    return process.env.NODE_ENV !== "production" || read("ONE_LOG_DEMO_MAIL") === "true";
+  },
 };

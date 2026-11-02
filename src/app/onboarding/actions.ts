@@ -21,8 +21,7 @@ export async function completeOnboarding(_: ActionState, form: FormData): Promis
     await db.updateWhere("user_preferences", {}, { interests, requested_plan: isPlanId(plan) ? plan : null });
     if (interests.length) await seedStarter(user.id, interests);
     if (isPlanId(plan) && plan !== "free" && plan !== user.plan) {
-      const co = await createCheckout(user, plan);
-      target = `/checkout/${co.id}?from=onboarding`;
+      target = (await createCheckout(user, plan)).url; // demo page or hosted Stripe Checkout
     }
   });
   if (res.error) return res;

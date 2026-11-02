@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { useActionState, useState } from "react";
-import { Pencil, Sparkles, ListChecks, FlaskConical } from "lucide-react";
+import { Pencil, Sparkles, ListChecks, FlaskConical, ScanText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea, Field, Select } from "@/components/ui/input";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { initialState, type ActionState } from "@/lib/action-state";
 import type { Category, Memory } from "@/lib/db/types";
 import type { ExtractedTask } from "@/lib/ai/retrieval";
-import { updateMemory, summarizeMemory, detectTasks, addDetectedTasks } from "../../_actions/memory";
+import { updateMemory, summarizeMemory, detectTasks, addDetectedTasks, recognizeText } from "../../_actions/memory";
 
 export function MemoryEditor({ memory, categories }: { memory: Memory; categories: Category[] }) {
   const [editing, setEditing] = useState(false);
@@ -122,5 +122,17 @@ export function TaskDetector({ memoryId, aiDemo }: { memoryId: string; aiDemo: b
       )}
       {done && <FormMessage state={addState} />}
     </div>
+  );
+}
+
+export function RecognizeTextButton({ id, again }: { id: string; again?: boolean }) {
+  const [state, action] = useActionState(recognizeText, initialState);
+  return (
+    <form action={action} className="mt-3 space-y-2">
+      <input type="hidden" name="id" value={id} />
+      <SubmitButton variant="soft" size="sm" pendingText="Reading the file…"><ScanText /> {again ? "Recognise text again" : "Recognise text with AI"}</SubmitButton>
+      <p className="text-xs text-muted">Uses 1 AI request. ONE only transcribes what is visible in the file.</p>
+      <FormMessage state={state} />
+    </form>
   );
 }

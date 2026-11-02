@@ -2,7 +2,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { assertUser, AuthError, checkPassword, signOut } from "@/lib/auth";
+import { assertUser, AuthError, checkPassword, signOut, changePassword } from "@/lib/auth";
+import { passwordSchema } from "@/lib/validation";
 import { systemDb, userDb } from "@/lib/db";
 import { createCheckout, cancelSubscription } from "@/lib/billing";
 import { isPlanId } from "@/lib/config/plans";
@@ -32,8 +33,7 @@ export async function startCheckout(_: ActionState, form: FormData): Promise<Act
     const plan = fd(form, "plan");
     if (!isPlanId(plan) || plan === "free") throw new AuthError("Please choose a paid plan.");
     if (plan === user.plan) throw new AuthError("You're already on this plan.");
-    const co = await createCheckout(user, plan);
-    target = `/checkout/${co.id}`;
+    target = (await createCheckout(user, plan)).url; // demo page or hosted Stripe Checkout
   });
   if (res.error) return res;
   redirect(target);
@@ -42,9 +42,25 @@ export async function startCheckout(_: ActionState, form: FormData): Promise<Act
 export async function cancelPlan(): Promise<ActionState> {
   return run(async () => {
     const user = await assertUser();
-    await cancelSubscription(user);
+    const when = await cancelSubscription(user);
     revalidatePath("/app", "layout");
-    return { ok: true, message: "Your plan was cancelled. You're now on Free.", ts: Date.now() };
+    return {
+      ok: true,
+      message: when === "period_end" ? "Your plan will end at the close of the current billing period." : "Your plan was cancelled. You're now on Free.",
+      ts: Date.now(),
+    };
+  });
+}
+
+export async function changePasswordAction(_: ActionState, form: FormData): Promise<ActionState> {
+  return run(async () => {
+    const user = await assertUser();
+    if (!rateLimit(`pwchange:${user.id}`, 5, 15 * 60 * 1000)) throw new AuthError("Too many attempts. Please wait a few minutes.");
+    const next = passwordSchema.parse(fd(form, "new_password"));
+    if (next !== fd(form, "confirm_password")) throw new AuthError("The new passwords don't match.");
+    await changePassword(user.id, fd(form, "current_password"), next);
+    await audit(user.id, "auth.password_changed");
+    return { ok: true, message: "Password changed. Other devices were signed out.", ts: Date.now() };
   });
 }
 

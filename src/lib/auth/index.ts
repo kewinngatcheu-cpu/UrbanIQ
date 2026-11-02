@@ -9,6 +9,7 @@ import { isPlanId, type PlanId } from "@/lib/config/plans";
 import { createSession, destroySession, readSession } from "./session";
 import { hashPassword, randomToken, sha256, verifyPassword } from "./password";
 import { supabaseUserClient } from "@/lib/supabase/server";
+import { sendMail } from "@/lib/mail";
 
 export const DEMO_VERIFY_COOKIE = "one_demo_verify";
 
@@ -36,6 +37,7 @@ export async function ensureProfile(id: string, email: string, opts: { verified:
   if (!(await db.selectOne("subscriptions", { user_id: id }))) {
     await db.insert("subscriptions", {
       user_id: id, plan: "free", status: "active", provider: "none", provider_ref: null,
+      stripe_customer_id: null, cancel_at_period_end: false,
       price_monthly_eur: 0, current_period_end: null, canceled_at: null,
     });
   }
@@ -59,10 +61,13 @@ async function resolveUserId(): Promise<{ id: string; email: string; verified: b
     if (!data.user) return null;
     return { id: data.user.id, email: data.user.email ?? "", verified: !!data.user.email_confirmed_at };
   }
-  const id = await readSession();
-  if (!id) return null;
+  const session = await readSession();
+  if (!session) return null;
+  const id = session.userId;
   const cred = await systemDb().selectOne("local_credentials", { id });
   if (!cred) return null;
+  // Sessions issued before the last password change are revoked (JWT iat has second precision).
+  if (cred.password_changed_at && session.issuedAt < Math.floor(Date.parse(cred.password_changed_at) / 1000) * 1000) return null;
   return { id, email: cred.email, verified: cred.verify_token_hash === null };
 }
 
@@ -144,6 +149,9 @@ export async function signUp(email: string, password: string, requestedPlan: Pla
     password_hash: await hashPassword(password),
     verify_token_hash: sha256(token),
     verify_expires_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+    reset_token_hash: null,
+    reset_expires_at: null,
+    password_changed_at: null,
   });
   await ensureProfile(cred.id, email, { verified: false, requestedPlan: isPlanId(requestedPlan) ? requestedPlan : null });
   await createSession(cred.id);
@@ -152,14 +160,24 @@ export async function signUp(email: string, password: string, requestedPlan: Pla
 }
 
 /**
- * Local mode has no mail service. The verification link is placed in a short-lived httpOnly
- * cookie of the browser that signed up and shown on /verify-email, clearly labelled as demo outbox.
+ * Sends the verification email (Resend) when configured. Without a mail service, the link is placed
+ * in a short-lived httpOnly cookie of the browser that signed up and shown on /verify-email,
+ * clearly labelled as demo outbox.
  */
 async function deliverVerification(email: string, token: string) {
   const url = `${env.appUrl}/auth/verify?token=${encodeURIComponent(token)}`;
+  const { delivered } = await sendMail({
+    to: email,
+    subject: "Confirm your email for ONE",
+    heading: "Welcome to ONE",
+    body: "Please confirm your email address to activate your account. The link is valid for 24 hours.",
+    cta: { label: "Confirm email", url },
+    footer: "If you didn't create a ONE account, you can ignore this email.",
+  });
+  if (delivered) return;
   const store = await cookies();
   store.set(DEMO_VERIFY_COOKIE, url, { httpOnly: true, sameSite: "lax", secure: env.isProd, path: "/", maxAge: 3600 });
-  if (!env.isProd) console.info(`[ONE demo mail] Verification link for ${email}: ${url}`);
+  if (env.logDemoMail) console.info(`[ONE demo mail] Verification link for ${email}: ${url}`);
 }
 
 export async function resendVerification(userId: string) {
@@ -238,4 +256,95 @@ export async function checkPassword(userId: string, password: string): Promise<b
   }
   const cred = await systemDb().selectOne("local_credentials", { id: userId });
   return !!cred && (await verifyPassword(password, cred.password_hash));
+}
+
+// ───────────────────────── Password reset & change ─────────────────────────
+
+/**
+ * Starts a password reset. Never reveals whether the address exists.
+ * Local mode without a mail service: the link is only written to the server log (development),
+ * never shown in the browser — otherwise anyone could reset any account.
+ */
+export async function requestPasswordReset(email: string): Promise<void> {
+  email = email.trim().toLowerCase();
+  if (env.backend === "supabase") {
+    const sb = await supabaseUserClient();
+    await sb.auth.resetPasswordForEmail(email, { redirectTo: `${env.appUrl}/auth/callback?next=/reset-password` });
+    return;
+  }
+  const db = systemDb();
+  const cred = await db.selectOne("local_credentials", { email });
+  if (!cred) return;
+  const token = randomToken();
+  await db.update("local_credentials", { id: cred.id }, {
+    reset_token_hash: sha256(token),
+    reset_expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+  });
+  const url = `${env.appUrl}/reset-password?token=${encodeURIComponent(token)}`;
+  const { delivered } = await sendMail({
+    to: email,
+    subject: "Reset your ONE password",
+    heading: "Reset your password",
+    body: "Someone (hopefully you) asked to reset the password of your ONE account. The link is valid for 1 hour.",
+    cta: { label: "Choose a new password", url },
+    footer: "If you didn't ask for this, you can ignore this email — your password stays the same.",
+  });
+  if (!delivered && env.logDemoMail) console.info(`[ONE demo mail] Password reset link for ${email}: ${url}`);
+}
+
+/** Local mode: is this reset token valid? */
+export async function resetTokenValid(token: string): Promise<boolean> {
+  const cred = await systemDb().selectOne("local_credentials", { reset_token_hash: sha256(token) });
+  return !!cred && !!cred.reset_expires_at && Date.parse(cred.reset_expires_at) > Date.now();
+}
+
+/** Completes a reset. Local: via token. Supabase: via the recovery session from the email link. */
+export async function completePasswordReset(token: string | null, newPassword: string): Promise<string> {
+  if (env.backend === "supabase") {
+    const sb = await supabaseUserClient();
+    const { data, error } = await sb.auth.updateUser({ password: newPassword });
+    if (error || !data.user) throw new AuthError("This reset link is invalid or has expired. Please request a new one.");
+    return data.user.id;
+  }
+  const db = systemDb();
+  const cred = token ? await db.selectOne("local_credentials", { reset_token_hash: sha256(token) }) : null;
+  if (!cred || !cred.reset_expires_at || Date.parse(cred.reset_expires_at) < Date.now()) {
+    throw new AuthError("This reset link is invalid or has expired. Please request a new one.");
+  }
+  await db.update("local_credentials", { id: cred.id }, {
+    password_hash: await hashPassword(newPassword),
+    reset_token_hash: null,
+    reset_expires_at: null,
+    // Clicking the emailed link also proves ownership of the address.
+    verify_token_hash: null,
+    verify_expires_at: null,
+    password_changed_at: new Date().toISOString(),
+  });
+  await db.update("profiles", { id: cred.id }, { email_verified: true });
+  await waitForNextSecond();
+  await createSession(cred.id);
+  return cred.id;
+}
+
+/** Change password while signed in (requires the current password). Signs out other sessions. */
+export async function changePassword(userId: string, current: string, next: string) {
+  if (!(await checkPassword(userId, current))) throw new AuthError("Your current password is incorrect.");
+  if (env.backend === "supabase") {
+    const sb = await supabaseUserClient();
+    const { error } = await sb.auth.updateUser({ password: next });
+    if (error) throw new AuthError(error.message);
+    await sb.auth.signOut({ scope: "others" });
+    return;
+  }
+  await systemDb().update("local_credentials", { id: userId }, {
+    password_hash: await hashPassword(next),
+    password_changed_at: new Date().toISOString(),
+  });
+  await waitForNextSecond();
+  await createSession(userId); // keep this browser signed in, revoke all others
+}
+
+/** JWT iat has 1-second precision; make sure the fresh session is newer than password_changed_at. */
+function waitForNextSecond() {
+  return new Promise((r) => setTimeout(r, 1000 - (Date.now() % 1000) + 5));
 }

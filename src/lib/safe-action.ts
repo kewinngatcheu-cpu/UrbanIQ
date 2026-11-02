@@ -13,6 +13,10 @@ export function toActionError(e: unknown): ActionState {
   if (e && typeof e === "object" && "digest" in e && String((e as { digest: unknown }).digest).startsWith("NEXT_")) throw e;
   if (e instanceof LimitError) return { error: e.message, upgradeTo: e.upgradeTo, ts };
   if (e instanceof AuthError || e instanceof AiError || e instanceof BillingError) return { error: e.message, ts };
+  if (e && typeof e === "object" && "type" in e && String((e as { type: unknown }).type).startsWith("Stripe")) {
+    console.error("[action] stripe error", e);
+    return { error: "The payment provider couldn't process this right now. Nothing was charged — please try again.", ts };
+  }
   if (e instanceof z.ZodError) return { error: e.issues[0]?.message ?? "Please check your input.", ts };
   console.error("[action] unexpected error", e);
   return { error: "Something went wrong. Please try again.", ts };

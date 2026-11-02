@@ -28,13 +28,13 @@ export async function createSession(userId: string) {
   });
 }
 
-export async function readSession(): Promise<string | null> {
+export async function readSession(): Promise<{ userId: string; issuedAt: number } | null> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, key(), { algorithms: ["HS256"] });
-    return typeof payload.sub === "string" ? payload.sub : null;
+    return typeof payload.sub === "string" ? { userId: payload.sub, issuedAt: (payload.iat ?? 0) * 1000 } : null;
   } catch {
     return null;
   }

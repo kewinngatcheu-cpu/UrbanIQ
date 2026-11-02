@@ -3,7 +3,7 @@ import { useActionState, useEffect, useRef } from "react";
 import { Input, Field, Textarea, Select } from "@/components/ui/input";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
 import { initialState } from "@/lib/action-state";
-import { updateProfile, sendFeedback, grantSupportAccess, deleteAccount } from "../_actions/settings";
+import { updateProfile, sendFeedback, grantSupportAccess, deleteAccount, changePasswordAction } from "../_actions/settings";
 
 export function ProfileForm({ name, email }: { name: string; email: string }) {
   const [state, action] = useActionState(updateProfile, initialState);
@@ -63,6 +63,23 @@ export function DeleteAccountForm() {
       <Field label="Your password" htmlFor="d-pw"><Input id="d-pw" name="password" type="password" required autoComplete="current-password" /></Field>
       <FormMessage state={state} />
       <SubmitButton variant="danger" pendingText="Deleting…">Permanently delete my account</SubmitButton>
+    </form>
+  );
+}
+
+export function PasswordForm() {
+  const [state, action] = useActionState(changePasswordAction, initialState);
+  const ref = useRef<HTMLFormElement>(null);
+  useEffect(() => { if (state.ok) ref.current?.reset(); }, [state.ts, state.ok]);
+  return (
+    <form ref={ref} action={action} className="space-y-4">
+      <Field label="Current password" htmlFor="pw-current"><Input id="pw-current" name="current_password" type="password" autoComplete="current-password" required /></Field>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="New password" htmlFor="pw-new" hint="10+ characters, letters and numbers"><Input id="pw-new" name="new_password" type="password" autoComplete="new-password" required /></Field>
+        <Field label="Repeat new password" htmlFor="pw-confirm"><Input id="pw-confirm" name="confirm_password" type="password" autoComplete="new-password" required /></Field>
+      </div>
+      <FormMessage state={state} />
+      <SubmitButton variant="secondary" pendingText="Saving…">Change password</SubmitButton>
     </form>
   );
 }

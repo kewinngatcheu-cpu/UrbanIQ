@@ -3,6 +3,8 @@ import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { requireOwner } from "@/lib/auth";
 import { systemDb } from "@/lib/db";
 import { env } from "@/lib/config/env";
+import { stripeConfigured } from "@/lib/billing/stripe";
+import { mailConfigured } from "@/lib/mail";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 
 export const metadata: Metadata = { title: "System" };
@@ -22,7 +24,18 @@ export default async function AdminSystem() {
   checks.push({ name: "Authentication", state: env.backend === "supabase" ? "ok" : "warn", detail: env.backend === "supabase" ? "Supabase Auth" : "Local auth (scrypt + signed session cookie), demo mail outbox" });
   checks.push({ name: "File storage", state: env.backend === "supabase" ? "ok" : "warn", detail: env.backend === "supabase" ? "Supabase Storage bucket “documents”" : `Local folder ${env.dataDir}/uploads` });
   checks.push({ name: "AI provider", state: env.aiMode === "anthropic" ? "ok" : "warn", detail: env.aiMode === "anthropic" ? `Anthropic · ${env.aiModel}` : "Demo mode — set ANTHROPIC_API_KEY to enable real AI" });
-  checks.push({ name: "Billing", state: env.billingMode === "stripe" && env.stripeSecretKey ? "ok" : "warn", detail: env.billingMode === "stripe" ? "Stripe (integration pending — see README)" : "Demo payment mode" });
+  checks.push({
+    name: "Billing",
+    state: env.billingMode === "stripe" ? (stripeConfigured() ? "ok" : "error") : "warn",
+    detail: env.billingMode === "stripe"
+      ? stripeConfigured() ? "Stripe — Checkout, webhook (/api/billing/stripe-webhook) and customer portal" : "Stripe mode, but STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET / STRIPE_PRICE_* are incomplete"
+      : "Demo payment mode — no real payments",
+  });
+  checks.push({
+    name: "Email",
+    state: env.backend === "supabase" || mailConfigured() ? "ok" : "warn",
+    detail: mailConfigured() ? "Resend (verification & password reset emails)" : env.backend === "supabase" ? "Supabase Auth mailer" : "No mail service — demo outbox (verification) / server log (password reset)",
+  });
   checks.push({ name: "Owner configuration", state: env.ownerUserId ? "ok" : "error", detail: env.ownerUserId ? "ONE_OWNER_USER_ID is set (server-side)" : "ONE_OWNER_USER_ID missing" });
   checks.push({ name: "Session secret", state: env.backend === "supabase" || (process.env.ONE_SESSION_SECRET?.length ?? 0) >= 32 ? "ok" : "warn", detail: env.backend === "supabase" ? "Managed by Supabase" : (process.env.ONE_SESSION_SECRET?.length ?? 0) >= 32 ? "Custom secret configured" : "Using development fallback secret" });
 

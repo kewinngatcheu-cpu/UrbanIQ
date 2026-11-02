@@ -1,8 +1,8 @@
 "use server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { z } from "zod";
-import { signIn, signUp, signOut, resendVerification, getCurrentUser, AuthError } from "@/lib/auth";
+import { emailSchema, passwordSchema } from "@/lib/validation";
+import { signIn, signUp, signOut, resendVerification, getCurrentUser, AuthError, requestPasswordReset, completePasswordReset } from "@/lib/auth";
 import { rateLimit } from "@/lib/auth/rate-limit";
 import { isEnabled } from "@/lib/features";
 import { audit } from "@/lib/audit";
@@ -15,13 +15,8 @@ async function ip() {
   return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "local";
 }
 
-const email = z.string().trim().toLowerCase().email("Please enter a valid email address.").max(254);
-const password = z
-  .string()
-  .min(10, "Use at least 10 characters for your password.")
-  .max(200)
-  .regex(/[a-zA-Z]/, "Your password needs at least one letter.")
-  .regex(/[0-9]/, "Your password needs at least one number.");
+const email = emailSchema;
+const password = passwordSchema;
 
 function safeNext(next: string) {
   return next.startsWith("/") && !next.startsWith("//") ? next : "/app";
@@ -73,4 +68,26 @@ export async function logoutAction() {
   await signOut();
   if (user) await audit(user.id, "auth.logout");
   redirect("/");
+}
+
+export async function forgotPasswordAction(_: ActionState, form: FormData): Promise<ActionState> {
+  return run(async () => {
+    if (!rateLimit(`forgot:${await ip()}`, 5, 15 * 60 * 1000)) throw new AuthError("Too many requests. Please wait a few minutes.");
+    const e = email.parse(fd(form, "email"));
+    if (!rateLimit(`forgot-email:${e}`, 3, 60 * 60 * 1000)) throw new AuthError("Too many requests for this address. Please try again later.");
+    await requestPasswordReset(e);
+    // Same answer whether or not the account exists.
+    return { ok: true, message: "If an account exists for this address, a reset link is on its way.", ts: Date.now() };
+  });
+}
+
+export async function resetPasswordAction(_: ActionState, form: FormData): Promise<ActionState> {
+  return run(async () => {
+    if (!rateLimit(`reset:${await ip()}`, 10, 15 * 60 * 1000)) throw new AuthError("Too many attempts. Please wait a few minutes.");
+    const pw = password.parse(fd(form, "password"));
+    if (pw !== fd(form, "confirm")) throw new AuthError("The passwords don't match.");
+    const userId = await completePasswordReset(fd(form, "token") || null, pw);
+    await audit(userId, "auth.password_reset");
+    return { ok: true, data: { target: "/app" }, ts: Date.now() };
+  });
 }

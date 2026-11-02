@@ -7,7 +7,7 @@ import { getCheckout } from "@/lib/billing";
 import { PLANS, formatPrice } from "@/lib/config/plans";
 import { Logo } from "@/components/brand/logo";
 import { buttonVariants } from "@/components/ui/button";
-import { ConfirmCheckout } from "./confirm";
+import { ConfirmCheckout, AwaitPayment } from "./confirm";
 
 export const metadata: Metadata = { title: "Checkout" };
 
@@ -23,10 +23,12 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
       <header className="mx-auto flex h-16 max-w-6xl items-center px-5"><Link href="/app"><Logo /></Link></header>
       <main className="mx-auto max-w-lg px-5 pb-20 pt-6">
         <div className="animate-fade-up rounded-3xl border border-line bg-white p-8 shadow-lift">
-          <div className="flex items-center gap-2 rounded-xl border border-dashed border-[#e2dcff] bg-lavender/70 px-3.5 py-2.5 text-[13px] text-lavender-ink">
-            <FlaskConical className="size-4 shrink-0" />
-            <span><strong>Demo payment mode.</strong> No real payment is processed and no money is charged. Stripe will replace this step.</span>
-          </div>
+          {co.provider === "demo" && (
+            <div className="flex items-center gap-2 rounded-xl border border-dashed border-[#e2dcff] bg-lavender/70 px-3.5 py-2.5 text-[13px] text-lavender-ink">
+              <FlaskConical className="size-4 shrink-0" />
+              <span><strong>Demo payment mode.</strong> No real payment is processed and no money is charged.</span>
+            </div>
+          )}
           <p className="mt-7 text-[13px] font-semibold tracking-[0.18em] text-accent-strong">ONE {plan.name.toUpperCase()}</p>
           <div className="mt-2 flex items-baseline gap-1">
             <span className="text-4xl font-semibold text-ink">{formatPrice(co.amount_eur)}</span>
@@ -43,6 +45,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
                 <p className="font-semibold text-mint-ink">This plan is active.</p>
                 <Link href="/app" className={buttonVariants({ className: "mt-4" })}>Go to dashboard</Link>
               </div>
+            ) : co.provider === "stripe" && co.status === "pending" ? (
+              <AwaitPayment />
             ) : open ? (
               <ConfirmCheckout id={co.id} planName={plan.name} />
             ) : (

@@ -44,6 +44,14 @@ do $$ begin
   exception when insufficient_privilege then null; end;
 end $$;
 
+-- Billing webhook records are server-only
+do $$ begin
+  begin
+    perform * from public.billing_events;
+    raise exception 'FAIL: billing_events readable';
+  exception when insufficient_privilege then null; end;
+end $$;
+
 -- Bob sees nothing of Alice's
 select set_config('request.jwt.claim.sub', '22222222-2222-2222-2222-222222222222', false);
 do $$ begin

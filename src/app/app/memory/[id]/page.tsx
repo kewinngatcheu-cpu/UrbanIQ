@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Download, FileText, Link2, Pin, PinOff, Sparkles, Zap, FlaskConical, Mic } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { userDb } from "@/lib/db";
-import { buildCorpus } from "@/lib/ai/service";
+import { buildCorpus, canAnalyzeFile } from "@/lib/ai/service";
 import { related } from "@/lib/ai/retrieval";
 import { hasFeature } from "@/lib/permissions/entitlements";
 import { env } from "@/lib/config/env";
@@ -18,7 +18,7 @@ import { TaskRow } from "@/components/app/task-row";
 import { UpgradeCard } from "@/components/app/upgrade-card";
 import { deleteMemory, togglePin } from "../../_actions/memory";
 import { formatBytes, formatDate, sourceHref } from "@/lib/utils";
-import { MemoryEditor, SummaryButton, TaskDetector } from "./client";
+import { MemoryEditor, SummaryButton, TaskDetector, RecognizeTextButton } from "./client";
 
 export const metadata: Metadata = { title: "Memory" };
 
@@ -82,13 +82,24 @@ export default async function MemoryDetail({ params }: { params: Promise<{ id: s
                 ) : null}
                 {doc.extracted_text ? (
                   <details className="mt-4 rounded-xl bg-snow p-4" open={!doc.mime_type.startsWith("image/") && doc.mime_type !== "application/pdf"}>
-                    <summary className="cursor-pointer text-[13px] font-medium text-ink">Extracted text ({doc.extracted_text.length.toLocaleString()} characters)</summary>
+                    <summary className="cursor-pointer text-[13px] font-medium text-ink">
+                      {doc.extraction_method === "ai" ? "Text recognised by AI" : "Extracted text"} ({doc.extracted_text.length.toLocaleString()} characters)
+                    </summary>
                     <pre className="mt-3 max-h-96 overflow-auto whitespace-pre-wrap font-sans text-[13px] leading-relaxed text-muted">{doc.extracted_text.slice(0, 20000)}</pre>
                   </details>
-                ) : doc.mime_type.startsWith("image/") ? (
-                  <p className="mt-3 text-xs text-muted">Text recognition (OCR) for images is on the roadmap — add a note above so you can find this image by search.</p>
                 ) : doc.extraction_status === "failed" ? (
                   <p className="mt-3 text-xs text-rose-ink">ONE couldn&apos;t read the text of this file. It&apos;s still stored safely.</p>
+                ) : null}
+                {canAnalyzeFile(user, doc.mime_type, doc.size_bytes, doc.extraction_method === "parser" && !!doc.extracted_text) ? (
+                  <RecognizeTextButton id={m.id} again={doc.extraction_method === "ai"} />
+                ) : (doc.mime_type.startsWith("image/") || (doc.mime_type === "application/pdf" && !doc.extracted_text)) && !doc.mime_type.startsWith("audio/") ? (
+                  <p className="mt-3 text-xs text-muted">
+                    {env.aiMode === "demo"
+                      ? "Text recognition needs ONE's AI, which isn't connected in demo mode. Add a note above so you can find this file by search."
+                      : !hasFeature(user, "documentAnalysis")
+                        ? "Text recognition for images and scanned PDFs is part of Premium."
+                        : "This file is too large or in a format ONE's AI can't read yet."}
+                  </p>
                 ) : null}
               </CardBody>
             </Card>

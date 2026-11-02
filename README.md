@@ -38,8 +38,9 @@ Without Supabase or an AI key ONE runs fully in **local demo mode**:
 - **Auth:** scrypt password hashes + signed httpOnly session cookie. Since no mail service is connected, the verification email is shown on the *Verify email* page in a clearly labelled **Demo mail outbox**.
 - **AI:** clearly labelled **demo mode** — Ask ONE answers with a keyword search over the user's own data, summaries are extractive, task detection is rule-based, action plans use proven templates. Nothing is presented as AI output when it is not.
 - **Billing:** **demo payment mode** — no money is charged; a plan is only activated after a server-side checkout record is confirmed.
+- **Password reset:** without a mail service the reset link is **never shown in the browser** (that would allow account takeover); with `ONE_LOG_DEMO_MAIL=true` (or in `npm run dev`) it is written to the server log.
 
-Add `ANTHROPIC_API_KEY` to enable real AI (Claude). Configure Supabase for production.
+Add `ANTHROPIC_API_KEY` to enable real AI (Claude), `RESEND_API_KEY` for real emails, Stripe keys for real payments, and Supabase for production.
 
 ---
 
@@ -59,6 +60,7 @@ src/
       _actions/           Server actions per module (all authorization happens here)
     admin/                Owner-only admin area (+ audited server actions)
     api/export            GDPR data export (JSON)
+    api/billing/          Stripe webhook (signature-verified, idempotent) + customer portal redirect
     api/files/[id]        Owner-only file streaming
   proxy.ts                Session presence check + Supabase session refresh (Next 16 "proxy")
   components/             UI kit (ui/), app components (app/), brand, landing, admin
@@ -71,7 +73,8 @@ src/
                           systemDb()     = service access for auth bootstrap, billing, admin
     ai/                   Exchangeable AI layer: provider.ts (Claude), service.ts (ask, summarize,
                           extract tasks, plan actions), retrieval.ts (BM25 RAG), templates.ts
-    billing/              Checkout & plan activation (demo provider, Stripe hook)
+    billing/              Checkout & plan activation: demo provider + Stripe (Checkout, webhook sync, portal)
+    mail.ts               Transactional email via Resend (verification, password reset)
     permissions/          Entitlements & usage limits (feature gates, AI quota, storage)
     insights.ts           Rule-based, source-linked insights
     features.ts           Global feature flags (admin-managed)
@@ -106,7 +109,8 @@ tests/e2e                 Browser end-to-end tests (Playwright)
 | Data isolation | `userDb()` scoping + RLS `user_id = auth.uid()` on all private tables; composite foreign keys prevent linking to another user's rows. |
 | Admin & private content | The admin area shows **metadata and counts only**. Private content is visible only with a user-granted, time-limited (≤ 7 days) **support access grant**; each view is written to the audit log. |
 | Audit | `audit_logs` is append-only (DB trigger). Logged: logins, plan changes, checkouts, suspensions, flag changes, support access, exports, deletions. |
-| Sessions & passwords | Local: scrypt (N=16384) + HS256-signed httpOnly cookie. Supabase: Supabase Auth. Login/registration/verification are rate-limited. |
+| Sessions & passwords | Local: scrypt (N=16384) + HS256-signed httpOnly cookie. Supabase: Supabase Auth. Login, registration, verification and password reset are rate-limited. Password reset uses single-use, hashed, 1-hour tokens and never reveals whether an address exists; a password change or reset revokes all other sessions. |
+| Payments | A plan only changes through a **signature-verified Stripe webhook** (or confirmed demo checkout / audited owner grant). The success redirect from Stripe activates nothing by itself. Webhook processing is idempotent (`billing_events`). |
 | Files | Stored under the owner's folder; served only to the owner; non-media types are forced to download; restrictive CSP. |
 | External actions | ONE never sends, books or cancels anything. Completing an external step requires an explicit confirmation checkbox; "Open in my email app" only creates a draft in the user's own mail program. |
 | AI grounding | The model is instructed to answer personal questions only from retrieved items, cite them, and say clearly when nothing is stored. In demo mode no text is generated at all. |
@@ -130,7 +134,10 @@ See [`.env.example`](.env.example). Summary:
 | `ANTHROPIC_API_KEY` | **server secret** | Enables real AI; without it: demo mode |
 | `ONE_AI_MODEL` | server | Default `claude-opus-5-5` |
 | `ONE_BILLING_MODE` | server | `demo` (default) or `stripe` |
-| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | **server secret** | Reserved for the Stripe integration |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | **server secret** | Stripe API key and webhook signing secret |
+| `STRIPE_PRICE_PREMIUM`, `STRIPE_PRICE_EXCLUSIVE` | server | Recurring monthly Stripe price ids |
+| `RESEND_API_KEY`, `ONE_MAIL_FROM` | **server secret** / server | Transactional email (local backend) |
+| `ONE_LOG_DEMO_MAIL` | server | Demos/tests only: print undeliverable auth links to the server log |
 | `ONE_DEFAULT_TIMEZONE` | server | Fallback timezone before the browser reports its own |
 
 ---
@@ -170,6 +177,19 @@ The **Admin** entry appears in the sidebar for the owner only. `/admin` offers: 
 
 ---
 
+## Payments (Stripe)
+
+1. In Stripe create a product per paid plan with a **recurring monthly price** and copy the price ids (`price_…`) into `STRIPE_PRICE_PREMIUM` / `STRIPE_PRICE_EXCLUSIVE`. Keep the amounts in sync with `src/lib/config/plans.ts`.
+2. Add a webhook endpoint `https://<your-domain>/api/billing/stripe-webhook` with the events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`; put its signing secret into `STRIPE_WEBHOOK_SECRET`.
+3. Set `STRIPE_SECRET_KEY` and `ONE_BILLING_MODE=stripe`. Enable the **Customer Portal** in the Stripe dashboard (payment methods, invoices, cancellation).
+4. Local testing: `stripe listen --forward-to localhost:3000/api/billing/stripe-webhook` and use the printed `whsec_…` secret.
+
+Flow: *Choose plan → hosted Stripe Checkout → back to `/checkout/<id>` which waits for the webhook → plan active.* Cancelling in ONE schedules the end at the period end; Stripe's `customer.subscription.deleted` then returns the user to Free. `past_due` keeps access during Stripe's retry window and shows a notice. Admin revenue (MRR) counts only active Stripe subscriptions.
+
+## Email
+
+Local backend: set `RESEND_API_KEY` and `ONE_MAIL_FROM` to send verification and password-reset emails (branded HTML templates in `src/lib/mail.ts`). Supabase backend: configure SMTP and the email templates in Supabase; add `https://<your-domain>/auth/callback` to the redirect URLs (also used for password recovery).
+
 ## Development commands
 
 | Command | Description |
@@ -179,8 +199,9 @@ The **Admin** entry appears in the sidebar for the owner only. `/admin` offers: 
 | `npm run lint` | ESLint (Next.js + React hooks rules) |
 | `npm run typecheck` | TypeScript |
 | `npm test` | Unit tests (Node test runner) |
-| `npm run test:e2e` | Browser end-to-end tests against a running server (`BASE_URL`, `OWNER_EMAIL`, `OWNER_PASSWORD`; needs Playwright + Chromium). Covers registration & verification, onboarding & demo checkout, all four modules, data isolation between users, upgrade prompts, admin protection, suspension, audited plan grants, support access, feature flags and account deletion. Start the server fresh before running — sign-up rate limits are per IP. |
+| `npm run test:e2e` | Browser end-to-end tests against a running server (`BASE_URL`, `OWNER_EMAIL`, `OWNER_PASSWORD`; needs Playwright + Chromium). Covers registration & verification, onboarding & demo checkout, all four modules, data isolation between users, upgrade prompts, admin protection, suspension, audited plan grants, support access, feature flags, password change, password reset (set `SERVER_LOG` to the server's log file with `ONE_LOG_DEMO_MAIL=true`) and account deletion. Start the server fresh before running — sign-up rate limits are per IP. |
 | `npm run test:db` | Migration + RLS tests on a throwaway PostgreSQL database |
+| `npm run test:stripe` | Starts its own server in Stripe mode (port 3100) and verifies the webhook: forged signatures rejected, activation, upgrades, past_due, scheduled cancellation, deletion, idempotency, graceful checkout errors. Needs a build. |
 | `npm run owner:create` | Owner bootstrap (local backend) |
 
 ## Changing plans, prices and limits
@@ -191,7 +212,7 @@ Everything lives in [`src/lib/config/plans.ts`](src/lib/config/plans.ts): prices
 
 - Provider: Anthropic Claude via the official SDK (`@anthropic-ai/sdk`), server-side only, default model `claude-opus-5-5` (`ONE_AI_MODEL`). Effort scales with the plan (Free: low, Premium: medium, Exclusive: high). Refusal fallback is enabled server-side.
 - **RAG:** a BM25 retriever over the user's own memories, document text, tasks and actions (`lib/ai/retrieval.ts`). Retrieved items are numbered; the answer's citations are mapped back to source chips.
-- Functions: chat (Ask ONE), summaries, task & deadline extraction (structured output), action plans with drafts & missing information.
+- Functions: chat (Ask ONE), summaries, task & deadline extraction (structured output), action plans with drafts & missing information, and **text recognition** for images and scanned PDFs (Premium+, started explicitly by the user, uses one AI request; the model only transcribes what is visible).
 - Usage limits are enforced per plan and month; AI errors are mapped to friendly messages; a global kill switch exists in the admin features page.
 
 ## Deployment
@@ -200,18 +221,16 @@ Everything lives in [`src/lib/config/plans.ts`](src/lib/config/plans.ts): prices
 - Set `NEXT_PUBLIC_APP_URL` to your public URL and add the Supabase redirect URL.
 - Behind a proxy, make sure `x-forwarded-for` is set (used for rate limiting). For multiple instances replace the in-memory rate limiter (`lib/auth/rate-limit.ts`) with Redis/Upstash.
 
-## Missing integrations / known limitations
+## Known limitations
 
 | Area | Status |
 | --- | --- |
-| Payments | Demo mode only. Stripe hooks exist (`lib/billing`: `createCheckout`, `activatePlan`); still to build: Stripe Checkout session creation, `/api/billing/stripe-webhook` with signature verification, customer portal, proration. |
-| Email (local backend) | No SMTP — verification link is shown in the demo outbox. Supabase mode uses Supabase's mailer. Password reset & email change are not yet implemented. |
-| AI | Requires `ANTHROPIC_API_KEY`; otherwise demo mode. No streaming responses yet. |
-| Semantic search | Lexical BM25 today; pgvector embeddings are prepared in the schema as a comment. |
-| OCR / transcription | Images and voice notes are stored and previewed; text recognition and transcription are not implemented (UI says so). |
-| Notifications | Reminders appear in the app; push/email notifications are not implemented. |
-| Supabase mode | Implemented and the SQL/RLS is tested on PostgreSQL, but the app has not yet been run end-to-end against a live Supabase project (no credentials in this environment). |
-| Localisation | UI is English; i18n (e.g. German) is on the roadmap. |
-| Legal | Privacy policy and terms are placeholders that need legal review. |
+| Live services | Stripe, Resend, Anthropic and Supabase are fully integrated in code and covered by tests with local stand-ins (signed test webhooks, PostgreSQL with Supabase stubs). They have **not** been run against live accounts from this environment — do one staging run with real keys before launch. |
+| Voice notes | Stored and playable; transcription is not implemented (Claude does not accept audio). |
+| Semantic search | Lexical BM25; pgvector embeddings are prepared in the schema as a comment. |
+| Notifications | Reminders appear in the app; push / email reminders are not implemented. |
+| Localisation | UI is English; German and further languages are on the roadmap. |
+| Legal | Privacy policy and terms are placeholders that need legal review (incl. Impressum for Germany). |
+| Scale | The local JSON backend and in-memory rate limiting are single-instance; use Supabase (and Redis for rate limits) in production. |
 
 See [ROADMAP.md](ROADMAP.md) for what comes next.

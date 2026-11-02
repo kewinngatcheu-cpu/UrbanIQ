@@ -9,7 +9,8 @@ import { env } from "@/lib/config/env";
  */
 export interface CompleteInput {
   system: string;
-  messages: { role: "user" | "assistant"; content: string }[];
+  /** Plain text turns, or full content blocks (e.g. images / PDFs) for multimodal requests. */
+  messages: Anthropic.Beta.Messages.BetaMessageParam[];
   effort?: "low" | "medium" | "high";
   maxTokens?: number;
   /** JSON schema for structured output. */
