@@ -1,0 +1,127 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowLeft, Lock, ShieldCheck } from "lucide-react";
+import { requireOwner } from "@/lib/auth";
+import { systemDb } from "@/lib/db";
+import { audit } from "@/lib/audit";
+import { PLANS } from "@/lib/config/plans";
+import { currentPeriod, storageUsedBytes } from "@/lib/permissions/entitlements";
+import { Card, CardBody, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Notice } from "@/components/ui/misc";
+import { formatBytes, formatDate, formatDateTime } from "@/lib/utils";
+import { UserAdminForms } from "./forms";
+
+export const metadata: Metadata = { title: "User" };
+
+export default async function AdminUser({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ support?: string }> }) {
+  const { id } = await params;
+  const sp = await searchParams;
+  const owner = await requireOwner();
+  const db = systemDb();
+  const user = await db.selectOne("profiles", { id });
+  if (!user) notFound();
+  const [sub, usage, storage, grants, logs, counts] = await Promise.all([
+    db.selectOne("subscriptions", { user_id: id }),
+    db.selectOne("usage_limits", { user_id: id, period: currentPeriod() }),
+    storageUsedBytes(id),
+    db.select("support_access_grants", { where: { user_id: id }, order: { column: "created_at", ascending: false } }),
+    db.select("audit_logs", { where: { target_id: id }, order: { column: "created_at", ascending: false }, limit: 20 }),
+    Promise.all((["memories", "documents", "tasks", "action_items"] as const).map((t) => db.count(t, { user_id: id }))),
+  ]);
+  const activeGrant = grants.find((g) => !g.revoked_at && Date.parse(g.expires_at) > Date.now());
+
+  // Support view: only with an active, user-issued grant, and every view is logged.
+  let supportItems: { title: string; created_at: string; kind: string }[] | null = null;
+  if (sp.support === "1" && activeGrant) {
+    const mem = await db.select("memories", { where: { user_id: id }, order: { column: "created_at", ascending: false }, limit: 50 });
+    supportItems = mem.map((m) => ({ title: m.title, created_at: m.created_at, kind: m.kind }));
+    await audit(owner.id, "admin.support_access_used", { type: "user", id }, { grant_id: activeGrant.id, scope: "memory_titles" });
+  }
+
+  return (
+    <div className="space-y-6">
+      <Link href="/admin/users" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft className="size-4" /> Users</Link>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-2xl font-semibold text-ink">{user.full_name || user.email}</h1>
+        <Badge tone={user.status === "active" ? "mint" : "rose"}>{user.status}</Badge>
+        <Badge tone="blue">{PLANS[user.plan].name}</Badge>
+        {user.role === "owner" && <Badge tone="lavender">Owner</Badge>}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <Card>
+            <CardHeader title="Account" />
+            <CardBody className="grid gap-4 text-[13.5px] sm:grid-cols-2">
+              {[
+                ["Email", user.email],
+                ["User ID", user.id],
+                ["Email verified", user.email_verified ? "Yes" : "No"],
+                ["Onboarding", user.onboarding_completed ? "Completed" : "Not completed"],
+                ["Registered", formatDateTime(user.created_at)],
+                ["Last active", user.last_active_at ? formatDateTime(user.last_active_at) : "—"],
+                ["Subscription", sub ? `${PLANS[sub.plan].name} · ${sub.status} · ${sub.provider}` : "—"],
+                ["Period end", sub?.current_period_end ? formatDate(sub.current_period_end) : "—"],
+                ["AI requests (this month)", String(usage?.ai_requests ?? 0)],
+                ["Storage used", formatBytes(storage)],
+              ].map(([k, v]) => (
+                <div key={k}><p className="text-[12px] text-muted">{k}</p><p className="break-all text-ink">{v}</p></div>
+              ))}
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader title="Usage (counts only)" description="Aggregate numbers — no content." />
+            <CardBody className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {["Memories", "Documents", "Tasks", "Actions"].map((l, i) => (
+                <div key={l}><p className="text-2xl font-semibold text-ink">{counts[i]}</p><p className="text-[12px] text-muted">{l}</p></div>
+              ))}
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader title={<span className="flex items-center gap-2"><ShieldCheck className="size-4 text-accent" /> Support access</span>} />
+            <CardBody className="space-y-3">
+              {activeGrant ? (
+                <>
+                  <Notice tone="peach">The user granted support access until {formatDateTime(activeGrant.expires_at)}. Reason: “{activeGrant.reason}”. Every view is logged.</Notice>
+                  {supportItems ? (
+                    <ul className="divide-y divide-line/70 rounded-xl border border-line">
+                      {supportItems.length === 0 && <li className="px-3 py-2 text-sm text-muted">No memories.</li>}
+                      {supportItems.map((m, i) => (
+                        <li key={i} className="flex justify-between gap-3 px-3 py-2 text-[13px]"><span className="truncate text-ink">{m.title}</span><span className="shrink-0 text-muted">{m.kind} · {formatDate(m.created_at)}</span></li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <Link href={`/admin/users/${id}?support=1`} className="inline-block rounded-xl bg-white px-3 py-2 text-sm font-medium text-accent-strong shadow-soft ring-1 ring-line hover:bg-snow">Open support view (logged)</Link>
+                  )}
+                </>
+              ) : (
+                <Notice tone="blue"><Lock /> Private content is not accessible. The user can grant time-limited support access in their privacy settings.</Notice>
+              )}
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader title="Audit trail" description="Recent actions affecting this user" />
+            <CardBody className="pt-3">
+              {logs.length === 0 ? <p className="text-sm text-muted">No entries.</p> : (
+                <ul className="space-y-1.5 text-[13px]">
+                  {logs.map((l) => (
+                    <li key={l.id} className="flex justify-between gap-3"><span className="font-mono text-[12px] text-ink">{l.action}</span><span className="text-muted">{formatDateTime(l.created_at)}</span></li>
+                  ))}
+                </ul>
+              )}
+            </CardBody>
+          </Card>
+        </div>
+        <aside>
+          {user.id === owner.id ? (
+            <Notice tone="blue">This is your owner account. Role and status are managed via server configuration only.</Notice>
+          ) : (
+            <UserAdminForms id={user.id} status={user.status} plan={user.plan} />
+          )}
+        </aside>
+      </div>
+    </div>
+  );
+}
