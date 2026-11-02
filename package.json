@@ -7,11 +7,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "node --test --experimental-strip-types tests/unit/*.test.ts",
     "test:e2e": "node tests/e2e/run.mjs",
-    "owner:create": "node scripts/create-owner.mjs"
+    "owner:create": "node scripts/create-owner.mjs",
+    "test:db": "bash supabase/tests/run.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.4.0",
@@ -27,7 +28,7 @@
     "geist": "^1.9.0",
     "jose": "^6.2.15",
     "lucide-react": "^1.66.0",
-    "next": "15.5.28",
+    "next": "^16.4.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "server-only": "^0.0.1",
@@ -36,13 +37,12 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.7",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "eslint": "^9.39.5",
-    "eslint-config-next": "15.5.28",
+    "eslint-config-next": "^16.4.4",
     "postcss": "^8.5.32",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3"

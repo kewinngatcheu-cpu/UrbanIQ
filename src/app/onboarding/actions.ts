@@ -1,5 +1,4 @@
 "use server";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { assertUser } from "@/lib/auth";
 import { systemDb, userDb } from "@/lib/db";
@@ -27,7 +26,8 @@ export async function completeOnboarding(_: ActionState, form: FormData): Promis
     }
   });
   if (res.error) return res;
-  redirect(target);
+  // The client performs a full navigation (see flow.tsx) so the app shell starts fresh.
+  return { ok: true, data: { target }, ts: Date.now() };
 }
 
 /** A few helpful starter items based on chosen interests (clearly the user's own, editable, deletable). */

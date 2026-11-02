@@ -1,28 +1,28 @@
 "use client";
 import * as React from "react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UploadCloud, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input, Field, Textarea } from "@/components/ui/input";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
-import { initialState } from "@/lib/action-state";
+import { initialState, type ActionState } from "@/lib/action-state";
 import { uploadDocument } from "@/app/app/_actions/memory";
 import { formatBytes } from "@/lib/utils";
 
 export function UploadDialog({ trigger }: { trigger: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [state, action] = useActionState(uploadDocument, initialState);
   const router = useRouter();
-
-  useEffect(() => {
-    if (state.ok && state.data?.id) {
+  const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
+    const res = await uploadDocument(prev, form);
+    if (res.ok && res.data?.id) {
       setOpen(false);
       setFile(null);
-      router.push(`/app/memory/${state.data.id}`);
+      router.push(`/app/memory/${res.data.id}`);
     }
-  }, [state.ts, state.ok, state.data?.id, router]);
+    return res;
+  }, initialState);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

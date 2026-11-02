@@ -1,11 +1,11 @@
 "use client";
 import * as React from "react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input, Field, Textarea, Select } from "@/components/ui/input";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
 import { Button, type ButtonProps } from "@/components/ui/button";
-import { initialState } from "@/lib/action-state";
+import { initialState, type ActionState } from "@/lib/action-state";
 import { saveTask } from "@/app/app/_actions/life";
 import type { Category, Project, Task } from "@/lib/db/types";
 
@@ -30,12 +30,15 @@ export function TaskDialog({
   defaultDate?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [state, action] = useActionState(saveTask, initialState);
+  const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
+    const res = await saveTask(prev, form);
+    if (res.ok) setOpen(false);
+    return res;
+  }, initialState);
   const parts = localParts(task?.due_at ?? null);
   // Send the browser's local date/time; convert to an absolute instant on the client to respect the user's timezone.
   const [date, setDate] = useState(parts.date || defaultDate || "");
   const [time, setTime] = useState(parts.time);
-  useEffect(() => { if (state.ok) setOpen(false); }, [state.ts, state.ok]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

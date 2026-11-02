@@ -1,5 +1,5 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Brain, CalendarDays, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,10 @@ export function OnboardingFlow({ email, requestedPlan }: { email: string; reques
   const [plan, setPlan] = useState<PlanId>(requestedPlan);
   const [interests, setInterests] = useState<string[]>([]);
   const [state, action] = useActionState(completeOnboarding, initialState);
+
+  useEffect(() => {
+    if (state.ok && typeof state.data?.target === "string") window.location.assign(state.data.target);
+  }, [state.ok, state.data?.target]);
 
   const toggle = (id: string) => setInterests((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
 

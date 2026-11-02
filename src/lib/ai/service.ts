@@ -63,10 +63,11 @@ export async function askOne(user: Profile, question: string, history: { role: "
   await guard();
   const db = await userDb(user.id);
   const corpus = await buildCorpus(db);
-  const hits = search(corpus, question, 8).map((h) => h.doc);
   const toSource = (d: Doc): Source => ({ type: d.type, id: d.id, title: d.title });
 
   if (!aiAvailable()) {
+    // Without a model, be strict: only show items that match most of the question.
+    const hits = search(corpus, question, 8, 0.5).map((h) => h.doc);
     if (!hits.length) {
       return {
         mode: "demo",
@@ -84,6 +85,8 @@ export async function askOne(user: Profile, question: string, history: { role: "
     };
   }
 
+  // With a model, retrieve generously — the model is instructed to use only relevant items and cite them.
+  const hits = search(corpus, question, 8).map((h) => h.doc);
   requireFeature(user, "contextSearch");
   await consumeAiRequest(user);
   const today = new Date().toISOString().slice(0, 10);

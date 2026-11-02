@@ -1,10 +1,15 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
-const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
-
-export default [
-  { ignores: [".next/**", "node_modules/**", ".data/**", "scripts/**", "tests/**"] },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+const config = [
+  { ignores: [".next/**", "node_modules/**", ".data/**", "scripts/**", "tests/**", "next-env.d.ts"] },
+  ...nextVitals,
+  ...nextTs,
+  {
+    // Server Components render once per request; reading the clock there is intended (no re-renders).
+    files: ["src/app/**/page.tsx"],
+    rules: { "react-hooks/purity": "off" },
+  },
 ];
+
+export default config;

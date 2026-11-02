@@ -1,10 +1,10 @@
 "use client";
 import * as React from "react";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUp, Brain, CheckSquare, Loader2, MessageCircle, Paperclip, FlaskConical, ArrowRight } from "lucide-react";
 import { ask, quickCapture, type AskState } from "@/app/app/_actions/ask";
-import { initialState } from "@/lib/action-state";
+import { initialState, type ActionState } from "@/lib/action-state";
 import { FormMessage } from "@/components/ui/form";
 import { Markdown } from "@/components/ui/markdown";
 import { SourceChips } from "./source-chips";
@@ -22,13 +22,19 @@ const MODES: { id: Mode; label: string; icon: typeof Brain; placeholder: string 
 export function Composer({ aiDemo }: { aiDemo: boolean }) {
   const [mode, setMode] = useState<Mode>("ask");
   const [text, setText] = useState("");
-  const [askState, askAction, asking] = useActionState<AskState, FormData>(ask, {});
-  const [capState, capAction, capturing] = useActionState(quickCapture, initialState);
+  const [askState, askAction, asking] = useActionState<AskState, FormData>(async (prev, form) => {
+    const res = await ask(prev, form);
+    if (res.ok) setText("");
+    return res;
+  }, {});
+  const [capState, capAction, capturing] = useActionState(async (prev: ActionState, form: FormData) => {
+    const res = await quickCapture(prev, form);
+    if (res.ok) setText("");
+    return res;
+  }, initialState);
   const ref = useRef<HTMLTextAreaElement>(null);
   const pending = asking || capturing;
 
-  useEffect(() => { if (capState.ok) setText(""); }, [capState.ts, capState.ok]);
-  useEffect(() => { if (askState.ok) setText(""); }, [askState.ts, askState.ok]);
 
   const current = MODES.find((m) => m.id === mode)!;
   const submit = (form: FormData) => (mode === "ask" ? askAction(form) : capAction(form));

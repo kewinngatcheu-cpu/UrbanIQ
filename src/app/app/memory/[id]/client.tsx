@@ -1,20 +1,23 @@
 "use client";
 import * as React from "react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { Pencil, Sparkles, ListChecks, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea, Field, Select } from "@/components/ui/input";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
-import { initialState } from "@/lib/action-state";
+import { initialState, type ActionState } from "@/lib/action-state";
 import type { Category, Memory } from "@/lib/db/types";
 import type { ExtractedTask } from "@/lib/ai/retrieval";
 import { updateMemory, summarizeMemory, detectTasks, addDetectedTasks } from "../../_actions/memory";
 
 export function MemoryEditor({ memory, categories }: { memory: Memory; categories: Category[] }) {
   const [editing, setEditing] = useState(false);
-  const [state, action] = useActionState(updateMemory, initialState);
-  useEffect(() => { if (state.ok) setEditing(false); }, [state.ts, state.ok]);
+  const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
+    const res = await updateMemory(prev, form);
+    if (res.ok) setEditing(false);
+    return res;
+  }, initialState);
   const editableKind = ["note", "idea", "info", "goal"].includes(memory.kind);
 
   if (!editing) {
@@ -75,11 +78,14 @@ export function SummaryButton({ id, hasSummary, willUseAi }: { id: string; hasSu
 }
 
 export function TaskDetector({ memoryId, aiDemo }: { memoryId: string; aiDemo: boolean }) {
-  const [state, action] = useActionState(detectTasks, initialState);
+  const [selected, setSelected] = useState<number[]>([]);
+  const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
+    const res = await detectTasks(prev, form);
+    setSelected(((res.data?.tasks as ExtractedTask[] | undefined) ?? []).map((_, i) => i));
+    return res;
+  }, initialState);
   const [addState, addAction] = useActionState(addDetectedTasks, initialState);
   const found = (state.data?.tasks as ExtractedTask[] | undefined) ?? [];
-  const [selected, setSelected] = useState<number[]>([]);
-  useEffect(() => { setSelected(found.map((_, i) => i)); }, [state.ts]); // eslint-disable-line react-hooks/exhaustive-deps
   const done = addState.ok;
 
   return (

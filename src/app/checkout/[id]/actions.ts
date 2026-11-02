@@ -1,5 +1,4 @@
 "use server";
-import { redirect } from "next/navigation";
 import { assertUser } from "@/lib/auth";
 import { confirmDemoCheckout } from "@/lib/billing";
 import { fd, run } from "@/lib/safe-action";
@@ -11,5 +10,5 @@ export async function confirmCheckoutAction(_: ActionState, form: FormData): Pro
     await confirmDemoCheckout(user, fd(form, "id"));
   });
   if (res.error) return res;
-  redirect("/app?upgraded=1");
+  return { ok: true, data: { target: "/app?upgraded=1" }, ts: Date.now() };
 }

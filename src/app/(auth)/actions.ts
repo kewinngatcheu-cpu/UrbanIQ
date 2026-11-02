@@ -39,8 +39,9 @@ export async function loginAction(_: ActionState, form: FormData): Promise<Actio
     return { ok: true, data: { verified: profile.email_verified, onboarded: profile.onboarding_completed } };
   });
   if (res.error) return res;
-  if (!res.data?.verified) redirect("/verify-email");
-  redirect(res.data?.onboarded ? safeNext(fd(form, "next")) : "/onboarding");
+  // Full navigation on the client (login-form.tsx) so the app shell starts with a fresh router.
+  const target = !res.data?.verified ? "/verify-email" : res.data?.onboarded ? safeNext(fd(form, "next")) : "/onboarding";
+  return { ok: true, data: { target }, ts: Date.now() };
 }
 
 export async function registerAction(_: ActionState, form: FormData): Promise<ActionState> {

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 /**
- * Edge middleware: cheap session presence check + Supabase session refresh.
+ * Proxy (formerly middleware): cheap session presence check + Supabase session refresh.
  * Real authorization (verified email, suspension, owner role) is enforced server-side
  * in layouts, pages and every server action — never only here.
  */
@@ -14,7 +14,7 @@ function supabaseConfigured() {
   return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && (forced === "supabase" || process.env.SUPABASE_SERVICE_ROLE_KEY));
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const isProtected = PROTECTED.some((p) => req.nextUrl.pathname === p || req.nextUrl.pathname.startsWith(p + "/"));
   let res = NextResponse.next({ request: req });
   let hasSession = false;

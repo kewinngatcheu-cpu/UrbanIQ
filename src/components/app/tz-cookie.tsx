@@ -1,16 +1,16 @@
 "use client";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 
-/** Stores the browser's timezone in a cookie so server-rendered dates match the user's local time. */
+/**
+ * Fallback: keeps the timezone cookie current (the root layout's inline script sets it first).
+ * Deliberately does NOT call router.refresh(): a refresh racing a server action stalls the action.
+ */
 export function TzCookie({ current }: { current: string | null }) {
-  const router = useRouter();
   useEffect(() => {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (tz && tz !== current) {
       document.cookie = `one_tz=${encodeURIComponent(tz)}; path=/; max-age=31536000; samesite=lax`;
-      router.refresh();
     }
-  }, [current, router]);
+  }, [current]);
   return null;
 }

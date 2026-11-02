@@ -17,15 +17,16 @@ export function Chat({ conversationId, messages }: { conversationId?: string; me
   const router = useRouter();
   const [text, setText] = useState("");
   const [pendingQ, setPendingQ] = useState<string | null>(null);
-  const [state, action, pending] = useActionState<AskState, FormData>(ask, {});
+  const [state, action, pending] = useActionState<AskState, FormData>(async (prev, form) => {
+    const res = await ask(prev, form);
+    setPendingQ(null);
+    if (res.ok && res.conversationId && res.conversationId !== conversationId) {
+      router.replace(`/app/intelligence?c=${res.conversationId}`, { scroll: false });
+    }
+    return res;
+  }, {});
   const endRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (state.ok && state.conversationId && state.conversationId !== conversationId) {
-      router.replace(`/app/intelligence?c=${state.conversationId}`, { scroll: false });
-    }
-    if (state.ts) setPendingQ(null);
-  }, [state.ts, state.ok, state.conversationId, conversationId, router]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, [messages.length, pending]);
 
   // Before the server-refreshed thread arrives, show the latest answer from the action result.

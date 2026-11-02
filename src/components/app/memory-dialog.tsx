@@ -1,22 +1,23 @@
 "use client";
 import * as React from "react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input, Field, Textarea, Select } from "@/components/ui/input";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { initialState } from "@/lib/action-state";
+import { initialState, type ActionState } from "@/lib/action-state";
 import { createMemory } from "@/app/app/_actions/memory";
 import type { Category } from "@/lib/db/types";
 
 export function NewMemoryDialog({ categories, triggerLabel = "New memory", triggerIcon }: { categories: Pick<Category, "id" | "name">[]; triggerLabel?: string; triggerIcon?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
-  const [state, action] = useActionState(createMemory, initialState);
   const router = useRouter();
-  useEffect(() => {
-    if (state.ok && state.data?.id) { setOpen(false); router.push(`/app/memory/${state.data.id}`); }
-  }, [state.ts, state.ok, state.data?.id, router]);
+  const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
+    const res = await createMemory(prev, form);
+    if (res.ok && res.data?.id) { setOpen(false); router.push(`/app/memory/${res.data.id}`); }
+    return res;
+  }, initialState);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><Button>{triggerIcon}{triggerLabel}</Button></DialogTrigger>

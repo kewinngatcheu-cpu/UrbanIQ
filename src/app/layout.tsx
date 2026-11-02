@@ -9,11 +9,17 @@ export const metadata: Metadata = {
   applicationName: "ONE",
 };
 
+const TZ_SCRIPT = `try{var t=Intl.DateTimeFormat().resolvedOptions().timeZone;if(t&&document.cookie.indexOf("one_tz="+encodeURIComponent(t))<0){document.cookie="one_tz="+encodeURIComponent(t)+"; path=/; max-age=31536000; samesite=lax"}}catch(e){}`;
+
 export const viewport: Viewport = { themeColor: "#ffffff" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <head>
+        {/* Store the browser timezone early so server-rendered dates match local time (static, no user input). */}
+        <script dangerouslySetInnerHTML={{ __html: TZ_SCRIPT }} />
+      </head>
       <body className="min-h-screen bg-white">{children}</body>
     </html>
   );

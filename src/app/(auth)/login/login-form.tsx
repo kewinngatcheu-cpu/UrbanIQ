@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { Input, Field } from "@/components/ui/input";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
 import { initialState } from "@/lib/action-state";
@@ -8,6 +8,9 @@ import { loginAction } from "../actions";
 
 export function LoginForm({ next, notice }: { next: string; notice?: string }) {
   const [state, action] = useActionState(loginAction, initialState);
+  useEffect(() => {
+    if (state.ok && typeof state.data?.target === "string") window.location.assign(state.data.target);
+  }, [state.ok, state.data?.target]);
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="next" value={next} />

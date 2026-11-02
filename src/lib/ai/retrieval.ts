@@ -26,13 +26,15 @@ export function tokenize(s: string): string[] {
     .map(stem);
 }
 
-/** Very small suffix stripper (EN/DE) so "invoices" ~ "invoice", "rechnungen" ~ "rechnung". */
-function stem(t: string): string {
-  if (t.length > 5) {
-    for (const suf of ["ungen", "ings", "ing", "ies", "en", "es", "er", "ed", "s", "n"]) {
-      if (t.endsWith(suf) && t.length - suf.length >= 4) return t.slice(0, -suf.length);
-    }
-  } else if (t.length > 3 && t.endsWith("s")) return t.slice(0, -1);
+/** Very small, conservative suffix stripper (EN/DE) so "invoices" ~ "invoice", "Rechnungen" ~ "Rechnung". */
+export function stem(t: string): string {
+  if (t.length > 4 && t.endsWith("ies")) return t.slice(0, -3) + "y";
+  if (t.endsWith("sses")) return t.slice(0, -2);
+  if (t.length > 4 && /(xes|ches|shes|zes)$/.test(t)) return t.slice(0, -2);
+  if (t.length > 3 && t.endsWith("s") && !t.endsWith("ss") && !t.endsWith("us")) return t.slice(0, -1);
+  if (t.length > 6 && t.endsWith("ing")) return t.slice(0, -3);
+  if (t.length > 5 && t.endsWith("ed")) return t.slice(0, -2);
+  if (t.length > 6 && t.endsWith("en")) return t.slice(0, -2); // German plural: Rechnungen → Rechnung
   return t;
 }
 
@@ -41,7 +43,11 @@ export interface Scored<T extends Doc = Doc> {
   score: number;
 }
 
-export function search<T extends Doc>(docs: T[], query: string, limit = 8): Scored<T>[] {
+/**
+ * @param minCoverage share of distinct query terms a document must contain (0–1).
+ *   Used in demo mode so "dentist phone number" doesn't match a note that only shares "number".
+ */
+export function search<T extends Doc>(docs: T[], query: string, limit = 8, minCoverage = 0): Scored<T>[] {
   const q = [...new Set(tokenize(query))];
   if (!q.length || !docs.length) return [];
   const toks = docs.map((d) => tokenize(`${d.title} ${d.title} ${(d.tags ?? []).join(" ")} ${d.text}`));
@@ -54,14 +60,16 @@ export function search<T extends Doc>(docs: T[], query: string, limit = 8): Scor
     const tf = new Map<string, number>();
     for (const term of t) tf.set(term, (tf.get(term) ?? 0) + 1);
     let score = 0;
+    let matched = 0;
     for (const term of q) {
       const f = tf.get(term) ?? 0;
       if (!f) continue;
+      matched++;
       const n = df.get(term) ?? 0;
       const idf = Math.log(1 + (N - n + 0.5) / (n + 0.5));
       score += idf * ((f * (k1 + 1)) / (f + k1 * (1 - b + (b * t.length) / avg)));
     }
-    if (score > 0) out.push({ doc: docs[i], score });
+    if (score > 0 && matched / q.length >= minCoverage) out.push({ doc: docs[i], score });
   });
   return out.sort((a, b) => b.score - a.score).slice(0, limit);
 }
@@ -140,7 +148,7 @@ export function heuristicTasks(text: string, now = new Date()): ExtractedTask[] 
     const isChecklist = /^\s*([-*•]|\[ ?\])/.test(raw);
     const due = findDate(line, now);
     if (!(cue.test(line) || isChecklist || due)) continue;
-    const kind = /\b(deadline|frist|due|spätestens|until|bis)\b/i.test(line) ? "deadline" : /\b(termin|appointment|meeting)\b/i.test(line) ? "appointment" : "task";
+    const kind = /\b(deadline|frist|due|spätestens|until|bis)\b/i.test(line) || (due && /\b(by|zum)\b/i.test(line)) ? "deadline" : /\b(termin|appointment|meeting)\b/i.test(line) ? "appointment" : "task";
     out.push({ title: line.replace(/[.:]$/, ""), due, kind });
     if (out.length >= 12) break;
   }

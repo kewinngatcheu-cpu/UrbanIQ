@@ -2,19 +2,14 @@ import { cn } from "@/lib/utils";
 
 /**
  * ONE logo: a soft "orbit" mark (a single continuous ring with a sky-blue point of light — one life, one place)
- * next to a clean wordmark.
+ * next to a clean wordmark. Solid colors only: the mark renders several times per page
+ * (desktop + mobile nav), and duplicated SVG gradient ids break when the first copy is hidden.
  */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={cn("size-7", className)} aria-hidden="true">
-      <defs>
-        <linearGradient id="one-g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#8cc4f0" />
-          <stop offset="1" stopColor="#438ed4" />
-        </linearGradient>
-      </defs>
       <rect x="1" y="1" width="30" height="30" rx="9" fill="#EFF7FF" />
-      <circle cx="16" cy="16" r="8.2" fill="none" stroke="url(#one-g)" strokeWidth="3.2" />
+      <circle cx="16" cy="16" r="8.2" fill="none" stroke="#6AAFE8" strokeWidth="3.2" />
       <circle cx="22.4" cy="9.6" r="2.6" fill="#438ED4" stroke="#EFF7FF" strokeWidth="1.4" />
     </svg>
   );

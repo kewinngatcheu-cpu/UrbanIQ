@@ -5,7 +5,7 @@ import { Input, Field, Textarea } from "@/components/ui/input";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { initialState } from "@/lib/action-state";
+import { initialState, type ActionState } from "@/lib/action-state";
 import { saveReminder, saveProject, saveCategory } from "../_actions/life";
 import { cn } from "@/lib/utils";
 
@@ -58,8 +58,11 @@ export function CategoryForm() {
 
 export function ProjectDialog({ kind }: { kind: "project" | "goal" }) {
   const [open, setOpen] = useState(false);
-  const [state, action] = useActionState(saveProject, initialState);
-  useEffect(() => { if (state.ok) setOpen(false); }, [state.ts, state.ok]);
+  const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
+    const res = await saveProject(prev, form);
+    if (res.ok) setOpen(false);
+    return res;
+  }, initialState);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
