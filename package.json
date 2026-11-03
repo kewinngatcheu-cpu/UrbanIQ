@@ -13,7 +13,8 @@
     "test:e2e": "node tests/e2e/run.mjs",
     "owner:create": "node scripts/create-owner.mjs",
     "test:db": "bash supabase/tests/run.sh",
-    "test:stripe": "node tests/integration/stripe-webhook.mjs"
+    "test:stripe": "node tests/integration/stripe-webhook.mjs",
+    "setup": "node scripts/setup.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.4.0",
