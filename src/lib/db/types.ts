@@ -1,6 +1,7 @@
-import type { PlanId } from "@/lib/config/plans";
+import type { PlanId, World } from "@/lib/config/plans";
 
 export type Role = "user" | "owner";
+export type AccountType = World;
 export type AccountStatus = "active" | "suspended";
 
 export interface Profile {
@@ -10,6 +11,10 @@ export interface Profile {
   role: Role;
   status: AccountStatus;
   plan: PlanId;
+  /** Product world chosen at registration. Server-controlled; changes only via an approved request. */
+  account_type: AccountType;
+  /** Business users: the organization they currently work in. */
+  active_org_id: string | null;
   email_verified: boolean;
   onboarding_completed: boolean;
   last_active_at: string | null;
@@ -42,6 +47,8 @@ export interface UserPreferences {
   interests: string[];
   requested_plan: PlanId | null;
   timezone: string | null;
+  /** Business sign-ups: company name entered at registration (used to create the workspace). */
+  company_name?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -51,6 +58,8 @@ export type MemoryKind = "note" | "idea" | "info" | "goal" | "document" | "image
 export interface Memory {
   id: string;
   user_id: string;
+  /** Set for business data: the owning organization. null/absent = personal data. */
+  org_id?: string | null;
   kind: MemoryKind;
   title: string;
   content: string;
@@ -60,6 +69,9 @@ export interface Memory {
   category_id: string | null;
   document_id: string | null;
   pinned: boolean;
+  /** Business: link to a client and/or project. */
+  client_id?: string | null;
+  project_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -67,6 +79,8 @@ export interface Memory {
 export interface DocumentRow {
   id: string;
   user_id: string;
+  /** Set for business data: the owning organization. null/absent = personal data. */
+  org_id?: string | null;
   file_name: string;
   mime_type: string;
   size_bytes: number;
@@ -86,6 +100,8 @@ export type Recurrence = "none" | "daily" | "weekly" | "monthly";
 export interface Task {
   id: string;
   user_id: string;
+  /** Set for business data: the owning organization. null/absent = personal data. */
+  org_id?: string | null;
   kind: TaskKind;
   title: string;
   notes: string | null;
@@ -97,6 +113,10 @@ export interface Task {
   category_id: string | null;
   source_memory_id: string | null;
   completed_at: string | null;
+  /** Business: who is responsible (user id of an org member). */
+  assignee_id?: string | null;
+  /** Business: parent task for sub-tasks. */
+  parent_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -104,6 +124,8 @@ export interface Task {
 export interface Reminder {
   id: string;
   user_id: string;
+  /** Set for business data: the owning organization. null/absent = personal data. */
+  org_id?: string | null;
   title: string;
   remind_at: string;
   done: boolean;
@@ -115,12 +137,18 @@ export interface Reminder {
 export interface Project {
   id: string;
   user_id: string;
+  /** Set for business data: the owning organization. null/absent = personal data. */
+  org_id?: string | null;
   kind: "project" | "goal";
   name: string;
   description: string | null;
   color: string;
   status: "active" | "archived";
   target_date: string | null;
+  /** Business project fields. */
+  stage?: "planned" | "active" | "on_hold" | "done";
+  lead_id?: string | null;
+  client_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -128,13 +156,16 @@ export interface Project {
 export interface Category {
   id: string;
   user_id: string;
+  /** Set for business data: the owning organization. null/absent = personal data. */
+  org_id?: string | null;
   name: string;
   color: string;
   created_at: string;
   updated_at: string;
 }
 
-export type ActionStatus = "new" | "in_progress" | "waiting" | "done";
+/** waiting = waiting for the user; waiting_external = waiting for a reply from someone else. */
+export type ActionStatus = "new" | "in_progress" | "waiting" | "waiting_external" | "done";
 export type ActionType =
   | "cancellation"
   | "complaint"
@@ -143,7 +174,18 @@ export type ActionType =
   | "email"
   | "appointment"
   | "summarize"
-  | "custom";
+  | "custom"
+  | "reply_letter"
+  | "authority"
+  // business
+  | "client_process"
+  | "analyze_document"
+  | "contract_deadlines"
+  | "offer"
+  | "business_email"
+  | "meeting_tasks"
+  | "document_process"
+  | "follow_up";
 
 export interface ActionStep {
   text: string;
@@ -153,6 +195,8 @@ export interface ActionStep {
 export interface ActionItem {
   id: string;
   user_id: string;
+  /** Set for business data: the owning organization. null/absent = personal data. */
+  org_id?: string | null;
   type: ActionType;
   title: string;
   description: string | null;
@@ -176,6 +220,8 @@ export interface Source {
 export interface AiConversation {
   id: string;
   user_id: string;
+  /** Set for business data: the owning organization. null/absent = personal data. */
+  org_id?: string | null;
   title: string;
   created_at: string;
   updated_at: string;
@@ -184,6 +230,8 @@ export interface AiConversation {
 export interface AiMessage {
   id: string;
   user_id: string;
+  /** Set for business data: the owning organization. null/absent = personal data. */
+  org_id?: string | null;
   conversation_id: string;
   role: "user" | "assistant";
   content: string;
@@ -196,6 +244,8 @@ export interface AiMessage {
 export interface UsageRow {
   id: string;
   user_id: string;
+  /** Business usage is counted per organization. */
+  org_id?: string | null;
   period: string; // YYYY-MM
   ai_requests: number;
   created_at: string;
@@ -236,6 +286,8 @@ export interface FeatureFlag {
 export interface BillingCheckout {
   id: string;
   user_id: string;
+  /** Business checkouts belong to an organization. */
+  org_id?: string | null;
   plan: PlanId;
   provider: "demo" | "stripe";
   status: "pending" | "paid" | "expired" | "canceled";
@@ -252,6 +304,114 @@ export interface SupportAccessGrant {
   reason: string;
   expires_at: string;
   revoked_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ───────────────────────── ONE Business ─────────────────────────
+
+export type OrgRole = "owner" | "admin" | "manager" | "employee" | "viewer";
+
+export interface Organization {
+  id: string;
+  name: string;
+  owner_id: string;
+  industry: string | null;
+  size: string | null;
+  plan: PlanId;
+  /** trial → active (paid/granted) → past_due / canceled. */
+  subscription_status: "trial" | "active" | "past_due" | "canceled";
+  provider: "none" | "demo" | "stripe" | "admin_grant";
+  provider_ref: string | null;
+  stripe_customer_id: string | null;
+  price_monthly_eur: number;
+  trial_ends_at: string | null;
+  current_period_end: string | null;
+  canceled_at: string | null;
+  status: "active" | "suspended";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrgMember {
+  id: string;
+  org_id: string;
+  user_id: string;
+  role: OrgRole;
+  status: "active" | "removed";
+  invited_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrgInvite {
+  id: string;
+  org_id: string;
+  email: string;
+  role: Exclude<OrgRole, "owner">;
+  token_hash: string;
+  invited_by: string;
+  expires_at: string;
+  accepted_at: string | null;
+  revoked_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Client {
+  id: string;
+  user_id: string;
+  org_id: string;
+  name: string;
+  contact: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Team activity feed & project history (business). */
+export interface OrgActivity {
+  id: string;
+  org_id: string;
+  actor_id: string;
+  entity: "project" | "task" | "memory" | "action" | "member" | "client" | "org";
+  entity_id: string | null;
+  verb: string;
+  summary: string;
+  project_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ───────────────────────── Platform administration ─────────────────────────
+
+/** Owner overrides / additions to the plan catalogue (see lib/plans-store.ts). */
+export interface PlanConfig {
+  id: string; // plan id
+  config: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Controlled switch between Personal and Business. */
+export interface AccountTypeRequest {
+  id: string;
+  user_id: string;
+  from_type: AccountType;
+  to_type: AccountType;
+  reason: string;
+  company_name: string | null;
+  status: "pending" | "approved" | "rejected";
+  decided_by: string | null;
+  decided_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PlatformSetting {
+  id: string;
+  key: string;
+  value: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
@@ -275,6 +435,9 @@ export interface LocalCredential {
   reset_expires_at: string | null;
   /** Sessions issued before this instant are invalid (set on password change/reset). */
   password_changed_at: string | null;
+  /** Owner MFA (TOTP). Secret is server-side only. */
+  totp_secret?: string | null;
+  totp_enabled?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -300,7 +463,18 @@ export interface Tables {
   support_access_grants: SupportAccessGrant;
   local_credentials: LocalCredential;
   billing_events: BillingEvent;
+  organizations: Organization;
+  organization_members: OrgMember;
+  organization_invites: OrgInvite;
+  clients: Client;
+  org_activity: OrgActivity;
+  plan_configs: PlanConfig;
+  account_type_requests: AccountTypeRequest;
+  platform_settings: PlatformSetting;
 }
+
+/** Tables that hold both personal (org_id null) and business (org_id set) rows. */
+export const DUAL_TABLES = ["memories", "documents", "tasks", "reminders", "projects", "categories", "action_items", "ai_conversations", "ai_messages"] as const;
 
 export type TableName = keyof Tables;
 

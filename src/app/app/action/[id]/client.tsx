@@ -6,14 +6,14 @@ import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Textarea, Field } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
-import { initialState } from "@/lib/action-state";
+import { initialState, type ActionState } from "@/lib/action-state";
 import { saveDraft } from "../../_actions/action";
 
-export function DraftEditor({ id, draft, missing }: { id: string; draft: string; missing: string[] }) {
+export function DraftEditor({ id, draft, missing, action: act = saveDraft }: { id: string; draft: string; missing: string[]; action?: (prev: ActionState, form: FormData) => Promise<ActionState> }) {
   const tr = useT();
   const [text, setText] = useState(draft);
   const [copied, setCopied] = useState(false);
-  const [state, action] = useActionState(saveDraft, initialState);
+  const [state, action] = useActionState(act, initialState);
   const subject = text.match(/^Subject:\s*(.*)$/m)?.[1] ?? "";
   const body = text.replace(/^Subject:.*\n+/m, "");
   return (

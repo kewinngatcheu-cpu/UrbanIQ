@@ -8,6 +8,10 @@ export const FEATURE_FLAGS = {
   document_uploads: { default: true, description: "Allow uploading files to Memory." },
   voice_notes_preview: { default: false, description: "Show the Voice notes preview (upload only, transcription coming soon)." },
   announcement_banner: { default: false, description: "Show a 'New in ONE' banner on the dashboard." },
+  business_signups: { default: true, description: "Allow new ONE Business registrations (companies)." },
+  personal_signups: { default: true, description: "Allow new ONE Personal registrations." },
+  business_module_projects: { default: true, description: "ONE Business: enable the Projects module." },
+  maintenance_mode: { default: false, description: "Maintenance mode: everyone except the owner can read but not change data." },
 } as const;
 
 export type FlagKey = keyof typeof FEATURE_FLAGS;

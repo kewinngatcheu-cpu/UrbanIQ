@@ -11,10 +11,20 @@ export function getStripe(): Stripe {
   return client;
 }
 
-export function priceIdFor(plan: Exclude<PlanId, "free">): string {
-  const id = plan === "premium" ? env.stripePricePremium : env.stripePriceExclusive;
-  if (!id) throw new Error(`STRIPE_PRICE_${plan.toUpperCase()} is not configured.`);
+/** Stripe price id for a plan: env STRIPE_PRICE_<PLAN_ID> (e.g. STRIPE_PRICE_PREMIUM, STRIPE_PRICE_GROWTH). */
+export function priceIdFor(plan: PlanId): string {
+  const key = `STRIPE_PRICE_${plan.toUpperCase().replace(/[^A-Z0-9]/g, "_")}`;
+  const id = process.env[key]?.trim();
+  if (!id) throw new Error(`${key} is not configured.`);
   return id;
+}
+
+/** Reverse lookup used by the webhook. */
+export function planIdForPrice(priceId: string): PlanId | null {
+  for (const [k, v] of Object.entries(process.env)) {
+    if (k.startsWith("STRIPE_PRICE_") && v?.trim() === priceId) return k.slice("STRIPE_PRICE_".length).toLowerCase();
+  }
+  return null;
 }
 
 /** Verifies the Stripe-Signature header against the raw body. Throws on mismatch. */

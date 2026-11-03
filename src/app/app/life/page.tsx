@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Bell, CalendarDays, ChevronLeft, ChevronRight, FolderKanban, Plus, Tags, Target, Pencil, Archive, ArchiveRestore } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { userDb } from "@/lib/db";
-import { hasFeature } from "@/lib/permissions/entitlements";
+import { personalEnt } from "@/lib/permissions/entitlements";
 import { getTz, dayKey, addDays, fmt } from "@/lib/tz";
 import { PageHeader, EmptyState, Progress } from "@/components/ui/misc";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -48,7 +48,7 @@ export default async function LifePage({ searchParams }: { searchParams: Promise
     db.select("categories", { order: { column: "name" } }),
     db.select("reminders", { order: { column: "remind_at" } }),
   ]);
-  const canRecur = hasFeature(user, "recurringTasks");
+  const canRecur = (await personalEnt(user)).has("recurringTasks");
   const activeProjects = projects.filter((p) => p.status === "active");
   const today = dayKey(new Date(), tz);
   const dialogProps = { projects: activeProjects, categories, canRecur };

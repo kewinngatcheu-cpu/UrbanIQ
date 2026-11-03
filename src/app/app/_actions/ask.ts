@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { assertUser, AuthError } from "@/lib/auth";
 import { userDb } from "@/lib/db";
-import { askOne } from "@/lib/ai/service";
+import { askOne, personalCtx } from "@/lib/ai/service";
 import { rateLimit } from "@/lib/auth/rate-limit";
 import { fd, run } from "@/lib/safe-action";
 import type { ActionState } from "@/lib/action-state";
@@ -38,7 +38,7 @@ export async function ask(_: AskState, form: FormData): Promise<AskState> {
       conversationId = conv.id;
       convTitle = conv.title;
     }
-    const result = await askOne(user, question, history);
+    const result = await askOne(await personalCtx(user), question, history);
     await db.insert("ai_messages", { conversation_id: conversationId, role: "user", content: question, sources: [], mode: result.mode });
     await db.insert("ai_messages", { conversation_id: conversationId, role: "assistant", content: result.answer, sources: result.sources, mode: result.mode });
     await db.update("ai_conversations", conversationId, { title: convTitle }); // bumps updated_at
@@ -75,8 +75,8 @@ export async function quickCapture(_: ActionState, form: FormData): Promise<Acti
       revalidatePath("/app", "layout");
       return { ok: true, message: "Task added to Life.", ts: Date.now() };
     }
-    const { assertMemoryCapacity } = await import("@/lib/permissions/entitlements");
-    await assertMemoryCapacity(user);
+    const { assertMemoryCapacity, personalEnt } = await import("@/lib/permissions/entitlements");
+    await assertMemoryCapacity(await personalEnt(user));
     const first = text.split("\n")[0];
     const m = await db.insert("memories", {
       kind: "note", title: first.length > 80 ? first.slice(0, 77) + "…" : first, content: text,

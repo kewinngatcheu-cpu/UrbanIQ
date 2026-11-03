@@ -5,23 +5,22 @@ import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Field, Select } from "@/components/ui/input";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
 import { initialState } from "@/lib/action-state";
-import { PLANS, PLAN_ORDER } from "@/lib/config/plans";
 import { setUserPlan, setUserStatus } from "../../actions";
 
-export function UserAdminForms({ id, status, plan }: { id: string; status: "active" | "suspended"; plan: string }) {
+export function UserAdminForms({ id, status, plan, plans, business }: { id: string; status: "active" | "suspended"; plan: string; plans: { id: string; name: string }[]; business?: boolean }) {
   const tr = useT();
   const [planState, planAction] = useActionState(setUserPlan, initialState);
   const [statusState, statusAction] = useActionState(setUserStatus, initialState);
   return (
     <div className="space-y-6">
-      <Card>
+      {!business && <Card>
         <CardHeader title={tr("Membership")} description={tr("Grants are complimentary and logged.")} />
         <CardBody>
           <form action={planAction} className="space-y-3">
             <input type="hidden" name="id" value={id} />
             <Field label={tr("Plan")} htmlFor="ap-plan">
               <Select id="ap-plan" name="plan" defaultValue={plan}>
-                {PLAN_ORDER.map((p) => <option key={p} value={p}>{PLANS[p].name}</option>)}
+                {plans.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </Select>
             </Field>
             <Field label={tr("Reason")} htmlFor="ap-reason"><Input id="ap-reason" name="reason" required placeholder={tr("e.g. Beta tester")} /></Field>
@@ -29,7 +28,7 @@ export function UserAdminForms({ id, status, plan }: { id: string; status: "acti
             <SubmitButton className="w-full" pendingText={tr("Saving…")}>{tr("Update membership")}</SubmitButton>
           </form>
         </CardBody>
-      </Card>
+      </Card>}
       <Card>
         <CardHeader title={status === "active" ? tr("Suspend account") : tr("Reactivate account")} description={status === "active" ? tr("The user is signed out and can't log in.") : tr("The user can log in again.")} />
         <CardBody>

@@ -1,7 +1,7 @@
 import { getT, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requireOwner } from "@/lib/auth";
+import { requireAdmin } from "@/lib/admin-guard";
 import { systemDb } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import { formatDateTime } from "@/lib/utils";
@@ -15,7 +15,7 @@ export default async function AdminAudit({ searchParams }: { searchParams: Promi
   const tr = await getT();
   const locale = await getLocale();
   const sp = await searchParams;
-  await requireOwner();
+  await requireAdmin();
   const db = systemDb();
   let logs = await db.select("audit_logs", { order: { column: "created_at", ascending: false }, limit: 500 });
   if (sp.action) logs = logs.filter((l) => l.action.startsWith(sp.action!));

@@ -1,3 +1,4 @@
+import { statusInfo } from "@/lib/action-status";
 import { getT, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -7,7 +8,7 @@ import { requireUser } from "@/lib/auth";
 import { userDb } from "@/lib/db";
 import { env } from "@/lib/config/env";
 import { PLANS } from "@/lib/config/plans";
-import { getUsage, planOf } from "@/lib/permissions/entitlements";
+import { getUsage, personalEnt, personalSubject } from "@/lib/permissions/entitlements";
 import { computeInsights } from "@/lib/insights";
 import { getFlags } from "@/lib/features";
 import { getTz, dayKey, fmt, hourIn } from "@/lib/tz";
@@ -24,8 +25,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: tr("Home") };
 }
 
-const STATUS_TONE = { new: "blue", in_progress: "lavender", waiting: "peach", done: "mint" } as const;
-const STATUS_LABEL = { new: "New", in_progress: "In progress", waiting: "Waiting for you", done: "Done" } as const;
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ welcome?: string; upgraded?: string }> }) {
   const tr = await getT();
@@ -39,7 +38,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
     db.select("memories", { order: { column: "created_at", ascending: false }, limit: 5 }),
     db.select("action_items", { order: { column: "updated_at", ascending: false } }),
     db.select("reminders", { where: { done: false }, order: { column: "remind_at" } }),
-    getUsage(user.id),
+    getUsage(personalSubject(user)),
     computeInsights(db, tz, tr, locale),
     getFlags(),
   ]);
@@ -54,7 +53,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
   const hour = hourIn(tz);
   const greeting = hour < 5 ? tr("Good night") : hour < 12 ? tr("Good morning") : hour < 18 ? tr("Good afternoon") : tr("Good evening");
   const first = user.full_name?.split(" ")[0];
-  const plan = planOf(user);
+  const plan = (await personalEnt(user)).plan;
   const usedPct = (usage.aiRequests / plan.limits.aiRequestsPerMonth) * 100;
 
   return (
@@ -187,7 +186,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
                         <Link href={`/app/action/${a.id}`} className="block rounded-xl px-2 py-2.5 transition hover:bg-snow">
                           <div className="flex items-center justify-between gap-2">
                             <span className="truncate text-[14px] font-medium text-ink">{a.title}</span>
-                            <Badge tone={STATUS_TONE[a.status]}>{tr(STATUS_LABEL[a.status])}</Badge>
+                            <Badge tone={statusInfo(a.status).tone}>{tr(statusInfo(a.status).label)}</Badge>
                           </div>
                           <div className="mt-2 flex items-center gap-2">
                             <Progress value={a.steps.length ? (done / a.steps.length) * 100 : 0} />

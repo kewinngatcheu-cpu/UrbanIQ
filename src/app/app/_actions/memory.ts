@@ -6,8 +6,8 @@ import { z } from "zod";
 import { assertUser } from "@/lib/auth";
 import { userDb } from "@/lib/db";
 import type { MemoryKind } from "@/lib/db/types";
-import { assertCanStore, assertMemoryCapacity, requireFeature } from "@/lib/permissions/entitlements";
-import { summarize, extractTasks, canAnalyzeFile, recognizeFileText } from "@/lib/ai/service";
+import { assertCanStore, assertMemoryCapacity, requireFeature, personalEnt } from "@/lib/permissions/entitlements";
+import { summarize, extractTasks, canAnalyzeFile, recognizeFileText, personalCtx } from "@/lib/ai/service";
 import { isEnabled } from "@/lib/features";
 import { putFile, deleteFiles, getFile } from "@/lib/storage";
 import { extractText, kindForMime, ALLOWED_MIME } from "@/lib/documents";
@@ -32,7 +32,7 @@ function deriveTitle(text: string) {
 export async function createMemory(_: ActionState, form: FormData): Promise<ActionState> {
   return run(async () => {
     const user = await assertUser();
-    await assertMemoryCapacity(user);
+    await assertMemoryCapacity(await personalEnt(user));
     const content = fd(form, "content");
     const parsed = memorySchema.parse({
       title: fd(form, "title") || deriveTitle(content),
@@ -123,8 +123,8 @@ export async function uploadDocument(_: ActionState, form: FormData): Promise<Ac
     if (!ALLOWED_MIME.some((re) => re.test(mime))) throw new AuthError("This file type isn't supported yet. Try PDF, text, Markdown, images or audio.");
     const kind: MemoryKind = kindForMime(mime);
     if (kind === "voice" && !(await isEnabled("voice_notes_preview"))) throw new AuthError("Voice notes are coming soon.");
-    await assertCanStore(user, file.size);
-    await assertMemoryCapacity(user);
+    await assertCanStore(await personalEnt(user), file.size);
+    await assertMemoryCapacity(await personalEnt(user));
     const db = await userDb(user.id);
     const buf = Buffer.from(await file.arrayBuffer());
     const safeName = file.name.replace(/[^\w.\- ]+/g, "_").slice(0, 120) || "file";
@@ -159,11 +159,11 @@ export async function summarizeMemory(_: ActionState, form: FormData): Promise<A
     if (!m) throw new AuthError("Memory not found.");
     let text = m.content;
     if (m.document_id) {
-      requireFeature(user, "documentAnalysis");
+      await requireFeature(await personalEnt(user), "documentAnalysis");
       const doc = await db.get("documents", m.document_id);
       text = `${m.content}\n\n${doc?.extracted_text ?? ""}`;
     }
-    const res = await summarize(user, m.title, text);
+    const res = await summarize(await personalCtx(user), m.title, text);
     await db.update("memories", m.id, { summary: res.summary, summary_source: res.source });
     revalidatePath(`/app/memory/${m.id}`);
     return { ok: true, message: res.source === "ai" ? "Summary created." : "Quick summary created (extractive, no AI).", ts: Date.now() };
@@ -177,7 +177,7 @@ export async function detectTasks(_: ActionState, form: FormData): Promise<Actio
     const m = await db.get("memories", fd(form, "id"));
     if (!m) throw new AuthError("Memory not found.");
     const doc = m.document_id ? await db.get("documents", m.document_id) : null;
-    const res = await extractTasks(user, `${m.title}\n${m.content}\n${doc?.extracted_text ?? ""}`);
+    const res = await extractTasks(await personalCtx(user), `${m.title}\n${m.content}\n${doc?.extracted_text ?? ""}`);
     return {
       ok: true,
       message: res.tasks.length ? undefined : "No tasks or deadlines found.",
@@ -212,17 +212,17 @@ export async function addDetectedTasks(_: ActionState, form: FormData): Promise<
 export async function recognizeText(_: ActionState, form: FormData): Promise<ActionState> {
   return run(async () => {
     const user = await assertUser();
-    requireFeature(user, "documentAnalysis");
+    await requireFeature(await personalEnt(user), "documentAnalysis");
     const db = await userDb(user.id);
     const m = await db.get("memories", fd(form, "id"));
     const doc = m?.document_id ? await db.get("documents", m.document_id) : null;
     if (!m || !doc) throw new AuthError("Document not found.");
-    if (!canAnalyzeFile(user, doc.mime_type, doc.size_bytes, doc.extraction_method === "parser" && !!doc.extracted_text)) {
+    if (!canAnalyzeFile(await personalEnt(user), doc.mime_type, doc.size_bytes, doc.extraction_method === "parser" && !!doc.extracted_text)) {
       throw new AuthError("ONE can't read this file type with AI yet.");
     }
     const data = await getFile(doc.storage_path);
     if (!data) throw new AuthError("The file could not be loaded.");
-    const text = await recognizeFileText(user, data, doc.mime_type, doc.file_name);
+    const text = await recognizeFileText(await personalCtx(user), data, doc.mime_type, doc.file_name);
     await db.update("documents", doc.id, { extracted_text: text, extraction_status: "done", extraction_method: "ai" });
     await db.update("memories", m.id, { summary: null, summary_source: null });
     revalidatePath(`/app/memory/${m.id}`);

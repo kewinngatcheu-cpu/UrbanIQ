@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Lock, ShieldCheck } from "lucide-react";
-import { requireOwner } from "@/lib/auth";
+import { requireAdmin } from "@/lib/admin-guard";
 import { systemDb } from "@/lib/db";
 import { audit } from "@/lib/audit";
-import { PLANS } from "@/lib/config/plans";
+import { getCatalog, plansFor } from "@/lib/plans-store";
 import { currentPeriod, storageUsedBytes } from "@/lib/permissions/entitlements";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,24 +24,29 @@ export default async function AdminUser({ params, searchParams }: { params: Prom
   const locale = await getLocale();
   const { id } = await params;
   const sp = await searchParams;
-  const owner = await requireOwner();
+  const owner = await requireAdmin();
   const db = systemDb();
   const user = await db.selectOne("profiles", { id });
   if (!user) notFound();
   const [sub, usage, storage, grants, logs, counts] = await Promise.all([
     db.selectOne("subscriptions", { user_id: id }),
     db.selectOne("usage_limits", { user_id: id, period: currentPeriod() }),
-    storageUsedBytes(id),
+    storageUsedBytes({ world: "personal", userId: id, planId: user.plan }),
     db.select("support_access_grants", { where: { user_id: id }, order: { column: "created_at", ascending: false } }),
     db.select("audit_logs", { where: { target_id: id }, order: { column: "created_at", ascending: false }, limit: 20 }),
     Promise.all((["memories", "documents", "tasks", "action_items"] as const).map((t) => db.count(t, { user_id: id }))),
   ]);
+  const catalog = await getCatalog();
+  const pn = (id: string) => catalog.find((p) => p.id === id)?.name ?? id;
+  const memberships = await db.select("organization_members", { where: { user_id: id } });
+  const orgs = memberships.length ? await db.select("organizations", { whereIn: { column: "id", values: memberships.map((m) => m.org_id) } }) : [];
+  const personalPlans = (await plansFor("personal")).map((p) => ({ id: p.id, name: p.name }));
   const activeGrant = grants.find((g) => !g.revoked_at && Date.parse(g.expires_at) > Date.now());
 
   // Support view: only with an active, user-issued grant, and every view is logged.
   let supportItems: { title: string; created_at: string; kind: string }[] | null = null;
   if (sp.support === "1" && activeGrant) {
-    const mem = await db.select("memories", { where: { user_id: id }, order: { column: "created_at", ascending: false }, limit: 50 });
+    const mem = (await db.select("memories", { where: { user_id: id }, order: { column: "created_at", ascending: false }, limit: 200 })).filter((m) => !m.org_id).slice(0, 50);
     supportItems = mem.map((m) => ({ title: m.title, created_at: m.created_at, kind: m.kind }));
     await audit(owner.id, "admin.support_access_used", { type: "user", id }, { grant_id: activeGrant.id, scope: "memory_titles" });
   }
@@ -52,7 +57,7 @@ export default async function AdminUser({ params, searchParams }: { params: Prom
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-semibold text-ink">{user.full_name || user.email}</h1>
         <Badge tone={user.status === "active" ? "mint" : "rose"}>{user.status}</Badge>
-        <Badge tone="blue">{PLANS[user.plan].name}</Badge>
+        <Badge tone={user.account_type === "business" ? "lavender" : "blue"}>{user.account_type === "business" ? "ONE Business" : `ONE Personal · ${pn(user.plan)}`}</Badge>
         {user.role === "owner" && <Badge tone="lavender">{tr("Owner")}</Badge>}
       </div>
 
@@ -68,7 +73,8 @@ export default async function AdminUser({ params, searchParams }: { params: Prom
                 ["Onboarding", user.onboarding_completed ? tr("Completed") : tr("Not completed")],
                 ["Registered", formatDateTime(user.created_at, locale)],
                 ["Last active", user.last_active_at ? formatDateTime(user.last_active_at, locale) : "—"],
-                ["Subscription", sub ? `${PLANS[sub.plan].name} · ${sub.status} · ${sub.provider}` : "—"],
+                ["Account type", user.account_type === "business" ? "ONE Business" : "ONE Personal"],
+                ["Subscription", sub ? `${pn(sub.plan)} · ${sub.status} · ${sub.provider}` : "—"],
                 ["Period end", sub?.current_period_end ? formatDate(sub.current_period_end, undefined, locale) : "—"],
                 ["AI requests (this month)", String(usage?.ai_requests ?? 0)],
                 ["Storage used", formatBytes(storage)],
@@ -77,6 +83,22 @@ export default async function AdminUser({ params, searchParams }: { params: Prom
               ))}
             </CardBody>
           </Card>
+          {orgs.length > 0 && (
+            <Card>
+              <CardHeader title={tr("Companies")} description={tr("Memberships (metadata only)")} />
+              <CardBody className="space-y-2 pt-3">
+                {memberships.map((ms) => {
+                  const o = orgs.find((x) => x.id === ms.org_id);
+                  return o ? (
+                    <Link key={ms.id} href={`/admin/businesses/${o.id}`} className="flex items-center justify-between gap-3 rounded-xl px-2 py-2 text-[13.5px] hover:bg-snow">
+                      <span className="truncate text-ink">{o.name}</span>
+                      <span className="shrink-0 text-muted">{ms.role} · {ms.status} · {pn(o.plan)}</span>
+                    </Link>
+                  ) : null;
+                })}
+              </CardBody>
+            </Card>
+          )}
           <Card>
             <CardHeader title={tr("Usage (counts only)")} description={tr("Aggregate numbers — no content.")} />
             <CardBody className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -124,7 +146,7 @@ export default async function AdminUser({ params, searchParams }: { params: Prom
           {user.id === owner.id ? (
             <Notice tone="blue">{tr("This is your owner account. Role and status are managed via server configuration only.")}</Notice>
           ) : (
-            <UserAdminForms id={user.id} status={user.status} plan={user.plan} />
+            <UserAdminForms id={user.id} status={user.status} plan={user.plan} plans={personalPlans} business={user.account_type === "business"} />
           )}
         </aside>
       </div>

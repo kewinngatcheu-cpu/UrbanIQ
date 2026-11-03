@@ -5,8 +5,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";
 import { systemDb } from "@/lib/db";
 import { env } from "@/lib/config/env";
-import { PLANS, isPlanId, formatPrice } from "@/lib/config/plans";
-import { getUsage, storageUsedBytes } from "@/lib/permissions/entitlements";
+import { formatPrice } from "@/lib/config/plans";
+import { plansFor } from "@/lib/plans-store";
+import { getUsage, storageUsedBytes, personalSubject } from "@/lib/permissions/entitlements";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Notice, Progress } from "@/components/ui/misc";
 import { Badge } from "@/components/ui/badge";
@@ -27,11 +28,14 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   const sp = await searchParams;
   const user = await requireUser();
   const sub = await systemDb().selectOne("subscriptions", { user_id: user.id });
-  const usage = await getUsage(user.id);
-  const storage = await storageUsedBytes(user.id);
+  const usage = await getUsage(personalSubject(user));
+  const storage = await storageUsedBytes(personalSubject(user));
   const memCount = await systemDb().count("memories", { user_id: user.id });
-  const plan = PLANS[user.plan];
-  const highlight = isPlanId(sp.plan) ? sp.plan : undefined;
+  const plans = await plansFor("personal");
+  const all = await plansFor("personal", { includeInactive: true });
+  const plan = all.find((p) => p.id === user.plan) ?? all[0];
+  const target = plans.find((p) => p.id === sp.plan && p.priceMonthlyEur !== null);
+  const highlight = target?.id;
 
   return (
     <div className="space-y-6">
@@ -45,7 +49,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         <Notice tone="peach"><Info /> {tr("Your {plan} plan ends on {date}. You can resume it in “Manage billing”.", { plan: plan.name, date: formatDate(sub.current_period_end, undefined, locale) })}</Notice>
       )}
       <Card>
-        <CardHeader title={<span className="flex items-center gap-2">{tr("Your plan:")} {plan.name} <Badge tone={user.plan === "free" ? "gray" : "blue"}>{formatPrice(plan.priceMonthlyEur)}{tr("/mo")}</Badge></span>}
+        <CardHeader title={<span className="flex items-center gap-2">{tr("Your plan:")} {plan.name} <Badge tone={plan.priceMonthlyEur ? "blue" : "gray"}>{formatPrice(plan.priceMonthlyEur, locale)}{plan.priceMonthlyEur ? tr("/mo") : ""}</Badge></span>}
           description={sub?.current_period_end ? `${tr("Renews on {date}", { date: formatDate(sub.current_period_end, undefined, locale) })}${sub.provider === "admin_grant" ? ` · ${tr("complimentary")}` : sub.provider === "demo" ? ` · ${tr("demo billing")}` : ""}` : tr(plan.tagline)} />
         <CardBody className="grid gap-5 sm:grid-cols-3">
           {[
@@ -59,14 +63,14 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
             </div>
           ))}
         </CardBody>
-        {(sub?.stripe_customer_id || user.plan !== "free") && (
+        {(sub?.stripe_customer_id || !!plan.priceMonthlyEur) && (
           <div className="flex flex-wrap items-center gap-2 border-t border-line px-5 py-4">
             {env.billingMode === "stripe" && sub?.stripe_customer_id && (
               <form action="/api/billing/portal" method="post">
                 <button className={buttonVariants({ variant: "secondary", size: "sm" })}><CreditCard /> {tr("Manage billing & invoices")}</button>
               </form>
             )}
-            {user.plan !== "free" && !sub?.cancel_at_period_end && <ConfirmAction action={cancelPlan} trigger={tr("Cancel plan")} triggerVariant="ghost" danger title={tr("Cancel {plan}?", { plan: plan.name })}
+            {!!plan.priceMonthlyEur && !sub?.cancel_at_period_end && <ConfirmAction action={cancelPlan} trigger={tr("Cancel plan")} triggerVariant="ghost" danger title={tr("Cancel {plan}?", { plan: plan.name })}
               description={sub?.provider === "stripe" ? tr("Your plan stays active until the end of the paid period, then you move to Free. Your data stays.") : tr("You'll move to Free right away. Your data stays — but features and limits of Free apply.")} confirmLabel={tr("Cancel plan")} />}
           </div>
         )}
@@ -74,11 +78,15 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
 
       <div>
         <h2 className="mb-4 text-[15px] font-semibold text-ink">{tr("Compare plans")}</h2>
-        <PlanCards current={user.plan} ctaHref={(p) => `/app/settings/billing?plan=${p}#upgrade`} ctaLabel={(p) => (p === "free" ? tr("Switch to Free") : PLANS[p].priceMonthlyEur > plan.priceMonthlyEur ? tr("Upgrade to {plan}", { plan: PLANS[p].name }) : tr("Switch to {plan}", { plan: PLANS[p].name }))} />
+        <PlanCards plans={plans} current={user.plan} ctaHref={(p) => `/app/settings/billing?plan=${p}#upgrade`} ctaLabel={(p) => {
+          const t = plans.find((x) => x.id === p)!;
+          if (t.priceMonthlyEur === 0) return tr("Switch to {plan}", { plan: t.name });
+          return (t.priceMonthlyEur ?? 0) > (plan.priceMonthlyEur ?? 0) ? tr("Upgrade to {plan}", { plan: t.name }) : tr("Switch to {plan}", { plan: t.name });
+        }} />
       </div>
       {highlight && highlight !== user.plan && (
         <div id="upgrade" className="scroll-mt-24">
-          <UpgradeButtons plan={highlight} planName={PLANS[highlight].name} price={formatPrice(PLANS[highlight].priceMonthlyEur)} />
+          <UpgradeButtons plan={highlight} free={target!.priceMonthlyEur === 0} planName={target!.name} price={formatPrice(target!.priceMonthlyEur, locale)} />
         </div>
       )}
     </div>

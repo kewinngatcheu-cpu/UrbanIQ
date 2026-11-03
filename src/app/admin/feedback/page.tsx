@@ -1,7 +1,7 @@
 import { getT, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { MessageSquare } from "lucide-react";
-import { requireOwner } from "@/lib/auth";
+import { requireAdmin } from "@/lib/admin-guard";
 import { systemDb } from "@/lib/db";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminFeedback() {
   const tr = await getT();
   const locale = await getLocale();
-  await requireOwner();
+  await requireAdmin();
   const items = await systemDb().select("feedback", { order: { column: "created_at", ascending: false }, limit: 300 });
   return (
     <div className="space-y-5">

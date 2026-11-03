@@ -1,9 +1,11 @@
 "use server";
 import { z } from "zod";
-import { assertUser } from "@/lib/auth";
+import { assertUser, AuthError } from "@/lib/auth";
 import { systemDb, userDb } from "@/lib/db";
 import { createCheckout } from "@/lib/billing";
-import { isPlanId } from "@/lib/config/plans";
+import { findPlan } from "@/lib/plans-store";
+import { createOrganization, acceptInvite, INVITE_COOKIE, logActivity } from "@/lib/org";
+import { cookies } from "next/headers";
 import { fd, run } from "@/lib/safe-action";
 import type { ActionState } from "@/lib/action-state";
 import { INTERESTS } from "./interests";
@@ -13,15 +15,18 @@ export async function completeOnboarding(_: ActionState, form: FormData): Promis
   let target = "/app?welcome=1";
   const res = await run(async () => {
     const user = await assertUser();
+    if (user.account_type !== "personal") throw new AuthError("This step is for ONE Personal accounts.");
     const name = z.string().trim().max(80).parse(fd(form, "name"));
     const interests = form.getAll("interests").map(String).filter((i) => INTERESTS.some((x) => x.id === i));
     const plan = fd(form, "plan");
     // Only safe profile fields — role / plan / status are never writable here.
     await systemDb().update("profiles", { id: user.id }, { full_name: name || null, onboarding_completed: true });
     const db = await userDb(user.id);
-    await db.updateWhere("user_preferences", {}, { interests, requested_plan: isPlanId(plan) ? plan : null });
+    const def = await findPlan(plan);
+    const valid = def && def.world === "personal" && def.active ? def : null;
+    await db.updateWhere("user_preferences", {}, { interests, requested_plan: valid?.id ?? null });
     if (interests.length) await seedStarter(user.id, interests);
-    if (isPlanId(plan) && plan !== "free" && plan !== user.plan) {
+    if (valid && valid.priceMonthlyEur && plan !== user.plan) {
       target = (await createCheckout(user, plan)).url; // demo page or hosted Stripe Checkout
     }
   });
@@ -50,4 +55,32 @@ async function seedStarter(userId: string, interests: string[]) {
   for (const g of goals) {
     await db.insert("categories", { name: tr(g.label), color: g.color });
   }
+}
+
+/** ONE Business: create the company workspace (or join via invitation). */
+export async function completeBusinessSetup(_: ActionState, form: FormData): Promise<ActionState> {
+  let target = "/business?welcome=1";
+  const res = await run(async () => {
+    const user = await assertUser();
+    if (user.account_type !== "business") throw new AuthError("This step is for ONE Business accounts.");
+    const name = z.string().trim().max(80).parse(fd(form, "name"));
+    await systemDb().update("profiles", { id: user.id }, { full_name: name || null });
+    const store = await cookies();
+    const invite = store.get(INVITE_COOKIE)?.value;
+    if (invite && fd(form, "mode") === "join") {
+      await acceptInvite({ ...user, full_name: name || user.full_name }, invite);
+      store.delete(INVITE_COOKIE);
+      return;
+    }
+    const existing = await systemDb().selectOne("organization_members", { user_id: user.id, status: "active" });
+    if (existing) throw new AuthError("You already belong to a company workspace.");
+    const company = z.string().trim().min(2, "Please enter your company name.").max(120).parse(fd(form, "company"));
+    const def = await findPlan(fd(form, "plan"));
+    const org = await createOrganization(user, { name: company, industry: fd(form, "industry"), size: fd(form, "size"), plan: def?.world === "business" ? def.id : null });
+    await systemDb().update("profiles", { id: user.id }, { onboarding_completed: true });
+    await logActivity({ org, user }, "org", org.id, "created", `${company} was created`);
+    target = "/business?welcome=1";
+  });
+  if (res.error) return res;
+  return { ok: true, data: { target }, ts: Date.now() };
 }

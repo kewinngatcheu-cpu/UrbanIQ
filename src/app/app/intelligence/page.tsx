@@ -10,6 +10,7 @@ import { getTz } from "@/lib/tz";
 import { PageHeader } from "@/components/ui/misc";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { SourceChips } from "@/components/app/source-chips";
+import { Certainty } from "@/components/app/certainty";
 import { ConfirmAction } from "@/components/ui/confirm";
 import { deleteConversation } from "../_actions/ask";
 import { Chat } from "./chat";
@@ -60,7 +61,7 @@ export default async function IntelligencePage({ searchParams }: { searchParams:
                     <div className="flex items-start gap-3">
                       <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-xl", T.cls)}><T.icon className="size-4" /></span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[15px] font-semibold text-ink">{i.title}</p>
+                        <div className="flex flex-wrap items-center gap-2"><p className="text-[15px] font-semibold text-ink">{i.title}</p><Certainty value={i.certainty} /></div>
                         <p className="mt-1 text-[13.5px] leading-relaxed text-muted">{i.body}</p>
                         <SourceChips sources={i.sources} />
                         {i.href && <Link href={i.href} className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-accent-strong hover:underline">{tr("Review")} <ArrowRight className="size-3.5" /></Link>}
@@ -72,7 +73,7 @@ export default async function IntelligencePage({ searchParams }: { searchParams:
             })}
           </div>
         )}
-        <p className="mt-3 text-xs text-muted">{tr("Insights are computed with transparent rules from your own data — no guessing.")}</p>
+        <p className="mt-3 text-xs text-muted">{tr("Insights are computed with transparent rules from your own data. “Confirmed” means it is stated in your data; “Conclusion” means ONE inferred it — please check.")}</p>
       </section>
 
       <section>

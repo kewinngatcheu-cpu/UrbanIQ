@@ -1,20 +1,27 @@
 import { getT } from "@/lib/i18n/server";
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { PLANS, PLAN_ORDER, formatPrice, type PlanId } from "@/lib/config/plans";
+import { formatPrice, type Plan, type PlanId, type World } from "@/lib/config/plans";
+import { plansFor } from "@/lib/plans-store";
+import { getLocale } from "@/lib/i18n/server";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export async function PlanCards({ ctaHref = (p: PlanId) => `/register?plan=${p}`, ctaLabel, current }: {
+export async function PlanCards({ world = "personal", ctaHref, ctaLabel, current, plans }: {
+  world?: World;
   ctaHref?: (p: PlanId) => string;
   ctaLabel?: (p: PlanId) => string;
   current?: PlanId;
+  plans?: Plan[];
 }) {
   const tr = await getT();
+  const locale = await getLocale();
+  const list = plans ?? (await plansFor(world));
+  const href = ctaHref ?? ((p: PlanId) => `/register?world=${world}&plan=${p}`);
   return (
-    <div className="grid gap-5 md:grid-cols-3">
-      {PLAN_ORDER.map((id) => {
-        const p = PLANS[id];
+    <div className={cn("grid gap-5 sm:grid-cols-2", list.length >= 3 ? "lg:grid-cols-3" : "")}>
+      {list.map((p) => {
+        const id = p.id;
         const isCurrent = current === id;
         return (
           <div
@@ -33,8 +40,8 @@ export async function PlanCards({ ctaHref = (p: PlanId) => `/register?plan=${p}`
             </div>
             <p className="mt-1 text-sm text-muted">{tr(p.tagline)}</p>
             <div className="mt-6 flex items-baseline gap-1">
-              <span className="text-4xl font-semibold tracking-tight text-ink">{formatPrice(p.priceMonthlyEur)}</span>
-              <span className="text-sm text-muted">{tr("/ month")}</span>
+              <span className={cn("font-semibold tracking-tight text-ink", p.priceMonthlyEur === null ? "text-2xl" : "text-4xl")}>{formatPrice(p.priceMonthlyEur, locale)}</span>
+              {p.priceMonthlyEur !== null && <span className="text-sm text-muted">{tr("/ month")}</span>}
             </div>
             <ul className="mt-6 flex-1 space-y-2.5">
               {p.bullets.map((b) => (
@@ -47,8 +54,8 @@ export async function PlanCards({ ctaHref = (p: PlanId) => `/register?plan=${p}`
               ))}
             </ul>
             {!isCurrent && (
-              <Link href={ctaHref(id)} className={cn(buttonVariants({ variant: p.highlight ? "primary" : "secondary", size: "lg" }), "mt-8 w-full")}>
-                {ctaLabel ? ctaLabel(id) : id === "free" ? tr("Start for free") : tr("Choose {plan}", { plan: PLANS[id].name })}
+              <Link href={href(id)} className={cn(buttonVariants({ variant: p.highlight ? "primary" : "secondary", size: "lg" }), "mt-8 w-full")}>
+                {ctaLabel ? ctaLabel(id) : p.priceMonthlyEur === 0 ? tr("Start for free") : p.world === "business" ? tr("Start with {plan}", { plan: p.name }) : tr("Choose {plan}", { plan: p.name })}
               </Link>
             )}
           </div>

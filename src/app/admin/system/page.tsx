@@ -1,7 +1,7 @@
 import { getT, getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
-import { requireOwner } from "@/lib/auth";
+import { requireAdmin } from "@/lib/admin-guard";
 import { systemDb } from "@/lib/db";
 import { env } from "@/lib/config/env";
 import { stripeConfigured } from "@/lib/billing/stripe";
@@ -18,7 +18,7 @@ type Check = { name: string; state: "ok" | "warn" | "error"; detail: string };
 export default async function AdminSystem() {
   const tr = await getT();
   const locale = await getLocale();
-  await requireOwner();
+  await requireAdmin();
   const checks: Check[] = [];
   const t0 = Date.now();
   try {

@@ -14,16 +14,18 @@ interface Msg { id: string; role: "user" | "assistant"; content: string; sources
 
 const SUGGESTIONS = ["What deadlines do I have coming up?", "What did I save about my insurance?", "Which tasks are still open?", "Summarise my ideas"];
 
-export function Chat({ conversationId, messages }: { conversationId?: string; messages: Msg[] }) {
+type AskFn = (prev: AskState, form: FormData) => Promise<AskState>;
+
+export function Chat({ conversationId, messages, askAction = ask, basePath = "/app/intelligence", suggestions = SUGGESTIONS }: { conversationId?: string; messages: Msg[]; askAction?: AskFn; basePath?: string; suggestions?: string[] }) {
   const tr = useT();
   const router = useRouter();
   const [text, setText] = useState("");
   const [pendingQ, setPendingQ] = useState<string | null>(null);
   const [state, action, pending] = useActionState<AskState, FormData>(async (prev, form) => {
-    const res = await ask(prev, form);
+    const res = await askAction(prev, form);
     setPendingQ(null);
     if (res.ok && res.conversationId && res.conversationId !== conversationId) {
-      router.replace(`/app/intelligence?c=${res.conversationId}`, { scroll: false });
+      router.replace(`${basePath}?c=${res.conversationId}`, { scroll: false });
     }
     return res;
   }, {});
@@ -47,7 +49,7 @@ export function Chat({ conversationId, messages }: { conversationId?: string; me
             <p className="mt-4 text-[15px] font-semibold text-ink">{tr("Ask anything about your life")}</p>
             <p className="mt-1 max-w-sm text-sm text-muted">{tr("ONE answers from what you've stored and shows its sources. If it doesn't know, it says so.")}</p>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
-              {SUGGESTIONS.map((s) => (
+              {suggestions.map((s) => (
                 <button key={s} type="button" onClick={() => setText(tr(s))} className="rounded-full border border-line bg-white px-3 py-1.5 text-[13px] text-ink shadow-soft hover:border-cloud">{tr(s)}</button>
               ))}
             </div>
@@ -61,7 +63,7 @@ export function Chat({ conversationId, messages }: { conversationId?: string; me
               <div className="max-w-[92%] rounded-2xl rounded-bl-md bg-snow px-4 py-3">
                 {m.mode === "demo" && <p className="mb-1 inline-flex items-center gap-1 rounded-full bg-lavender px-2 py-0.5 text-[11px] font-medium text-lavender-ink"><FlaskConical className="size-3" /> {tr("Demo mode")}</p>}
                 <Markdown text={m.content} />
-                <SourceChips sources={m.sources} numbered={m.mode === "ai"} />
+                <SourceChips sources={m.sources} numbered={m.mode === "ai"} world={basePath.startsWith("/business") ? "business" : "personal"} />
               </div>
             )}
           </div>

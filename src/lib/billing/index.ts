@@ -1,10 +1,11 @@
 import "server-only";
 import { env } from "@/lib/config/env";
 import { systemDb } from "@/lib/db";
-import { PLANS, isPlanId, type PlanId } from "@/lib/config/plans";
+import { type PlanId } from "@/lib/config/plans";
+import { findPlan } from "@/lib/plans-store";
 import type { BillingCheckout, Profile, Subscription } from "@/lib/db/types";
 import { audit } from "@/lib/audit";
-import { getStripe, priceIdFor } from "./stripe";
+import { getStripe, priceIdFor, planIdForPrice } from "./stripe";
 
 /**
  * Billing service.
@@ -23,35 +24,46 @@ export interface CheckoutStart {
   url: string;
 }
 
-export async function createCheckout(user: Profile, plan: PlanId): Promise<CheckoutStart> {
-  if (plan === "free") throw new BillingError("The Free plan needs no checkout.");
+/**
+ * Starts a checkout for a personal plan (orgId omitted) or a business plan (orgId = the company,
+ * caller must have verified the `org.billing` permission). Prices always come from the server catalogue.
+ */
+export async function createCheckout(user: Profile, plan: PlanId, orgId: string | null = null): Promise<CheckoutStart> {
+  const def = await findPlan(plan);
+  const world = orgId ? "business" : "personal";
+  if (!def || def.world !== world || !def.active) throw new BillingError("This plan is not available.");
+  if (def.priceMonthlyEur === null) throw new BillingError("The price for this plan hasn't been set yet. Please contact us.");
+  if (def.priceMonthlyEur === 0) throw new BillingError("The Free plan needs no checkout.");
+  const amount = def.priceMonthlyEur;
   const db = systemDb();
   await db.update("billing_checkouts", { user_id: user.id, status: "pending" }, { status: "canceled" });
 
   if (env.billingMode === "stripe") {
     const stripe = getStripe();
     const price = priceIdFor(plan);
-    const sub = await db.selectOne("subscriptions", { user_id: user.id });
-    if (sub?.provider === "stripe" && sub.provider_ref && sub.plan !== "free") {
+    const sub = orgId ? null : await db.selectOne("subscriptions", { user_id: user.id });
+    const org = orgId ? await db.selectOne("organizations", { id: orgId }) : null;
+    if ((sub?.provider === "stripe" && sub.provider_ref && sub.plan !== "free") || (org?.provider === "stripe" && org.provider_ref && org.subscription_status === "active")) {
       throw new BillingError("You already have an active subscription. Use “Manage billing” to change it.");
     }
     const checkout = await db.insert("billing_checkouts", {
-      user_id: user.id, plan, provider: "stripe", status: "pending",
-      amount_eur: PLANS[plan].priceMonthlyEur,
+      user_id: user.id, org_id: orgId, plan, provider: "stripe", status: "pending",
+      amount_eur: amount,
       expires_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(), // Stripe sessions live 24h
       confirmed_at: null,
     });
-    const meta = { user_id: user.id, plan, checkout_id: checkout.id };
+    const meta: Record<string, string> = { user_id: user.id, plan, checkout_id: checkout.id, ...(orgId ? { org_id: orgId } : {}) };
+    const customer = orgId ? org?.stripe_customer_id : sub?.stripe_customer_id;
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price, quantity: 1 }],
       client_reference_id: user.id,
-      ...(sub?.stripe_customer_id ? { customer: sub.stripe_customer_id } : { customer_email: user.email }),
+      ...(customer ? { customer } : { customer_email: user.email }),
       metadata: meta,
       subscription_data: { metadata: meta },
       allow_promotion_codes: true,
       success_url: `${env.appUrl}/checkout/${checkout.id}?status=success`,
-      cancel_url: `${env.appUrl}/app/settings/billing?checkout=canceled`,
+      cancel_url: `${env.appUrl}${orgId ? "/business/settings/billing" : "/app/settings/billing"}?checkout=canceled`,
     });
     if (!session.url) throw new BillingError("Stripe did not return a checkout URL.");
     await audit(user.id, "billing.checkout_created", { type: "checkout", id: checkout.id }, { plan, provider: "stripe", session: session.id });
@@ -60,10 +72,11 @@ export async function createCheckout(user: Profile, plan: PlanId): Promise<Check
 
   const checkout = await db.insert("billing_checkouts", {
     user_id: user.id,
+    org_id: orgId,
     plan,
     provider: "demo",
     status: "pending",
-    amount_eur: PLANS[plan].priceMonthlyEur,
+    amount_eur: amount,
     expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
     confirmed_at: null,
   });
@@ -87,7 +100,9 @@ export async function confirmDemoCheckout(user: Profile, checkoutId: string) {
     throw new BillingError("This checkout has expired. Please start again.");
   }
   await db.update("billing_checkouts", { id: co.id }, { status: "paid", confirmed_at: new Date().toISOString() });
-  await activatePlan(user.id, co.plan, "demo", co.id, user.id);
+  if (co.org_id) await activateOrgPlan(co.org_id, co.plan, "demo", co.id, user.id);
+  else await activatePlan(user.id, co.plan, "demo", co.id, user.id);
+  return co;
 }
 
 export async function activatePlan(
@@ -108,7 +123,7 @@ export async function activatePlan(
     provider_ref: ref,
     stripe_customer_id: extra.stripeCustomerId ?? sub?.stripe_customer_id ?? null,
     cancel_at_period_end: extra.cancelAtPeriodEnd ?? false,
-    price_monthly_eur: provider === "admin_grant" || plan === "free" ? 0 : PLANS[plan].priceMonthlyEur,
+    price_monthly_eur: provider === "admin_grant" || plan === "free" ? 0 : ((await findPlan(plan))?.priceMonthlyEur ?? 0),
     current_period_end: periodEnd,
     canceled_at: null,
   };
@@ -117,6 +132,35 @@ export async function activatePlan(
   await db.update("profiles", { id: userId }, { plan });
   if (sub?.plan !== plan || sub?.provider !== provider) {
     await audit(actorId, "subscription.plan_changed", { type: "user", id: userId }, { plan, provider, previous: sub?.plan ?? null });
+  }
+}
+
+/** Business: activates (or changes) the plan of an organization. */
+export async function activateOrgPlan(
+  orgId: string,
+  plan: PlanId,
+  provider: "demo" | "stripe" | "admin_grant" | "none",
+  ref: string | null,
+  actorId: string | null,
+  extra: { stripeCustomerId?: string | null; periodEnd?: string | null; status?: "active" | "trial" | "past_due" | "canceled" } = {},
+) {
+  const db = systemDb();
+  const org = await db.selectOne("organizations", { id: orgId });
+  if (!org) throw new BillingError("Company not found.");
+  const def = await findPlan(plan);
+  if (!def || def.world !== "business") throw new BillingError("Not a business plan.");
+  await db.update("organizations", { id: orgId }, {
+    plan,
+    subscription_status: extra.status ?? "active",
+    provider,
+    provider_ref: ref,
+    stripe_customer_id: extra.stripeCustomerId ?? org.stripe_customer_id ?? null,
+    price_monthly_eur: provider === "admin_grant" ? 0 : def.priceMonthlyEur ?? 0,
+    current_period_end: extra.periodEnd ?? new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
+    canceled_at: null,
+  });
+  if (org.plan !== plan || org.subscription_status !== (extra.status ?? "active")) {
+    await audit(actorId, "subscription.plan_changed", { type: "org", id: orgId }, { plan, provider, previous: org.plan, world: "business" });
   }
 }
 
@@ -152,15 +196,32 @@ export async function cancelSubscription(user: Profile): Promise<"immediately" |
 }
 
 /** Stripe Customer Portal (payment methods, invoices, plan changes). */
-export async function createPortalUrl(user: Profile): Promise<string> {
+export async function createPortalUrl(user: Profile, orgId: string | null = null): Promise<string> {
   if (env.billingMode !== "stripe") throw new BillingError("The billing portal is available once Stripe is connected.");
-  const sub = await systemDb().selectOne("subscriptions", { user_id: user.id });
-  if (!sub?.stripe_customer_id) throw new BillingError("No Stripe customer yet — choose a plan first.");
+  const customer = orgId
+    ? (await systemDb().selectOne("organizations", { id: orgId }))?.stripe_customer_id
+    : (await systemDb().selectOne("subscriptions", { user_id: user.id }))?.stripe_customer_id;
+  if (!customer) throw new BillingError("No Stripe customer yet — choose a plan first.");
   const session = await getStripe().billingPortal.sessions.create({
-    customer: sub.stripe_customer_id,
-    return_url: `${env.appUrl}/app/settings/billing`,
+    customer,
+    return_url: `${env.appUrl}${orgId ? "/business/settings/billing" : "/app/settings/billing"}`,
   });
   return session.url;
+}
+
+/** Business: cancel the company plan (Stripe: at period end; otherwise immediately back to trial-expired state). */
+export async function cancelOrgSubscription(orgId: string, actorId: string): Promise<"immediately" | "period_end"> {
+  const db = systemDb();
+  const org = await db.selectOne("organizations", { id: orgId });
+  if (!org) throw new BillingError("Company not found.");
+  if (org.provider === "stripe" && org.provider_ref) {
+    await getStripe().subscriptions.update(org.provider_ref, { cancel_at_period_end: true });
+    await audit(actorId, "subscription.cancel_scheduled", { type: "org", id: orgId }, { plan: org.plan, world: "business" });
+    return "period_end";
+  }
+  await db.update("organizations", { id: orgId }, { subscription_status: "canceled", provider: "none", provider_ref: null, price_monthly_eur: 0, canceled_at: new Date().toISOString() });
+  await audit(actorId, "subscription.canceled", { type: "org", id: orgId }, { previous: org.plan, world: "business" });
+  return "immediately";
 }
 
 // ───────────────────────── Stripe webhook handling ─────────────────────────
@@ -175,12 +236,15 @@ export interface StripeLikeSubscription {
   items?: { data: { current_period_end?: number | null; price?: { id: string } | null }[] } | null;
 }
 
-function planFromSubscription(s: StripeLikeSubscription): PlanId | null {
+async function planFromSubscription(s: StripeLikeSubscription): Promise<PlanId | null> {
   const priceId = s.items?.data?.[0]?.price?.id;
-  if (priceId && priceId === env.stripePricePremium) return "premium";
-  if (priceId && priceId === env.stripePriceExclusive) return "exclusive";
+  if (priceId) {
+    const byPrice = planIdForPrice(priceId);
+    if (byPrice) return byPrice;
+  }
   const meta = s.metadata?.plan;
-  return isPlanId(meta) && meta !== "free" ? meta : null;
+  const def = meta ? await findPlan(meta) : null;
+  return def && def.priceMonthlyEur !== 0 ? def.id : null;
 }
 
 function periodEndOf(s: StripeLikeSubscription): string | null {
@@ -201,6 +265,12 @@ async function userIdFor(s: StripeLikeSubscription): Promise<string | null> {
 
 /** Applies the state of a Stripe subscription to ONE. Idempotent. */
 export async function syncStripeSubscription(s: StripeLikeSubscription) {
+  // Business subscriptions are attached to an organization.
+  const db0 = systemDb();
+  const orgId = s.metadata?.org_id && (await db0.selectOne("organizations", { id: s.metadata.org_id }))
+    ? s.metadata.org_id
+    : (await db0.selectOne("organizations", { stripe_customer_id: customerId(s.customer) }))?.id;
+  if (orgId) return syncOrgSubscription(orgId, s);
   const userId = await userIdFor(s);
   if (!userId) {
     console.warn("[billing] subscription for unknown user", s.id);
@@ -212,7 +282,7 @@ export async function syncStripeSubscription(s: StripeLikeSubscription) {
   if (current?.provider === "stripe" && current.provider_ref && current.provider_ref !== s.id && s.status !== "active" && s.status !== "trialing") return;
 
   if (s.status === "active" || s.status === "trialing") {
-    const plan = planFromSubscription(s);
+    const plan = await planFromSubscription(s);
     if (!plan) {
       console.warn("[billing] could not map subscription to a plan", s.id);
       return;
@@ -231,6 +301,23 @@ export async function syncStripeSubscription(s: StripeLikeSubscription) {
   }
 }
 
+async function syncOrgSubscription(orgId: string, s: StripeLikeSubscription) {
+  const db = systemDb();
+  const org = await db.selectOne("organizations", { id: orgId });
+  if (!org) return;
+  if (org.provider === "stripe" && org.provider_ref && org.provider_ref !== s.id && s.status !== "active" && s.status !== "trialing") return;
+  if (s.status === "active" || s.status === "trialing") {
+    const plan = await planFromSubscription(s);
+    if (!plan) return console.warn("[billing] could not map business subscription to a plan", s.id);
+    await activateOrgPlan(orgId, plan, "stripe", s.id, null, { stripeCustomerId: customerId(s.customer), periodEnd: periodEndOf(s) });
+  } else if (s.status === "past_due" || s.status === "incomplete") {
+    await db.update("organizations", { id: orgId }, { subscription_status: "past_due" });
+  } else if (org.provider === "stripe") {
+    await db.update("organizations", { id: orgId }, { subscription_status: "canceled", provider: "none", provider_ref: null, price_monthly_eur: 0, canceled_at: new Date().toISOString() });
+    await audit(null, "subscription.canceled", { type: "org", id: orgId }, { previous: org.plan, reason: `stripe_${s.status}`, world: "business" });
+  }
+}
+
 /** Checkout completed: mark our checkout record paid. The plan itself comes from the subscription. */
 export async function completeStripeCheckout(session: { id: string; metadata?: Record<string, string> | null; customer?: string | { id: string } | null }) {
   const db = systemDb();
@@ -241,7 +328,8 @@ export async function completeStripeCheckout(session: { id: string; metadata?: R
   }
   if (userId && session.customer) {
     const cust = typeof session.customer === "string" ? session.customer : session.customer.id;
-    await db.update("subscriptions", { user_id: userId }, { stripe_customer_id: cust });
+    if (session.metadata?.org_id) await db.update("organizations", { id: session.metadata.org_id }, { stripe_customer_id: cust });
+    else await db.update("subscriptions", { user_id: userId }, { stripe_customer_id: cust });
   }
 }
 

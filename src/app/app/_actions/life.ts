@@ -4,7 +4,7 @@ import { z } from "zod";
 import { assertUser, AuthError } from "@/lib/auth";
 import { userDb } from "@/lib/db";
 import type { Recurrence, Task } from "@/lib/db/types";
-import { requireFeature } from "@/lib/permissions/entitlements";
+import { requireFeature, personalEnt } from "@/lib/permissions/entitlements";
 import { fd, run } from "@/lib/safe-action";
 import type { ActionState } from "@/lib/action-state";
 
@@ -46,7 +46,7 @@ export async function saveTask(_: ActionState, form: FormData): Promise<ActionSt
       priority: fd(form, "priority") || "normal",
       recurrence: fd(form, "recurrence") || "none",
     });
-    if (p.recurrence !== "none") requireFeature(user, "recurringTasks");
+    if (p.recurrence !== "none") await requireFeature(await personalEnt(user), "recurringTasks");
     const due_at = toIso(fd(form, "date"), fd(form, "time"), fd(form, "tz_offset"));
     if (p.recurrence !== "none" && !due_at) throw new AuthError("Recurring tasks need a start date.");
     const r = await refs(db, form);

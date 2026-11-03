@@ -5,27 +5,33 @@ import { FlaskConical } from "lucide-react";
 import { Input, Textarea, Field, Select } from "@/components/ui/input";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
 import { Notice } from "@/components/ui/misc";
-import { initialState } from "@/lib/action-state";
+import { initialState, type ActionState } from "@/lib/action-state";
 import { ACTION_TYPES } from "@/lib/ai/templates";
 import type { ActionType } from "@/lib/db/types";
 import { cn } from "@/lib/utils";
 import { createAction } from "../../_actions/action";
 
-export function NewActionForm({ initialType, memories, presetMemory, aiDemo }: {
+type Act = (prev: ActionState, form: FormData) => Promise<ActionState>;
+type ActType = { type: ActionType; label: string; description: string; emoji: string };
+
+export function NewActionForm({ initialType, memories, presetMemory, aiDemo, types = ACTION_TYPES, action: act = createAction, fallbackType }: {
+  types?: ActType[];
+  action?: Act;
+  fallbackType?: ActionType;
   initialType?: string;
   memories: { id: string; title: string }[];
   presetMemory?: { id: string; title: string };
   aiDemo: boolean;
 }) {
   const tr = useT();
-  const [type, setType] = useState<ActionType>((ACTION_TYPES.find((t) => t.type === initialType)?.type ?? (presetMemory ? "summarize" : "cancellation")));
-  const [state, action] = useActionState(createAction, initialState);
-  const current = ACTION_TYPES.find((t) => t.type === type)!;
+  const [type, setType] = useState<ActionType>((types.find((t) => t.type === initialType)?.type ?? fallbackType ?? (presetMemory ? "summarize" : "cancellation")));
+  const [state, action] = useActionState(act, initialState);
+  const current = types.find((t) => t.type === type) ?? types[0];
   return (
     <form action={action} className="space-y-6">
       <input type="hidden" name="type" value={type} />
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4" role="radiogroup" aria-label={tr("Action type")}>
-        {ACTION_TYPES.map((t) => (
+        {types.map((t) => (
           <button key={t.type} type="button" role="radio" aria-checked={type === t.type} onClick={() => setType(t.type)}
             className={cn("rounded-2xl border p-3.5 text-left transition", type === t.type ? "border-primary bg-mist shadow-[0_0_0_3px_rgba(187,223,255,0.6)]" : "border-line bg-white hover:border-cloud")}>
             <span className="text-lg" aria-hidden>{t.emoji}</span>

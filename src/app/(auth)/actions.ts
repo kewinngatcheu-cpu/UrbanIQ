@@ -8,7 +8,11 @@ import { isEnabled } from "@/lib/features";
 import { audit } from "@/lib/audit";
 import { fd, run } from "@/lib/safe-action";
 import type { ActionState } from "@/lib/action-state";
-import { isPlanId } from "@/lib/config/plans";
+import { isWorld, DEFAULT_PLAN } from "@/lib/config/plans";
+import { findPlan } from "@/lib/plans-store";
+import { findInvite, INVITE_COOKIE } from "@/lib/org";
+import { cookies } from "next/headers";
+import { z } from "zod";
 
 async function ip() {
   const h = await headers();
@@ -31,15 +35,17 @@ export async function loginAction(_: ActionState, form: FormData): Promise<Actio
     if (!rateLimit(`login-email:${e}`, 8, 10 * 60 * 1000)) throw new AuthError("Too many attempts. Please wait a few minutes.");
     const profile = await signIn(e, pw);
     await audit(profile.id, "auth.login");
-    return { ok: true, data: { verified: profile.email_verified, onboarded: profile.onboarding_completed, owner: isOwner(profile) } };
+    return { ok: true, data: { verified: profile.email_verified, onboarded: profile.onboarding_completed, owner: isOwner(profile), business: profile.account_type === "business" } };
   });
   if (res.error) return res;
   // Full navigation on the client (login-form.tsx) so the app shell starts with a fresh router.
   // The owner lands in the admin view; everyone else in their personal ONE.
   const next = fd(form, "next");
+  const home = res.data?.business ? "/business" : "/app";
   const target = !res.data?.verified ? "/verify-email"
     : res.data?.owner ? (next.startsWith("/admin") || !next || next === "/app" ? "/admin" : safeNext(next))
-    : res.data?.onboarded ? safeNext(next) : "/onboarding";
+    : !res.data?.onboarded ? "/onboarding"
+    : next && next !== "/app" ? safeNext(next) : home;
   return { ok: true, data: { target }, ts: Date.now() };
 }
 
@@ -50,8 +56,21 @@ export async function registerAction(_: ActionState, form: FormData): Promise<Ac
     const e = email.parse(fd(form, "email"));
     const pw = password.parse(fd(form, "password"));
     if (fd(form, "terms") !== "on") throw new AuthError("Please accept the terms and privacy policy.");
-    const plan = fd(form, "plan");
-    await signUp(e, pw, isPlanId(plan) ? plan : "free");
+    const world = isWorld(fd(form, "world")) ? (fd(form, "world") as "personal" | "business") : "personal";
+    if (!(await isEnabled(world === "business" ? "business_signups" : "personal_signups"))) throw new AuthError("Registrations are currently paused. Please try again later.");
+    const inviteToken = fd(form, "invite");
+    let company: string | null = null;
+    if (inviteToken) {
+      const inv = await findInvite(inviteToken);
+      if (!inv) throw new AuthError("This invitation is invalid or has expired.");
+      if (inv.invite.email.toLowerCase() !== e) throw new AuthError("This invitation was sent to a different email address.");
+      (await cookies()).set(INVITE_COOKIE, inviteToken, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 7 * 86400 });
+    } else if (world === "business") {
+      company = z.string().trim().min(2, "Please enter your company name.").max(120).parse(fd(form, "company"));
+    }
+    const planDef = await findPlan(fd(form, "plan"));
+    const plan = planDef && planDef.world === world && planDef.active ? planDef.id : DEFAULT_PLAN[world];
+    await signUp(e, pw, plan, world, company);
   });
   if (res.error) return res;
   redirect("/verify-email");

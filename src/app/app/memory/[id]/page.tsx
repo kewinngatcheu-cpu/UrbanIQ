@@ -7,7 +7,7 @@ import { requireUser } from "@/lib/auth";
 import { userDb } from "@/lib/db";
 import { buildCorpus, canAnalyzeFile } from "@/lib/ai/service";
 import { related } from "@/lib/ai/retrieval";
-import { hasFeature } from "@/lib/permissions/entitlements";
+import { personalEnt } from "@/lib/permissions/entitlements";
 import { env } from "@/lib/config/env";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -45,8 +45,9 @@ export default async function MemoryDetail({ params }: { params: Promise<{ id: s
   const rel = related(self, corpus.filter((d) => d.type === "memory" || d.type === "action"), 5);
   const I = KIND_ICON[m.kind];
   const cat = categories.find((c) => c.id === m.category_id);
-  const canAnalyze = !m.document_id || hasFeature(user, "documentAnalysis");
-  const canExtract = hasFeature(user, "taskExtraction");
+  const ent = await personalEnt(user);
+  const canAnalyze = !m.document_id || ent.has("documentAnalysis");
+  const canExtract = ent.has("taskExtraction");
   const fileUrl = doc ? `/api/files/${doc.id}` : null;
 
   return (
@@ -96,13 +97,13 @@ export default async function MemoryDetail({ params }: { params: Promise<{ id: s
                 ) : doc.extraction_status === "failed" ? (
                   <p className="mt-3 text-xs text-rose-ink">{tr("ONE couldn't read the text of this file. It's still stored safely.")}</p>
                 ) : null}
-                {canAnalyzeFile(user, doc.mime_type, doc.size_bytes, doc.extraction_method === "parser" && !!doc.extracted_text) ? (
+                {canAnalyzeFile(ent, doc.mime_type, doc.size_bytes, doc.extraction_method === "parser" && !!doc.extracted_text) ? (
                   <RecognizeTextButton id={m.id} again={doc.extraction_method === "ai"} />
                 ) : (doc.mime_type.startsWith("image/") || (doc.mime_type === "application/pdf" && !doc.extracted_text)) && !doc.mime_type.startsWith("audio/") ? (
                   <p className="mt-3 text-xs text-muted">
                     {env.aiMode === "demo"
                       ? tr("Text recognition needs ONE's AI, which isn't connected in demo mode. Add a note above so you can find this file by search.")
-                      : !hasFeature(user, "documentAnalysis")
+                      : !ent.has("documentAnalysis")
                         ? tr("Text recognition for images and scanned PDFs is part of Premium.")
                         : tr("This file is too large or in a format ONE's AI can't read yet.")}
                   </p>
@@ -117,7 +118,7 @@ export default async function MemoryDetail({ params }: { params: Promise<{ id: s
             <CardBody className="space-y-3">
               {m.summary ? <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-ink">{m.summary}</p> : <p className="text-sm text-muted">{tr("No summary yet.")}</p>}
               {canAnalyze ? (
-                <SummaryButton id={m.id} hasSummary={!!m.summary} willUseAi={env.aiMode === "anthropic" && hasFeature(user, "advancedSummaries")} />
+                <SummaryButton id={m.id} hasSummary={!!m.summary} willUseAi={env.aiMode === "anthropic" && ent.has("advancedSummaries")} />
               ) : (
                 <UpgradeCard plan="premium" title={tr("Intelligent document analysis")} text="Summaries of uploaded documents are part of Premium." />
               )}

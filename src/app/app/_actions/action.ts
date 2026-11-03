@@ -5,21 +5,21 @@ import { z } from "zod";
 import { assertUser, AuthError } from "@/lib/auth";
 import { userDb } from "@/lib/db";
 import type { ActionStatus, ActionType } from "@/lib/db/types";
-import { assertActionCapacity } from "@/lib/permissions/entitlements";
-import { planAction } from "@/lib/ai/service";
+import { assertActionCapacity, personalEnt } from "@/lib/permissions/entitlements";
+import { planAction, personalCtx } from "@/lib/ai/service";
 import { ACTION_TYPES } from "@/lib/ai/templates";
 import { audit } from "@/lib/audit";
 import { fd, run } from "@/lib/safe-action";
 import type { ActionState } from "@/lib/action-state";
 
 const TYPES = ACTION_TYPES.map((a) => a.type) as [ActionType, ...ActionType[]];
-const STATUSES: ActionStatus[] = ["new", "in_progress", "waiting", "done"];
+const STATUSES: ActionStatus[] = ["new", "in_progress", "waiting", "waiting_external", "done"];
 
 export async function createAction(_: ActionState, form: FormData): Promise<ActionState> {
   let id = "";
   const res = await run(async () => {
     const user = await assertUser();
-    await assertActionCapacity(user);
+    await assertActionCapacity(await personalEnt(user));
     const db = await userDb(user.id);
     const type = z.enum(TYPES).parse(fd(form, "type") || "custom");
     const title = z.string().trim().min(1, "Please describe what you need.").max(200).parse(fd(form, "title"));
@@ -27,7 +27,7 @@ export async function createAction(_: ActionState, form: FormData): Promise<Acti
     const memoryId = fd(form, "memory_id");
     const memory = memoryId ? await db.get("memories", memoryId) : null;
     if (memoryId && !memory) throw new AuthError("Linked memory not found.");
-    const plan = await planAction(user, { type, title, description }, memory);
+    const plan = await planAction(await personalCtx(user), { type, title, description }, memory);
     const item = await db.insert("action_items", {
       type, title, description: description || null,
       status: plan.missing.length ? "waiting" : "new",
@@ -86,7 +86,7 @@ export async function regeneratePlan(_: ActionState, form: FormData): Promise<Ac
     const a = await db.get("action_items", fd(form, "id"));
     if (!a) throw new AuthError("Action not found.");
     const memory = a.memory_id ? await db.get("memories", a.memory_id) : null;
-    const plan = await planAction(user, a, memory);
+    const plan = await planAction(await personalCtx(user), a, memory);
     await db.update("action_items", a.id, {
       steps: plan.steps.map((text) => ({ text, done: false })),
       draft: plan.draft ?? a.draft, plan_source: plan.mode, missing_info: plan.missing,

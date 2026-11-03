@@ -20,17 +20,26 @@ const MODES: { id: Mode; label: string; icon: typeof Brain; placeholder: string 
   { id: "task", label: "Task", icon: CheckSquare, placeholder: "What do you need to get done?" },
 ];
 
-export function Composer({ aiDemo }: { aiDemo: boolean }) {
+export function Composer({ aiDemo, askAction: askFn = ask, captureAction: captureFn = quickCapture, chatBase = "/app/intelligence", placeholderAsk, modes }: {
+  aiDemo: boolean;
+  /** ONE Business passes organization-scoped actions. */
+  askAction?: (prev: AskState, form: FormData) => Promise<AskState>;
+  captureAction?: (prev: ActionState, form: FormData) => Promise<ActionState>;
+  chatBase?: string;
+  placeholderAsk?: string;
+  /** Which input modes this member may use. */
+  modes?: Mode[];
+}) {
   const tr = useT();
   const [mode, setMode] = useState<Mode>("ask");
   const [text, setText] = useState("");
   const [askState, askAction, asking] = useActionState<AskState, FormData>(async (prev, form) => {
-    const res = await ask(prev, form);
+    const res = await askFn(prev, form);
     if (res.ok) setText("");
     return res;
   }, {});
   const [capState, capAction, capturing] = useActionState(async (prev: ActionState, form: FormData) => {
-    const res = await quickCapture(prev, form);
+    const res = await captureFn(prev, form);
     if (res.ok) setText("");
     return res;
   }, initialState);
@@ -38,7 +47,9 @@ export function Composer({ aiDemo }: { aiDemo: boolean }) {
   const pending = asking || capturing;
 
 
-  const current = MODES.find((m) => m.id === mode)!;
+  const visible = MODES.filter((m) => !modes || modes.includes(m.id));
+  const current0 = visible.find((m) => m.id === mode) ?? visible[0];
+  const current = current0.id === "ask" && placeholderAsk ? { ...current0, placeholder: placeholderAsk } : current0;
   const submit = (form: FormData) => (mode === "ask" ? askAction(form) : capAction(form));
 
   return (
@@ -68,7 +79,7 @@ export function Composer({ aiDemo }: { aiDemo: boolean }) {
         />
         <div className="flex items-center justify-between gap-2 px-2 pb-1 pt-1">
           <div className="flex flex-wrap items-center gap-1" role="tablist" aria-label={tr("Input mode")}>
-            {MODES.map((m) => (
+            {visible.map((m) => (
               <button
                 key={m.id}
                 type="button"
@@ -108,8 +119,8 @@ export function Composer({ aiDemo }: { aiDemo: boolean }) {
               <p className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-lavender px-2.5 py-0.5 text-[11.5px] font-medium text-lavender-ink"><FlaskConical className="size-3" /> {tr("Demo mode")}</p>
             )}
             <Markdown text={askState.answer} />
-            <SourceChips sources={askState.sources ?? []} numbered={askState.mode === "ai"} />
-            <Link href={`/app/intelligence?c=${askState.conversationId}`} className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-accent-strong hover:underline">
+            <SourceChips sources={askState.sources ?? []} numbered={askState.mode === "ai"} world={chatBase.startsWith("/business") ? "business" : "personal"} />
+            <Link href={`${chatBase}?c=${askState.conversationId}`} className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-accent-strong hover:underline">
               {tr("Continue this conversation")} <ArrowRight className="size-3.5" />
             </Link>
           </div>

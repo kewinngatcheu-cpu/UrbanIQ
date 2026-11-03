@@ -6,7 +6,7 @@ import { createServerClient } from "@supabase/ssr";
  * Real authorization (verified email, suspension, owner role) is enforced server-side
  * in layouts, pages and every server action — never only here.
  */
-const PROTECTED = ["/app", "/admin", "/onboarding", "/checkout"];
+const PROTECTED = ["/app", "/business", "/admin", "/onboarding", "/checkout"];
 
 function supabaseConfigured() {
   const forced = process.env.ONE_BACKEND;

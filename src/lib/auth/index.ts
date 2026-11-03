@@ -4,8 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { env } from "@/lib/config/env";
 import { systemDb } from "@/lib/db";
-import type { Profile } from "@/lib/db/types";
-import { isPlanId, type PlanId } from "@/lib/config/plans";
+import type { AccountType, Profile } from "@/lib/db/types";
+import type { PlanId } from "@/lib/config/plans";
 import { createSession, destroySession, readSession } from "./session";
 import { hashPassword, randomToken, sha256, verifyPassword } from "./password";
 import { supabaseUserClient } from "@/lib/supabase/server";
@@ -17,7 +17,7 @@ export const DEMO_VERIFY_COOKIE = "one_demo_verify";
 export class AuthError extends Error {}
 
 /** Creates profile, free subscription and preferences if missing. Idempotent. Never grants elevated roles. */
-export async function ensureProfile(id: string, email: string, opts: { verified: boolean; requestedPlan?: PlanId | null }) {
+export async function ensureProfile(id: string, email: string, opts: { verified: boolean; requestedPlan?: PlanId | null; accountType?: AccountType; companyName?: string | null }) {
   const db = systemDb();
   let profile = await db.selectOne("profiles", { id });
   if (!profile) {
@@ -28,6 +28,9 @@ export async function ensureProfile(id: string, email: string, opts: { verified:
       role: "user",
       status: "active",
       plan: "free",
+      // The product world is fixed at creation; later changes only via an approved request.
+      account_type: opts.accountType === "business" ? "business" : "personal",
+      active_org_id: null,
       email_verified: opts.verified,
       onboarding_completed: false,
       last_active_at: null,
@@ -45,9 +48,15 @@ export async function ensureProfile(id: string, email: string, opts: { verified:
   if (!(await db.selectOne("user_preferences", { user_id: id }))) {
     await db.insert("user_preferences", {
       user_id: id, interests: [], requested_plan: opts.requestedPlan ?? null, timezone: null,
+      company_name: opts.companyName?.trim().slice(0, 120) || null,
     });
   }
-  return profile!;
+  return normalize(profile!);
+}
+
+/** Older rows (before ONE 2.0) have no account type: they are personal accounts. */
+function normalize(p: Profile): Profile {
+  return { ...p, account_type: p.account_type === "business" ? "business" : "personal", active_org_id: p.active_org_id ?? null };
 }
 
 /** Owner = configured server-side user id AND role 'owner' in the database. Both must hold. */
@@ -84,7 +93,7 @@ export const getCurrentUser = cache(async (): Promise<Profile | null> => {
   if (Date.now() - last > 60 * 60 * 1000) {
     await systemDb().update("profiles", { id: u.id }, { last_active_at: new Date().toISOString() });
   }
-  return profile;
+  return normalize(profile);
 });
 
 /** Requires a signed-in, verified, active user. Redirects otherwise. */
@@ -120,12 +129,13 @@ export async function assertUser(): Promise<Profile> {
   if (!user) throw new AuthError("Please sign in again.");
   if (user.status !== "active") throw new AuthError("This account is suspended.");
   if (!user.email_verified) throw new AuthError("Please verify your email address first.");
+  await assertNotMaintenance(user);
   return user;
 }
 
 // ───────────────────────── Sign up / in / out ─────────────────────────
 
-export async function signUp(email: string, password: string, requestedPlan: PlanId): Promise<{ needsVerification: true }> {
+export async function signUp(email: string, password: string, requestedPlan: PlanId, accountType: AccountType = "personal", companyName: string | null = null): Promise<{ needsVerification: true }> {
   email = email.trim().toLowerCase();
   if (env.backend === "supabase") {
     const sb = await supabaseUserClient();
@@ -134,7 +144,7 @@ export async function signUp(email: string, password: string, requestedPlan: Pla
       password,
       options: {
         emailRedirectTo: `${env.appUrl}/auth/callback?next=/onboarding`,
-        data: { requested_plan: requestedPlan },
+        data: { requested_plan: requestedPlan, account_type: accountType, company_name: companyName },
       },
     });
     if (error) throw new AuthError(error.message);
@@ -157,7 +167,7 @@ export async function signUp(email: string, password: string, requestedPlan: Pla
     reset_expires_at: null,
     password_changed_at: null,
   });
-  await ensureProfile(cred.id, email, { verified: false, requestedPlan: isPlanId(requestedPlan) ? requestedPlan : null });
+  await ensureProfile(cred.id, email, { verified: false, requestedPlan: requestedPlan || null, accountType, companyName });
   await createSession(cred.id);
   await deliverVerification(email, token);
   return { needsVerification: true };
@@ -353,4 +363,11 @@ export async function changePassword(userId: string, current: string, next: stri
 /** JWT iat has 1-second precision; make sure the fresh session is newer than password_changed_at. */
 function waitForNextSecond() {
   return new Promise((r) => setTimeout(r, 1000 - (Date.now() % 1000) + 5));
+}
+
+/** Maintenance mode blocks changes for everyone except the platform owner. */
+export async function assertNotMaintenance(user: Profile) {
+  if (isOwner(user)) return;
+  const { isEnabled } = await import("@/lib/features");
+  if (await isEnabled("maintenance_mode")) throw new AuthError("ONE is in maintenance mode. Please try again in a little while.");
 }

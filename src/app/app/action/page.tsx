@@ -8,19 +8,14 @@ import { PageHeader, EmptyState, Progress } from "@/components/ui/misc";
 import { buttonVariants } from "@/components/ui/button";
 import { ACTION_TYPES, actionLabel } from "@/lib/ai/templates";
 import { relativeTime } from "@/lib/utils";
-import type { ActionStatus } from "@/lib/db/types";
+import { ACTION_STATUSES } from "@/lib/action-status";
 
 export async function generateMetadata(): Promise<Metadata> {
   const tr = await getT();
   return { title: tr("Action") };
 }
 
-const COLUMNS: { status: ActionStatus; label: string; dot: string }[] = [
-  { status: "new", label: "New", dot: "bg-primary" },
-  { status: "in_progress", label: "In progress", dot: "bg-lavender-ink" },
-  { status: "waiting", label: "Waiting for you", dot: "bg-peach-ink" },
-  { status: "done", label: "Done", dot: "bg-mint-ink" },
-];
+const COLUMNS = ACTION_STATUSES.map((s) => ({ status: s.id, label: s.label, dot: s.dot }));
 
 export default async function ActionPage() {
   const tr = await getT();
@@ -51,7 +46,7 @@ export default async function ActionPage() {
           </div>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {COLUMNS.map((col) => {
             const list = items.filter((i) => i.status === col.status);
             return (

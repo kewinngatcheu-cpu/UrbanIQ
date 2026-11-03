@@ -1,8 +1,10 @@
 import "server-only";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { userDb, type UserDb } from "@/lib/db";
+import type { Entitlements } from "@/lib/permissions/entitlements";
+import { personalEnt } from "@/lib/permissions/entitlements";
 import type { ActionItem, Memory, Profile, Source } from "@/lib/db/types";
-import { consumeAiRequest, hasFeature, planOf, requireFeature, LimitError } from "@/lib/permissions/entitlements";
+import { consumeAiRequest, requireFeature, LimitError } from "@/lib/permissions/entitlements";
 import { isEnabled } from "@/lib/features";
 import { aiAvailable, complete, completeJson, AiError } from "./provider";
 import { extractiveSummary, heuristicTasks, search, type Doc, type ExtractedTask } from "./retrieval";
@@ -12,6 +14,22 @@ export type AiResultMode = "ai" | "demo";
 
 async function guard() {
   if (!(await isEnabled("ai_assistant"))) throw new AiError("ONE's AI features are temporarily paused by the operator.");
+}
+
+/**
+ * Everything an AI function needs: who acts, what their plan allows, and the data scope
+ * (personal userDb or a business orgDb). The scope guarantees ONE only reads data the actor may see.
+ */
+export interface AiCtx {
+  user: Profile;
+  ent: Entitlements;
+  db: UserDb;
+  world: "personal" | "business";
+  orgName?: string;
+}
+
+export async function personalCtx(user: Profile): Promise<AiCtx> {
+  return { user, ent: await personalEnt(user), db: await userDb(user.id), world: "personal" };
 }
 
 /** Builds the user's retrieval corpus — strictly from their own scoped data. */
@@ -39,12 +57,22 @@ export async function buildCorpus(db: UserDb): Promise<Doc[]> {
   ];
 }
 
+const BUSINESS_RULES = (org: string) => `You are ONE Business, a precise, professional assistant for the company "${org}".
+Rules you must always follow:
+- Answer questions about the company ONLY from the numbered CONTEXT items (company knowledge, projects, tasks, actions). Never invent facts, figures, dates, clients or documents.
+- Cite every item you rely on with its marker, e.g. [2]. Only cite items you actually used.
+- Separate clearly: what the stored information confirms, what you conclude from it, and what is uncertain or missing.
+- If the context does not contain the answer, say so plainly and name what information is missing.
+- Never claim you sent, signed, booked or changed anything. You only prepare; people decide and act.
+- Be concise and structured. Answer in the language of the question.`;
+
 const GROUNDING_RULES = `You are ONE, a calm, friendly personal assistant inside the user's "Personal Life Operating System".
 Rules you must always follow:
 - Answer questions about the user's life ONLY from the numbered CONTEXT items. Never invent memories, facts, dates, numbers or documents.
 - Cite every item you rely on with its marker, e.g. [2]. Only cite items you actually used.
 - If the context does not contain the answer, say plainly that you have no stored information about it, and suggest what the user could save.
 - If information is missing, ambiguous or contradictory, say so explicitly.
+- Distinguish clearly between what the stored information confirms, what you infer from it, and what is uncertain.
 - General knowledge questions (not about the user's own life) may be answered from general knowledge, clearly marked as general information, without citations.
 - Never claim you sent, booked, paid, cancelled or changed anything. You can only prepare drafts; the user must confirm and act.
 - Be concise and warm. Use short paragraphs or bullet points. Answer in the language of the user's question.`;
@@ -60,9 +88,10 @@ export interface AskResult {
   mode: AiResultMode;
 }
 
-export async function askOne(user: Profile, question: string, history: { role: "user" | "assistant"; content: string }[] = []): Promise<AskResult> {
+export async function askOne(ctx: AiCtx, question: string, history: { role: "user" | "assistant"; content: string }[] = []): Promise<AskResult> {
+  const { user, ent } = ctx;
   await guard();
-  const db = await userDb(user.id);
+  const db = ctx.db;
   const corpus = await buildCorpus(db);
   const toSource = (d: Doc): Source => ({ type: d.type, id: d.id, title: d.title });
 
@@ -89,12 +118,12 @@ export async function askOne(user: Profile, question: string, history: { role: "
 
   // With a model, retrieve generously — the model is instructed to use only relevant items and cite them.
   const hits = search(corpus, question, 8).map((h) => h.doc);
-  requireFeature(user, "contextSearch");
-  await consumeAiRequest(user);
+  await requireFeature(ent, "contextSearch");
+  await consumeAiRequest(ent, user.id);
   const today = new Date().toISOString().slice(0, 10);
   const answer = await complete({
-    system: `${GROUNDING_RULES}\nToday is ${today}. The user's name is ${user.full_name ?? "unknown"}.`,
-    effort: planOf(user).aiEffort,
+    system: `${ctx.world === "business" ? BUSINESS_RULES(ctx.orgName ?? "the company") : GROUNDING_RULES}\nToday is ${today}. The user's name is ${user.full_name ?? "unknown"}.`,
+    effort: ent.plan.aiEffort,
     maxTokens: 6000,
     messages: [
       ...history.slice(-8),
@@ -117,14 +146,15 @@ export interface SummaryResult {
   source: "ai" | "extractive";
 }
 
-export async function summarize(user: Profile, title: string, text: string): Promise<SummaryResult> {
+export async function summarize(ctx: AiCtx, title: string, text: string): Promise<SummaryResult> {
+  const { user, ent } = ctx;
   const clean = text.trim();
   if (clean.length < 40) throw new AiError("There isn't enough text to summarise yet.");
-  if (!aiAvailable() || !hasFeature(user, "advancedSummaries")) {
+  if (!aiAvailable() || !ent.has("advancedSummaries")) {
     return { summary: extractiveSummary(clean, 3), source: "extractive" };
   }
   await guard();
-  await consumeAiRequest(user);
+  await consumeAiRequest(ent, user.id);
   const summary = await complete({
     system: "You summarise the user's own documents and notes. Use only the provided text. Never add facts. Output 3-6 concise bullet points: what it is, key facts (amounts, dates, parties), and what the user may need to do. Mention missing or unclear information. Answer in the language of the text.",
     effort: "low",
@@ -160,11 +190,12 @@ const TASKS_SCHEMA = {
   },
 };
 
-export async function extractTasks(user: Profile, text: string): Promise<ExtractResult> {
-  requireFeature(user, "taskExtraction");
+export async function extractTasks(ctx: AiCtx, text: string): Promise<ExtractResult> {
+  const { user, ent } = ctx;
+  await requireFeature(ent, "taskExtraction");
   if (!aiAvailable()) return { tasks: heuristicTasks(text), mode: "demo" };
   await guard();
-  await consumeAiRequest(user);
+  await consumeAiRequest(ent, user.id);
   const res = await completeJson<{ tasks: ExtractedTask[] }>({
     system: `Extract concrete action items, deadlines and appointments for the user from their text. Only include items explicitly present or clearly implied. Never invent dates: use null if no date is stated. Today is ${new Date().toISOString().slice(0, 10)}. Keep titles short and imperative, in the language of the text. Maximum 12 items.`,
     effort: "low",
@@ -197,19 +228,20 @@ const PLAN_SCHEMA = {
   },
 };
 
-export async function planAction(user: Profile, action: Pick<ActionItem, "type" | "title" | "description">, context: Memory | null): Promise<PlanResult> {
+export async function planAction(ctx: AiCtx, action: Pick<ActionItem, "type" | "title" | "description">, context: Memory | null): Promise<PlanResult> {
+  const { user, ent } = ctx;
   const t = TEMPLATES[action.type];
   const details = `${action.description ?? ""}\n${context ? `${context.title}\n${context.content}` : ""}`.trim();
   if (!aiAvailable()) {
     const de = (await getLocale()) === "de" && t.draftDe;
     return { steps: t.steps, draft: (de ? t.draftDe! : t.draft)(action.title, action.description ?? ""), missing: t.missing(details), mode: "template" };
   }
-  requireFeature(user, "actionPlans");
+  await requireFeature(ent, "actionPlans");
   await guard();
-  await consumeAiRequest(user);
+  await consumeAiRequest(ent, user.id);
   const res = await completeJson<{ steps: string[]; draft: string | null; missing_info: string[] }>({
-    system: `You help the user get a personal task done ("${actionLabel(action.type)}"). Create 3-7 concrete, ordered next steps, a ready-to-review draft (letter or email) when it helps, and a list of missing information the user must supply. Use placeholders like [NAME] instead of inventing personal data. Never claim anything was sent — the user sends it themselves after reviewing. Write in the language of the user's description. Today is ${new Date().toISOString().slice(0, 10)}.`,
-    effort: planOf(user).aiEffort,
+    system: `You help the user get a ${ctx.world === "business" ? "business" : "personal"} matter done ("${actionLabel(action.type)}"). Create 3-7 concrete, ordered next steps, a ready-to-review draft (letter or email) when it helps, and a list of missing information the user must supply. Use placeholders like [NAME] instead of inventing personal data. Never claim anything was sent — the user sends it themselves after reviewing. Write in the language of the user's description. Today is ${new Date().toISOString().slice(0, 10)}.`,
+    effort: ent.plan.aiEffort,
     maxTokens: 6000,
     schema: PLAN_SCHEMA,
     messages: [{ role: "user", content: `TITLE: ${action.title}\nDETAILS: ${action.description ?? "(none)"}${context ? `\n\nLINKED MEMORY: ${context.title}\n${context.content.slice(0, 20000)}` : ""}` }],
@@ -223,8 +255,8 @@ const VISION_MIME = new Set(["image/png", "image/jpeg", "image/webp", "image/gif
 const MAX_VISION_BYTES = 5 * 1024 * 1024; // API limit for images
 
 /** Can ONE's AI read this file for this user right now? (no quota is used by asking) */
-export function canAnalyzeFile(user: Profile, mime: string, size: number, hasText: boolean) {
-  if (!aiAvailable() || !hasFeature(user, "documentAnalysis")) return false;
+export function canAnalyzeFile(ent: Entitlements, mime: string, size: number, hasText: boolean) {
+  if (!aiAvailable() || !ent.has("documentAnalysis")) return false;
   if (VISION_MIME.has(mime)) return size <= MAX_VISION_BYTES;
   return mime === "application/pdf" && !hasText; // scanned PDF without a text layer
 }
@@ -233,10 +265,10 @@ export function canAnalyzeFile(user: Profile, mime: string, size: number, hasTex
  * Recognises the text in an image or scanned PDF and adds a short factual description.
  * Uses one AI request. The model is told to transcribe only what is visible.
  */
-export async function recognizeFileText(user: Profile, data: Buffer, mime: string, fileName: string): Promise<string> {
+export async function recognizeFileText(ctx: AiCtx, data: Buffer, mime: string, fileName: string): Promise<string> {
   await guard();
-  requireFeature(user, "documentAnalysis");
-  await consumeAiRequest(user);
+  await requireFeature(ctx.ent, "documentAnalysis");
+  await consumeAiRequest(ctx.ent, ctx.user.id);
   const b64 = data.toString("base64");
   const file = mime === "application/pdf"
     ? ({ type: "document", source: { type: "base64", media_type: "application/pdf", data: b64 } } as const)

@@ -13,19 +13,14 @@ import { ConfirmAction } from "@/components/ui/confirm";
 import { setActionStatus, toggleStep, deleteAction, confirmExternal, regeneratePlan } from "../../_actions/action";
 import { DraftEditor } from "./client";
 import { cn, formatDateTime } from "@/lib/utils";
-import type { ActionStatus } from "@/lib/db/types";
+import { ACTION_STATUSES } from "@/lib/action-status";
 
 export async function generateMetadata(): Promise<Metadata> {
   const tr = await getT();
   return { title: tr("Action") };
 }
 
-const STATUSES: { id: ActionStatus; label: string }[] = [
-  { id: "new", label: "New" },
-  { id: "in_progress", label: "In progress" },
-  { id: "waiting", label: "Waiting for you" },
-  { id: "done", label: "Done" },
-];
+const STATUSES = ACTION_STATUSES;
 
 export default async function ActionDetail({ params }: { params: Promise<{ id: string }> }) {
   const tr = await getT();

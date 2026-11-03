@@ -68,9 +68,11 @@ export function MemoryEditor({ memory, categories }: { memory: Memory; categorie
   );
 }
 
-export function SummaryButton({ id, hasSummary, willUseAi }: { id: string; hasSummary: boolean; willUseAi: boolean }) {
+type Act = (prev: ActionState, form: FormData) => Promise<ActionState>;
+
+export function SummaryButton({ id, hasSummary, willUseAi, action: act = summarizeMemory }: { id: string; hasSummary: boolean; willUseAi: boolean; action?: Act }) {
   const tr = useT();
-  const [state, action] = useActionState(summarizeMemory, initialState);
+  const [state, action] = useActionState(act, initialState);
   return (
     <form action={action} className="space-y-3">
       <input type="hidden" name="id" value={id} />
@@ -80,15 +82,15 @@ export function SummaryButton({ id, hasSummary, willUseAi }: { id: string; hasSu
   );
 }
 
-export function TaskDetector({ memoryId, aiDemo }: { memoryId: string; aiDemo: boolean }) {
+export function TaskDetector({ memoryId, aiDemo, detect = detectTasks, add = addDetectedTasks, addLabel = "Add {n} to Life" }: { memoryId: string; aiDemo: boolean; detect?: Act; add?: Act; addLabel?: string }) {
   const tr = useT();
   const [selected, setSelected] = useState<number[]>([]);
   const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
-    const res = await detectTasks(prev, form);
+    const res = await detect(prev, form);
     setSelected(((res.data?.tasks as ExtractedTask[] | undefined) ?? []).map((_, i) => i));
     return res;
   }, initialState);
-  const [addState, addAction] = useActionState(addDetectedTasks, initialState);
+  const [addState, addAction] = useActionState(add, initialState);
   const found = (state.data?.tasks as ExtractedTask[] | undefined) ?? [];
   const done = addState.ok;
 
@@ -121,7 +123,7 @@ export function TaskDetector({ memoryId, aiDemo }: { memoryId: string; aiDemo: b
             ))}
           </ul>
           <FormMessage state={addState} className="mt-2" />
-          <SubmitButton size="sm" className="mt-3" disabled={!selected.length} pendingText={tr("Adding…")}>{tr("Add {n} to Life", { n: selected.length })}</SubmitButton>
+          <SubmitButton size="sm" className="mt-3" disabled={!selected.length} pendingText={tr("Adding…")}>{tr(addLabel, { n: selected.length })}</SubmitButton>
         </form>
       )}
       {done && <FormMessage state={addState} />}
@@ -129,9 +131,9 @@ export function TaskDetector({ memoryId, aiDemo }: { memoryId: string; aiDemo: b
   );
 }
 
-export function RecognizeTextButton({ id, again }: { id: string; again?: boolean }) {
+export function RecognizeTextButton({ id, again, action: act = recognizeText }: { id: string; again?: boolean; action?: Act }) {
   const tr = useT();
-  const [state, action] = useActionState(recognizeText, initialState);
+  const [state, action] = useActionState(act, initialState);
   return (
     <form action={action} className="mt-3 space-y-2">
       <input type="hidden" name="id" value={id} />

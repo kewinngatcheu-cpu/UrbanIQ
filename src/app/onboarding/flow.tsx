@@ -6,14 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SubmitButton, FormMessage } from "@/components/ui/form";
 import { initialState, type ActionState } from "@/lib/action-state";
-import { PLANS, PLAN_ORDER, formatPrice, type PlanId } from "@/lib/config/plans";
+import { formatPrice, type PlanId } from "@/lib/config/plans";
+import { useLocale } from "@/components/i18n";
+
+export interface FlowPlan { id: string; name: string; highlight?: boolean; priceMonthlyEur: number | null; bullets: string[] }
 import { cn } from "@/lib/utils";
 import { completeOnboarding } from "./actions";
 import { INTERESTS } from "./interests";
 
 const STEPS = ["Welcome", "Your plan", "What matters", "Ready"];
 
-export function OnboardingFlow({ email, requestedPlan }: { email: string; requestedPlan: PlanId }) {
+export function OnboardingFlow({ email, requestedPlan, plans }: { email: string; requestedPlan: PlanId; plans: FlowPlan[] }) {
+  const locale = useLocale();
+  const P = (id: string) => plans.find((p) => p.id === id) ?? plans[0];
   const tr = useT();
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
@@ -75,14 +80,14 @@ export function OnboardingFlow({ email, requestedPlan }: { email: string; reques
             <h1 className="text-3xl font-semibold tracking-tight text-ink">{tr("Choose your plan")}</h1>
             <p className="mt-2 text-[15px] text-muted">{tr("You can change it anytime in Settings.")}</p>
             <div className="mt-6 space-y-3" role="radiogroup">
-              {PLAN_ORDER.map((id) => (
+              {plans.map(({ id }) => (
                 <button key={id} type="button" role="radio" aria-checked={plan === id} onClick={() => setPlan(id)}
                   className={cn("flex w-full items-start justify-between gap-4 rounded-2xl border p-5 text-left transition", plan === id ? "border-primary bg-mist/70 shadow-[0_0_0_3px_rgba(187,223,255,0.6)]" : "border-line hover:border-cloud")}>
                   <div>
-                    <p className="font-semibold text-ink">{PLANS[id].name} {PLANS[id].highlight && <span className="ml-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-white">{tr("POPULAR")}</span>}</p>
-                    <p className="mt-0.5 text-[13px] text-muted">{PLANS[id].bullets.slice(1, 4).map((b) => tr(b)).join(" · ")}</p>
+                    <p className="font-semibold text-ink">{P(id).name} {P(id).highlight && <span className="ml-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-white">{tr("POPULAR")}</span>}</p>
+                    <p className="mt-0.5 text-[13px] text-muted">{P(id).bullets.slice(1, 4).map((b) => tr(b)).join(" · ")}</p>
                   </div>
-                  <p className="shrink-0 text-right"><span className="text-lg font-semibold text-ink">{formatPrice(PLANS[id].priceMonthlyEur)}</span><span className="block text-xs text-muted">{tr("per month")}</span></p>
+                  <p className="shrink-0 text-right"><span className="text-lg font-semibold text-ink">{formatPrice(P(id).priceMonthlyEur, locale)}</span><span className="block text-xs text-muted">{tr("per month")}</span></p>
                 </button>
               ))}
             </div>
@@ -109,7 +114,7 @@ export function OnboardingFlow({ email, requestedPlan }: { email: string; reques
             <div className="mx-auto flex size-16 items-center justify-center rounded-3xl bg-mist animate-float"><Sparkles className="size-7 text-accent" /></div>
             <h1 className="mt-5 text-3xl font-semibold tracking-tight text-ink">{name ? tr("You're all set, {name}.", { name }) : tr("You're all set.")}</h1>
             <p className="mx-auto mt-2 max-w-md text-[15px] text-muted">
-              {plan === "free" ? tr("Your dashboard is ready. Start by telling ONE something you want to remember.") : tr("Next, confirm your {plan} plan. Until then, you're on Free.", { plan: PLANS[plan].name })}
+              {P(plan).priceMonthlyEur === 0 ? tr("Your dashboard is ready. Start by telling ONE something you want to remember.") : tr("Next, confirm your {plan} plan. Until then, you're on Free.", { plan: P(plan).name })}
             </p>
             <FormMessage state={state} className="mt-6 text-left" />
           </div>
@@ -125,7 +130,7 @@ export function OnboardingFlow({ email, requestedPlan }: { email: string; reques
               <Button type="button" onClick={() => setStep(step + 1)}>{tr("Continue")} <ArrowRight /></Button>
             </div>
           ) : (
-            <SubmitButton size="lg" pendingText={tr("Setting up…")}>{plan === "free" ? tr("Go to my dashboard") : tr("Continue to checkout")} <ArrowRight /></SubmitButton>
+            <SubmitButton size="lg" pendingText={tr("Setting up…")}>{P(plan).priceMonthlyEur === 0 ? tr("Go to my dashboard") : tr("Continue to checkout")} <ArrowRight /></SubmitButton>
           )}
         </div>
       </form>

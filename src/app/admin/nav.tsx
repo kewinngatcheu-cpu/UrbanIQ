@@ -7,9 +7,16 @@ import { cn } from "@/lib/utils";
 const ITEMS = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/users", label: "Users" },
+  { href: "/admin/businesses", label: "Businesses" },
+  { href: "/admin/subscriptions", label: "Subscriptions" },
+  { href: "/admin/plans", label: "Plans & prices" },
+  { href: "/admin/analytics", label: "Analytics" },
+  { href: "/admin/requests", label: "Requests" },
+  { href: "/admin/features", label: "Product" },
   { href: "/admin/feedback", label: "Feedback" },
-  { href: "/admin/features", label: "Features" },
+  { href: "/admin/settings", label: "Settings" },
   { href: "/admin/system", label: "System" },
+  { href: "/admin/security", label: "Security" },
   { href: "/admin/audit", label: "Audit log" },
 ];
 
@@ -17,7 +24,7 @@ export function AdminNav() {
   const tr = useT();
   const path = usePathname();
   return (
-    <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-5 pb-2" aria-label={tr("Admin")}>
+    <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-5 pb-2 [scrollbar-width:none]" aria-label={tr("Admin")}>
       {ITEMS.map((i) => {
         const active = i.href === "/admin" ? path === "/admin" : path.startsWith(i.href);
         return (

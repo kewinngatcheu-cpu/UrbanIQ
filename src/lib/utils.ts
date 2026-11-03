@@ -6,7 +6,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function sourceHref(s: Pick<Source, "type" | "id">): string {
+export function sourceHref(s: Pick<Source, "type" | "id">, world: "personal" | "business" = "personal"): string {
+  if (world === "business") {
+    switch (s.type) {
+      case "memory": return `/business/memory/${s.id}`;
+      case "action": return `/business/action/${s.id}`;
+      case "task": return `/business/tasks#task-${s.id}`;
+      case "document": return `/business/memory`;
+    }
+  }
   switch (s.type) {
     case "memory": return `/app/memory/${s.id}`;
     case "action": return `/app/action/${s.id}`;
