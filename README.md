@@ -2,6 +2,26 @@
 
 > Remember everything. Understand your life. Get things done.
 
+## 🇩🇪 Schnellstart auf deinem Mac (5 Minuten)
+
+Voraussetzung: **Node.js 20.9 oder neuer** (prüfen mit `node -v`, sonst von [nodejs.org](https://nodejs.org) die LTS-Version installieren).
+
+```bash
+git clone https://github.com/kewinngatcheu-cpu/UrbanIQ.git ONE
+cd ONE
+git checkout claude/one-life-os-build-m56oq9
+npm install
+npm run setup      # fragt nach deiner E-Mail und einem Passwort → das wird dein Admin-Konto
+npm run dev
+```
+
+Dann im Browser **http://localhost:3000** öffnen und mit deiner E-Mail anmelden. Du landest direkt im Admin-Bereich; über „Mein persönliches ONE“ nutzt du die App selbst. Sprache oben über **DE / EN** umschalten.
+
+- Beenden: im Terminal `Ctrl + C`. Wieder starten: `cd ONE && npm run dev`.
+- Deine Daten liegen lokal im Ordner `.data/` (nur auf deinem Mac).
+- Neue Test-Nutzer registrieren sich ganz normal; den Bestätigungslink zeigt ONE im lokalen Modus direkt auf der Seite an.
+- Für echten Betrieb im Internet (mit Supabase, Stripe, E-Mail und KI) siehe die Abschnitte unten.
+
 ONE combines a **private personal memory** with a **personal AI assistant** that turns information into concrete next steps. It is organised in four modules:
 
 | Module | What it does |
