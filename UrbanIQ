@@ -1,7 +1,0 @@
-export PATH="/tmp/node-v22.12.0-darwin-arm64/bin:$PATH"
-cd "/Users/kewinngatcheu/AI Business/urbaniq-website"
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/DEIN-USERNAME/urbaniq-website.git
-git push -u origin main
