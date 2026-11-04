@@ -8,6 +8,7 @@ import { assertOrg, logActivity, type OrgContext } from "@/lib/org";
 import { assertCanStore, assertMemoryCapacity, assertActionCapacity, requireFeature } from "@/lib/permissions/entitlements";
 import { summarize, extractTasks, planAction, askOne, canAnalyzeFile, recognizeFileText, type AiCtx } from "@/lib/ai/service";
 import { BUSINESS_ACTION_TYPES } from "@/lib/ai/templates";
+import { statusInfo } from "@/lib/action-status";
 import { isEnabled } from "@/lib/features";
 import { putFile, deleteFiles, getFile } from "@/lib/storage";
 import { extractText, kindForMime, ALLOWED_MIME } from "@/lib/documents";
@@ -214,7 +215,7 @@ export async function updateBusinessAction(_: ActionState, form: FormData): Prom
       const status = fd(form, "status") as ActionStatus;
       if (!STATUSES.includes(status)) throw new AuthError("Unknown status.");
       await ctx.db.update("action_items", a.id, { status });
-      await logActivity(ctx, "action", a.id, "status", `Action “${a.title}” is now ${status.replace("_", " ")}`);
+      await logActivity(ctx, "action", a.id, "status", `Action “${a.title}” is now: ${statusInfo(status).label}`);
     } else if (op === "step") {
       const idx = Number(fd(form, "index"));
       if (!a.steps[idx]) throw new AuthError("Step not found.");

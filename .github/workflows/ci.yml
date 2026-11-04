@@ -55,6 +55,11 @@ jobs:
           npx next start -p 3000 > server.log 2>&1 &
           npx wait-on -t 60000 http://localhost:3000
           SERVER_LOG=server.log npm run test:e2e
+          # fresh server for the business suite (sign-up rate limits are per IP)
+          kill %1 || true; sleep 2
+          npx next start -p 3000 > server2.log 2>&1 &
+          npx wait-on -t 60000 http://localhost:3000
+          npm run test:e2e:business
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4

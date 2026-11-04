@@ -1,6 +1,14 @@
-# ONE — Your Personal Life Operating System
+# ONE — Your Life. Your Business. One Intelligent System.
 
-> Remember everything. Understand your life. Get things done.
+ONE is one platform with **two separate product worlds** and one platform administration:
+
+| | |
+| --- | --- |
+| **ONE Personal** | „Your personal life, organized.“ — Memory, Action, Life, Intelligence for private individuals. Plans: Free 0 € · Premium 14,99 € · Exclusive 29,99 € per month. |
+| **ONE Business** | „Your business, under control.“ — company workspace with dashboard, tasks & sub-tasks, projects, company memory & clients, business actions, business intelligence, team with roles (Owner, Admin, Manager, Employee, Viewer) and invitations. Plans: Starter · Growth · Scale — **prices are set by the owner in admin** (none are invented in code). |
+| **ONE Admin** | Owner-only platform management: users, businesses, subscriptions, plans & prices, analytics, requests, product flags, settings, security (TOTP), audit log. |
+
+📐 Architecture: [ARCHITECTURE.md](ARCHITECTURE.md) · ✅ What is done vs. prepared: [FEATURES.md](FEATURES.md) · 🗺️ [ROADMAP.md](ROADMAP.md)
 
 ## 🇩🇪 Schnellstart auf deinem Mac (5 Minuten)
 
@@ -15,14 +23,18 @@ npm run setup      # fragt nach deiner E-Mail und einem Passwort → das wird de
 npm run dev
 ```
 
-Dann im Browser **http://localhost:3000** öffnen und mit deiner E-Mail anmelden. Du landest direkt im Admin-Bereich; über „Mein persönliches ONE“ nutzt du die App selbst. Sprache oben über **DE / EN** umschalten.
+Dann im Browser **http://localhost:3000** öffnen und mit deiner E-Mail anmelden. Du landest direkt im Admin-Bereich (ONE ADMIN); über „Mein persönliches ONE“ nutzt du die App selbst. Sprache oben über **DE / EN** umschalten.
+
+- **Business testen:** abmelden → „Registrieren“ → **ONE Business** wählen → Firmenname, E-Mail, Passwort → Bestätigungslink → Firmenbereich einrichten. Teammitglieder lädst du unter **Team** ein (ohne Mailserver zeigt ONE dir den Einladungslink zum Kopieren).
+- **Business-Preise festlegen:** im Admin unter **Tarife & Preise** (solange kein Preis gesetzt ist, steht dort „Preis folgt“ und der Tarif ist nicht buchbar).
+- **Zwei-Faktor-Schutz für den Admin:** Admin → **Sicherheit** → einrichten (Authenticator-App).
 
 - Beenden: im Terminal `Ctrl + C`. Wieder starten: `cd ONE && npm run dev`.
 - Deine Daten liegen lokal im Ordner `.data/` (nur auf deinem Mac).
 - Neue Test-Nutzer registrieren sich ganz normal; den Bestätigungslink zeigt ONE im lokalen Modus direkt auf der Seite an.
 - Für echten Betrieb im Internet (mit Supabase, Stripe, E-Mail und KI) siehe die Abschnitte unten.
 
-ONE combines a **private personal memory** with a **personal AI assistant** that turns information into concrete next steps. It is organised in four modules:
+**ONE Personal** combines a **private personal memory** with a **personal AI assistant** that turns information into concrete next steps. It is organised in four modules:
 
 | Module | What it does |
 | --- | --- |
@@ -32,6 +44,21 @@ ONE combines a **private personal memory** with a **personal AI assistant** that
 | **Intelligence** | Transparent insights (overdue items, upcoming deadlines, missing info…) and *Ask ONE* chat — always with sources |
 
 Plus: landing page, registration with email verification, onboarding, three membership tiers (Free / Premium / Exclusive), demo checkout, settings (profile, plan, data export, account deletion, support-access consent, feedback) and an owner-only admin area.
+
+**ONE Business** is a separate product, not Personal in other colours:
+
+| Area | What it does |
+| --- | --- |
+| **Dashboard** | KPIs, my tasks, projects with progress, recommendations (Confirmed / Conclusion), upcoming deadlines, team activity, Ask ONE Business |
+| **Tasks** | assign to members, priorities, deadlines, sub-tasks, recurring processes (Growth+), filters: mine / all open / overdue / by person / done |
+| **Projects** | description, responsible person, client, deadline, status (planned / active / on hold / done), progress, tasks, linked documents, history |
+| **Memory** | company knowledge: documents, contracts, offers, invoices, information, processes; clients; link entries to clients and projects; summaries & task detection |
+| **Action** | offers, business emails, client processes, contract deadlines, document analysis, meeting → tasks, internal processes, follow-ups; statuses New / In progress / Waiting for us / Waiting for a reply / Done |
+| **Intelligence** | risks, bottlenecks, late projects, missing owners, matters without reply, workload, contracts without deadlines — each with sources and a Confirmed/Conclusion label |
+| **Team** | invitations (7 days, bound to the email), roles Owner / Admin / Manager / Employee / Viewer, role changes, removal (open tasks are reassigned) |
+| **Settings** | company profile, plan & billing (Owner only), your account, request to switch to Personal |
+
+Every company is an isolated tenant (`organization_id`): server-side scoping, role checks on every request and Row Level Security in the database.
 
 ---
 
@@ -66,6 +93,8 @@ Add `ANTHROPIC_API_KEY` to enable real AI (Claude), `RESEND_API_KEY` for real em
 
 ## Architecture
 
+> Full description of the worlds, tenant isolation, roles and RLS: **[ARCHITECTURE.md](ARCHITECTURE.md)**.
+
 ```
 src/
   app/                    Next.js App Router (pages, layouts, route handlers)
@@ -74,11 +103,15 @@ src/
     auth/                 verify (local), callback (Supabase), signout routes
     onboarding/           Welcome → plan → interests
     checkout/[id]/        Demo checkout (Stripe-ready)
-    app/                  The product (protected)
+    app/                  ONE Personal (protected; business accounts are redirected)
       page.tsx            Home dashboard with the central "Ask ONE" composer
       memory/ action/ life/ intelligence/ settings/
       _actions/           Server actions per module (all authorization happens here)
-    admin/                Owner-only admin area (+ audited server actions)
+    business/             ONE Business: dashboard, tasks, projects, memory, action, intelligence, team, settings
+      _actions/           work.ts (projects/tasks/clients), knowledge.ts (memory/actions/ask), team.ts
+    invite/[token]/       Invitation landing (accept / register / sign in)
+    admin/                ONE Admin (owner only, optional TOTP; audited server actions)
+    verify-owner/         Owner second-factor check
     api/export            GDPR data export (JSON)
     api/billing/          Stripe webhook (signature-verified, idempotent) + customer portal redirect
     api/files/[id]        Owner-only file streaming
@@ -95,7 +128,10 @@ src/
                           extract tasks, plan actions), retrieval.ts (BM25 RAG), templates.ts
     billing/              Checkout & plan activation: demo provider + Stripe (Checkout, webhook sync, portal)
     mail.ts               Transactional email via Resend (verification, password reset)
-    permissions/          Entitlements & usage limits (feature gates, AI quota, storage)
+    permissions/          entitlements.ts (per person or per organization) · roles.ts (business role matrix)
+    org.ts                Organization context, invitations, activity log (role always loaded from the DB)
+    plans-store.ts        Plan catalogue = code defaults + owner overrides (plan_configs)
+    admin-guard.ts        Owner gate + TOTP second factor · admin-metrics.ts (aggregates only)
     insights.ts           Rule-based, source-linked insights
     features.ts           Global feature flags (admin-managed)
     audit.ts              Append-only audit logging
@@ -124,7 +160,8 @@ tests/e2e                 Browser end-to-end tests (Playwright)
 | Concern | Implementation |
 | --- | --- |
 | Owner / super admin | Requires **both** `ONE_OWNER_USER_ID` (server-only env) **and** `role = 'owner'` in the database. No public admin registration; new accounts are always `role = 'user'` (DB trigger + app). A unique index guarantees a single owner. |
-| Admin routes | `requireOwner()` in the admin layout and pages, `assertOwner()` in every admin server action. Non-owners are redirected. |
+| Admin routes | `requireAdmin()` in the admin layout and pages, `assertAdmin()` in every admin server action (owner + verified TOTP if enabled). Non-owners get a 404. |
+| Business tenants | `orgDb(orgId)` scoping, role loaded from `organization_members` on every request, RLS by active membership (viewers read-only), cross-scope trigger, single business owner per company. |
 | Privilege escalation | Users have no UPDATE right on `profiles`; a trigger additionally blocks changes to role/plan/status/email unless done by the service role. Plans are never read from client input. |
 | Data isolation | `userDb()` scoping + RLS `user_id = auth.uid()` on all private tables; composite foreign keys prevent linking to another user's rows. |
 | Admin & private content | The admin area shows **metadata and counts only**. Private content is visible only with a user-granted, time-limited (≤ 7 days) **support access grant**; each view is written to the audit log. |
@@ -155,7 +192,7 @@ See [`.env.example`](.env.example). Summary:
 | `ONE_AI_MODEL` | server | Default `claude-opus-5-5` |
 | `ONE_BILLING_MODE` | server | `demo` (default) or `stripe` |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | **server secret** | Stripe API key and webhook signing secret |
-| `STRIPE_PRICE_PREMIUM`, `STRIPE_PRICE_EXCLUSIVE` | server | Recurring monthly Stripe price ids |
+| `STRIPE_PRICE_<PLAN_ID>` | server | Recurring monthly Stripe price id per bookable plan (`PREMIUM`, `EXCLUSIVE`, `STARTER`, `GROWTH`, `SCALE`, custom plans) |
 | `RESEND_API_KEY`, `ONE_MAIL_FROM` | **server secret** / server | Transactional email (local backend) |
 | `ONE_LOG_DEMO_MAIL` | server | Demos/tests only: print undeliverable auth links to the server log |
 | `ONE_DEFAULT_TIMEZONE` | server | Fallback timezone before the browser reports its own |
@@ -188,7 +225,7 @@ Every page has a **DE / EN switch** (landing header, sign-in pages, onboarding, 
 
 | | Owner (you) | Everyone else |
 | --- | --- | --- |
-| After login | lands in **/admin** (admin view) | lands in **/app** (personal ONE) |
+| After login | lands in **/admin** (admin view) | Personal accounts → **/app**, Business accounts → **/business** |
 | Admin area | full access; “My personal ONE” link to use the app yourself | **does not exist for them**: `/admin` answers with a plain 404 (no redirect that would reveal it), no admin link anywhere |
 | Private content of others | only via a user-granted, time-limited, logged support grant | — |
 
@@ -210,7 +247,7 @@ npm run owner:create -- --email you@example.com --password "YourStrongPassw0rd"
    ```
 3. Set `ONE_OWNER_USER_ID=<your auth user id>` in the server environment and redeploy.
 
-The **Admin** entry appears in the sidebar for the owner only. `/admin` offers: overview metrics (users, plans, registrations, active users, subscriptions, cancellations, revenue from real payments only, AI usage), user management (search & filters, suspend/reactivate, membership grants — all with reasons and audit entries), feedback & bug reports, feature switches, system status and the audit log.
+`/admin` offers: overview (Personal vs. Business users, companies, plans, subscriptions, registrations, cancellations, up/downgrades, revenue from real Stripe payments only), users (filters by world, plan, subscription status, registration period, activity), businesses (metadata only), subscriptions, **plans & prices** (edit prices, availability, limits, features; create plans), analytics, account type requests, product flags & modules, feedback, settings (maintenance mode, business trial, branding, AI config), system status, **security (TOTP)** and the audit log. Every change is audited.
 
 ---
 
@@ -237,13 +274,14 @@ Local backend: set `RESEND_API_KEY` and `ONE_MAIL_FROM` to send verification and
 | `npm run typecheck` | TypeScript |
 | `npm test` | Unit tests (Node test runner) |
 | `npm run test:e2e` | Browser end-to-end tests against a running server (`BASE_URL`, `OWNER_EMAIL`, `OWNER_PASSWORD`; needs Playwright + Chromium). Covers registration & verification, onboarding & demo checkout, all four modules, data isolation between users, upgrade prompts, admin protection, suspension, audited plan grants, support access, feature flags, password change, password reset (set `SERVER_LOG` to the server's log file with `ONE_LOG_DEMO_MAIL=true`) and account deletion. Start the server fresh before running — sign-up rate limits are per IP. |
-| `npm run test:db` | Migration + RLS tests on a throwaway PostgreSQL database |
+| `npm run test:e2e:business` | Business suite: world chooser, company setup, projects/tasks/sub-tasks, company memory & clients, actions, intelligence, invitations & roles, tenant + world isolation, account type requests, admin plan pricing, owner MFA, responsive check at 1440/1024/768/390/360 px, PWA. Start a fresh server first. |
+| `npm run test:db` | Migration + RLS tests on a throwaway PostgreSQL database (incl. multi-tenant isolation) |
 | `npm run test:stripe` | Starts its own server in Stripe mode (port 3100) and verifies the webhook: forged signatures rejected, activation, upgrades, past_due, scheduled cancellation, deletion, idempotency, graceful checkout errors. Needs a build. |
 | `npm run owner:create` | Owner bootstrap (local backend) |
 
 ## Changing plans, prices and limits
 
-Everything lives in [`src/lib/config/plans.ts`](src/lib/config/plans.ts): prices, AI requests per month, storage, max file size, memory & action limits, feature switches per plan and the AI effort level. Gates throughout the app (`requireFeature`, `consumeAiRequest`, `assertCanStore`, …) read from there, and locked features show an upgrade prompt.
+Defaults live in [`src/lib/config/plans.ts`](src/lib/config/plans.ts); the owner changes prices, availability, limits, features and pricing-card bullets — and creates new plans — in **/admin/plans** (stored in `plan_configs`, merged by `lib/plans-store.ts`). Gates throughout the app (`requireFeature`, `consumeAiRequest`, `assertCanStore`, `assertMemberCapacity`, `assertProjectCapacity`, …) read the merged catalogue on the server, and locked features show an upgrade prompt. Business plans ship **without prices**; until a price is set they show “Price coming soon” and cannot be booked.
 
 ## AI integration
 
@@ -266,7 +304,9 @@ Everything lives in [`src/lib/config/plans.ts`](src/lib/config/plans.ts): prices
 | Voice notes | Stored and playable; transcription is not implemented (Claude does not accept audio). |
 | Semantic search | Lexical BM25; pgvector embeddings are prepared in the schema as a comment. |
 | Notifications | Reminders appear in the app; push / email reminders are not implemented. |
-| Localisation | UI is English; German and further languages are on the roadmap. |
+| Localisation | English and German; further languages on the roadmap. |
+| ONE Business | Automations, advanced reporting and integrations are shown as plan features but are **prepared, not functional**. Support access to company content is intentionally not available yet. Business prices must be set by the owner before companies can pay. |
+| Offline | The PWA shows an offline page; data is not available offline by design (privacy). |
 | Legal | Privacy policy and terms are placeholders that need legal review (incl. Impressum for Germany). |
 | Scale | The local JSON backend and in-memory rate limiting are single-instance; use Supabase (and Redis for rate limits) in production. |
 

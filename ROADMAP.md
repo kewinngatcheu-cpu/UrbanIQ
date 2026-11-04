@@ -2,11 +2,29 @@
 
 Priorities follow the product principles: **quality over feature count, security over speed, user value over gimmicks.**
 
+## Done in ONE 2.0
+
+- ✅ Two separate worlds **ONE Personal** and **ONE Business**, chosen at registration; controlled switch via owner-approved request.
+- ✅ ONE Business: dashboard, tasks with assignment & sub-tasks, projects with history, company memory & clients, business actions, business intelligence (Confirmed / Conclusion), team invitations & roles, company billing.
+- ✅ Multi-tenant isolation (app scoping + RLS + cross-scope trigger), role matrix with server-side checks.
+- ✅ ONE Admin: businesses, subscriptions, central plan & price management, analytics, requests, maintenance mode, platform settings, **owner TOTP**.
+- ✅ PWA (manifest, icons, offline page), tablet/mobile layouts, camera upload.
+
+## Next (v2.1 — ONE Business depth)
+
+- **Business prices** — set Starter / Growth / Scale prices in admin and create the matching Stripe prices.
+- **Logged support access for companies** (Business Owner approves, time-limited, every view audited).
+- **Automations** (Business Scale): rules such as “create a task 6 weeks before a contract notice deadline”.
+- **Reporting**: exports (CSV/PDF) for projects, tasks and workload; scheduled weekly team digest.
+- **Integrations**: calendar (Google/Microsoft), shared mailbox → company memory, accounting exports.
+- Multiple companies per account with a company switcher (data model already supports it).
+- Comments & mentions on tasks and projects; file versioning.
+
 ## Next (v1.2 — production readiness)
 
 - ✅ ~~Stripe billing~~ (Checkout, signed idempotent webhook, customer portal, period-end cancellation) — next: Stripe Tax/VAT, dunning emails, annual plans, churn analytics.
 - **Live Supabase rollout**: run the e2e suite against a staging project, Supabase CLI workflow, generated DB types, backups & point-in-time recovery.
-- ✅ ~~Password reset & change~~ (revokes other sessions) — next: email change, session list, optional 2FA (TOTP / passkeys), mandatory 2FA for the owner.
+- ✅ ~~Password reset & change~~ (revokes other sessions) — next: email change, session list, 2FA for all users (TOTP / passkeys). ✅ Owner TOTP is done.
 - ✅ ~~Transactional email~~ for verification & reset (Resend) — next: receipts and reminder emails.
 - ✅ ~~CI pipeline~~ (lint, types, unit, RLS, Stripe webhook, e2e).
 - **Distributed rate limiting** (Upstash/Redis) and bot protection (Turnstile) on sign-up.
@@ -29,7 +47,7 @@ Priorities follow the product principles: **quality over feature count, security
 - **Calendar sync** (Google, Apple, Outlook) and **email integration** (read-only first, drafts later — always with explicit confirmation).
 - **Automations** (Exclusive): recurring checks such as "remind me 6 weeks before any contract notice deadline".
 - **Family / shared spaces** with granular sharing.
-- **Internationalisation**: German first, then further languages; locale-aware dates & currencies.
+- **Internationalisation**: ✅ German & English — next: further languages.
 - **Templates marketplace** for actions (cancellation letters per country, complaints, applications).
 - **Personal insights**: monthly review, goal progress, spending overview from invoices.
 - **Bring-your-own-model / EU-hosted AI** option for privacy-sensitive users.
