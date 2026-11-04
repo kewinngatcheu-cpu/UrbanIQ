@@ -35,7 +35,7 @@ export default async function VerifyEmailPage() {
             {tr("No email service is connected in local demo mode, so the message is shown here instead of being sent.")}
           </p>
           {demoLink ? (
-            <a href={demoLink} className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-white px-3 py-2.5 text-sm font-medium text-accent-strong shadow-soft hover:bg-snow">
+            <a href={demoLink.replace(/^https?:\/\/[^/]+/, "")} className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-white px-3 py-2.5 text-sm font-medium text-accent-strong shadow-soft hover:bg-snow">
               {tr("Open verification link")}
             </a>
           ) : (
