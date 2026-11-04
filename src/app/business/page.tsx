@@ -145,7 +145,7 @@ export default async function BusinessDashboard({ searchParams }: { searchParams
                     {activity.map((a) => (
                       <li key={a.id} className="flex gap-2.5 text-[13px]">
                         <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
-                        <span className="min-w-0 flex-1"><span className="font-medium text-ink">{names.get(a.actor_id) ?? "—"}</span> <span className="text-muted">· {a.summary}</span></span>
+                        <span className="min-w-0 flex-1"><span className="font-medium text-ink">{names.get(a.actor_id) ?? "—"}</span> <span className="text-muted">· {tr(a.summary)}</span></span>
                         <span className="shrink-0 text-[11.5px] text-muted">{relativeTime(a.created_at, undefined, locale)}</span>
                       </li>
                     ))}

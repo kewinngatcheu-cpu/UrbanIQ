@@ -6,7 +6,9 @@ import { notFound } from "next/navigation";
 import { FlaskConical, ShieldCheck, Check } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { getCheckout } from "@/lib/billing";
-import { PLANS, formatPrice } from "@/lib/config/plans";
+import { formatPrice } from "@/lib/config/plans";
+import { findPlan } from "@/lib/plans-store";
+import { getLocale } from "@/lib/i18n/server";
 import { Logo } from "@/components/brand/logo";
 import { buttonVariants } from "@/components/ui/button";
 import { ConfirmCheckout, AwaitPayment } from "./confirm";
@@ -22,11 +24,14 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
   const user = await requireUser();
   const co = await getCheckout(user, id);
   if (!co) notFound();
-  const plan = PLANS[co.plan];
+  const plan = await findPlan(co.plan);
+  if (!plan) notFound();
+  const locale = await getLocale();
+  const home = co.org_id ? "/business" : "/app";
   const open = co.status === "pending" && Date.parse(co.expires_at) > Date.now();
   return (
     <div className="bg-one-gradient min-h-screen">
-      <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5"><Link href="/app"><Logo /></Link><LanguageSwitch /></header>
+      <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5"><Link href={home}><Logo /></Link><LanguageSwitch /></header>
       <main className="mx-auto max-w-lg px-5 pb-20 pt-6">
         <div className="animate-fade-up rounded-3xl border border-line bg-white p-8 shadow-lift">
           {co.provider === "demo" && (
@@ -35,9 +40,9 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
               <span><strong>{tr("Demo payment mode.")}</strong> {tr("No real payment is processed and no money is charged.")}</span>
             </div>
           )}
-          <p className="mt-7 text-[13px] font-semibold tracking-[0.18em] text-accent-strong">ONE {plan.name.toUpperCase()}</p>
+          <p className="mt-7 text-[13px] font-semibold tracking-[0.18em] text-accent-strong">{plan.world === "business" ? "" : "ONE "}{plan.name.toUpperCase()}</p>
           <div className="mt-2 flex items-baseline gap-1">
-            <span className="text-4xl font-semibold text-ink">{formatPrice(co.amount_eur)}</span>
+            <span className="text-4xl font-semibold text-ink">{formatPrice(co.amount_eur, locale)}</span>
             <span className="text-muted">{tr("/ month")}</span>
           </div>
           <ul className="mt-6 space-y-2">
@@ -49,16 +54,16 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
             {co.status === "paid" ? (
               <div className="text-center">
                 <p className="font-semibold text-mint-ink">{tr("This plan is active.")}</p>
-                <Link href="/app" className={buttonVariants({ className: "mt-4" })}>{tr("Go to dashboard")}</Link>
+                <Link href={home} className={buttonVariants({ className: "mt-4" })}>{tr("Go to dashboard")}</Link>
               </div>
             ) : co.provider === "stripe" && co.status === "pending" ? (
-              <AwaitPayment />
+              <AwaitPayment home={home} />
             ) : open ? (
-              <ConfirmCheckout id={co.id} planName={plan.name} />
+              <ConfirmCheckout id={co.id} planName={plan.name} home={home} />
             ) : (
               <div className="text-center text-sm text-muted">
                 {tr("This checkout has expired or was canceled.")}
-                <Link href="/app/settings/billing" className={buttonVariants({ variant: "secondary", className: "mt-4 w-full" })}>{tr("Back to plans")}</Link>
+                <Link href={`${home}/settings/billing`} className={buttonVariants({ variant: "secondary", className: "mt-4 w-full" })}>{tr("Back to plans")}</Link>
               </div>
             )}
           </div>

@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { EmptyState, Progress } from "@/components/ui/misc";
 import { BizTaskRow } from "@/components/business/task-row";
 import { BizTaskDialog } from "@/components/business/task-dialog";
-import { ProjectDialog, STAGES } from "@/components/business/project-dialog";
+import { ProjectDialog } from "@/components/business/project-dialog";
+import { STAGES } from "@/lib/project-stages";
 import { archiveProjectForm } from "../../_actions/work";
 import { membersOf, nameOf } from "../../lib";
 import { formatDate, formatDateTime } from "@/lib/utils";
@@ -100,7 +101,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ id: 
                   {history.map((h) => (
                     <li key={h.id} className="relative text-[13px]">
                       <span className="absolute -left-[21px] top-1.5 size-2 rounded-full bg-primary" />
-                      <p className="text-ink">{h.summary}</p>
+                      <p className="text-ink">{tr(h.summary)}</p>
                       <p className="text-[11.5px] text-muted">{names.get(h.actor_id) ?? "—"} · {formatDateTime(h.created_at, locale)}</p>
                     </li>
                   ))}

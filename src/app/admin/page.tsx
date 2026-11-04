@@ -58,8 +58,8 @@ export default async function AdminOverview() {
         <Card className="lg:col-span-2">
           <CardHeader title={tr("New registrations")} description={tr("Last 14 days · Personal and Business")} />
           <CardBody className="grid gap-6 sm:grid-cols-2">
-            <div><p className="mb-2 flex items-center gap-1.5 text-[12.5px] text-muted"><User className="size-3.5" /> ONE Personal</p><Bars data={registrationsByDay(m.personal, 14)} label={tr("Personal registrations per day")} /></div>
-            <div><p className="mb-2 flex items-center gap-1.5 text-[12.5px] text-muted"><Building2 className="size-3.5" /> ONE Business</p><Bars data={registrationsByDay(m.business, 14)} label={tr("Business registrations per day")} tone="from-ink to-muted" /></div>
+            <div className="min-w-0"><p className="mb-2 flex items-center gap-1.5 text-[12.5px] text-muted"><User className="size-3.5" /> ONE Personal</p><Bars data={registrationsByDay(m.personal, 14)} label={tr("Personal registrations per day")} /></div>
+            <div className="min-w-0"><p className="mb-2 flex items-center gap-1.5 text-[12.5px] text-muted"><Building2 className="size-3.5" /> ONE Business</p><Bars data={registrationsByDay(m.business, 14)} label={tr("Business registrations per day")} tone="from-ink to-muted" /></div>
           </CardBody>
         </Card>
         <Card>

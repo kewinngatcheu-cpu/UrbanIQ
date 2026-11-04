@@ -49,7 +49,7 @@ try {
   // Register + verify a user through the UI
   const browser = await chromium.launch();
   const page = await (await browser.newContext()).newPage();
-  await page.goto(`${BASE}/register`);
+  await page.goto(`${BASE}/register?world=personal`);
   await page.fill("#email", `stripe.${Date.now()}@one.test`);
   await page.fill("#password", "StripeTest2026");
   await page.check('input[name="terms"]');

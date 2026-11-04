@@ -9,8 +9,8 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 import { initialState, type ActionState } from "@/lib/action-state";
 import { saveProject } from "@/app/business/_actions/work";
 import type { Project } from "@/lib/db/types";
+import { STAGES } from "@/lib/project-stages";
 
-export const STAGES = [["planned", "Planned"], ["active", "Active"], ["on_hold", "On hold"], ["done", "Done"]] as const;
 
 export function ProjectDialog({ project, members, clients, trigger, triggerVariant = "primary" }: {
   project?: Project;

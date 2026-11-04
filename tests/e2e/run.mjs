@@ -51,7 +51,7 @@ if (process.env.DEBUG_NET) {
 if (process.env.STOP_AFTER) setTimeout(() => process.exit(2), Number(process.env.STOP_AFTER) * 1000);
 
 async function register(p, user, plan) {
-  await p.goto(`${BASE}/register?plan=${plan}`); await p.waitForLoadState("networkidle");
+  await p.goto(`${BASE}/register?world=personal&plan=${plan}`); await p.waitForLoadState("networkidle");
   await p.fill("#email", user.email);
   await p.fill("#password", user.password);
   await p.check('input[name="terms"]');
@@ -67,7 +67,7 @@ async function login(p, user) {
 
 await step("Landing page renders hero, modules, pricing, FAQ", async () => {
   await page.goto(BASE); await page.waitForLoadState("networkidle");
-  for (const t of ["Remember everything.", "Four modules".toUpperCase(), "Start free. Grow with ONE.", "Questions & answers"]) {
+  for (const t of ["Your Life. Your Business.", "One system. Two separate worlds.", "Simple plans for both worlds.", "Questions & answers"]) {
     await page.getByText(t, { exact: false }).first().waitFor({ timeout: 15000 });
   }
   await shot(page, "01-landing");
@@ -76,7 +76,7 @@ await step("Landing page renders hero, modules, pricing, FAQ", async () => {
 await step("Protected routes redirect anonymous visitors to login", async () => {
   const adminRes = await page.goto(`${BASE}/admin`);
   assert(adminRes.status() === 404 && !page.url().includes("/login"), `anonymous /admin should be a plain 404, got ${adminRes.status()} ${page.url()}`);
-  for (const path of ["/app", "/app/memory", "/onboarding"]) {
+  for (const path of ["/app", "/app/memory", "/onboarding", "/business", "/business/team"]) {
     await page.goto(BASE + path); await page.waitForLoadState("networkidle");
     assert(page.url().includes("/login"), `${path} not protected: ${page.url()}`);
   }
@@ -86,6 +86,8 @@ await step("Protected routes redirect anonymous visitors to login", async () => 
 
 await step("Registration validates weak passwords", async () => {
   await page.goto(`${BASE}/register`); await page.waitForLoadState("networkidle");
+  await page.getByText("How do you want to use ONE?").waitFor();
+  await page.click('a[href="/register?world=personal"]'); await page.waitForURL("**world=personal"); await page.waitForLoadState("networkidle");
   await page.fill("#email", A.email);
   await page.fill("#password", "short");
   await page.check('input[name="terms"]');
@@ -332,7 +334,7 @@ await step("User B: Premium features show upgrade prompts", async () => {
 await step("Normal user cannot see or reach the admin area", async () => {
   const r1 = await pb.goto(`${BASE}/admin`); await pb.waitForLoadState("networkidle");
   assert(r1.status() === 404, `non-owner /admin should be 404, got ${r1.status()}`);
-  assert(!(await pb.getByText("Registered users").count()), "non-owner sees admin content");
+  assert(!(await pb.getByText("Platform overview").count()), "non-owner sees admin content");
   const r2 = await pb.goto(`${BASE}/admin/users`); await pb.waitForLoadState("networkidle");
   assert(r2.status() === 404, "non-owner /admin/users should be 404");
   assert(!(await pb.locator('a[href="/admin"]').count()), "non-owner sees an Admin link");
@@ -345,7 +347,7 @@ globalThis.po = po;
 await step("Owner lands in the admin view after login and sees metadata only", async () => {
   await login(po, { email: OWNER_EMAIL, password: OWNER_PASSWORD });
   await po.waitForURL("**/admin"); await po.waitForLoadState("networkidle"); // owner lands in the admin view
-  await po.getByText("Registered users").first().waitFor({ timeout: 15000 });
+  await po.getByText("Platform overview").first().waitFor({ timeout: 15000 });
   await shot(po, "15-admin");
   await po.goto(`${BASE}/admin/users?q=${encodeURIComponent(A.email)}`); await po.waitForLoadState("networkidle");
   await po.click(`a:has-text("Lena")`);

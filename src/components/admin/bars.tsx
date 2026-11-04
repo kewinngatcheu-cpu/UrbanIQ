@@ -2,7 +2,7 @@
 export function Bars({ data, label, tone = "from-primary to-cloud" }: { data: { d: string; n: number }[]; label: string; tone?: string }) {
   const max = Math.max(1, ...data.map((x) => x.n));
   return (
-    <div className="flex h-36 items-end gap-1" role="img" aria-label={label}>
+    <div className={`flex h-36 min-w-0 items-end overflow-hidden ${data.length > 20 ? "gap-px sm:gap-0.5" : "gap-1"}`} role="img" aria-label={label}>
       {data.map((x) => (
         <div key={x.d} className="group flex min-w-0 flex-1 flex-col items-center gap-1" title={`${x.d}: ${x.n}`}>
           <span className="text-[10px] text-muted opacity-0 group-hover:opacity-100">{x.n}</span>

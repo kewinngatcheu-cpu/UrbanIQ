@@ -57,3 +57,8 @@ export function formatBytes(n: number) {
 export function parseTags(input: string): string[] {
   return [...new Set(input.split(/[,#\n]/).map((t) => t.trim().toLowerCase()).filter((t) => t.length > 0 && t.length <= 32))].slice(0, 12);
 }
+
+/** Whole days from now until `iso` (rounded up; negative when past). */
+export function daysUntil(iso: string, now: number = Date.now()) {
+  return Math.ceil((Date.parse(iso) - now) / 86400000);
+}

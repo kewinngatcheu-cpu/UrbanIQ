@@ -6,7 +6,7 @@ import { Logo } from "@/components/brand/logo";
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const tr = await getT();
   return (
-    <div className="bg-one-gradient relative flex min-h-screen flex-col">
+    <div className="bg-one-gradient relative flex min-h-screen flex-col overflow-x-clip">
       <div className="pointer-events-none absolute left-1/2 top-10 size-[520px] -translate-x-1/2 rounded-full bg-sky/40 blur-3xl" />
       <header className="relative mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5">
         <Link href="/" aria-label={tr("ONE home")}><Logo /></Link>

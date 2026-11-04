@@ -26,7 +26,7 @@ export default async function OnboardingPage() {
   const invite = user.account_type === "business" ? (await cookies()).get(INVITE_COOKIE)?.value : undefined;
   const pending = invite ? await findInvite(invite) : null;
   return (
-    <div className="bg-one-gradient relative min-h-screen">
+    <div className="bg-one-gradient relative min-h-screen overflow-x-clip">
       <div className="pointer-events-none absolute left-1/2 top-0 size-[600px] -translate-x-1/2 rounded-full bg-sky/40 blur-3xl" />
       <header className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-5"><Logo /><LanguageSwitch /></header>
       <main className="relative mx-auto max-w-2xl px-5 pb-20 pt-6">

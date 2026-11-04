@@ -1,15 +1,29 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { userDb } from "@/lib/db";
+import { userDb, systemDb } from "@/lib/db";
 import { getFile } from "@/lib/storage";
 
-/** Streams a document to its owner only. Ownership is enforced by the user-scoped query. */
+/**
+ * Streams a document: personal files only to their owner (user-scoped query), company files only
+ * to active members of that (active) company. Everyone else gets 404.
+ */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user || user.status !== "active" || !user.email_verified) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
   const db = await userDb(user.id);
-  const doc = await db.get("documents", id);
+  let doc = await db.get("documents", id);
+  if (!doc && user.account_type === "business") {
+    const sys = systemDb();
+    const candidate = await sys.selectOne("documents", { id });
+    if (candidate?.org_id) {
+      const [member, org] = await Promise.all([
+        sys.selectOne("organization_members", { org_id: candidate.org_id, user_id: user.id, status: "active" }),
+        sys.selectOne("organizations", { id: candidate.org_id }),
+      ]);
+      if (member && org?.status === "active") doc = candidate;
+    }
+  }
   if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const data = await getFile(doc.storage_path);
   if (!data) return NextResponse.json({ error: "File missing" }, { status: 404 });

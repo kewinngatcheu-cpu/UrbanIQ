@@ -8,7 +8,7 @@ import { SubmitButton, FormMessage } from "@/components/ui/form";
 import { initialState, type ActionState } from "@/lib/action-state";
 import { confirmCheckoutAction } from "./actions";
 
-export function ConfirmCheckout({ id, planName }: { id: string; planName: string }) {
+export function ConfirmCheckout({ id, planName, home = "/app" }: { id: string; planName: string; home?: string }) {
   const tr = useT();
   const [state, action] = useActionState(async (prev: ActionState, form: FormData) => {
     const res = await confirmCheckoutAction(prev, form);
@@ -21,13 +21,13 @@ export function ConfirmCheckout({ id, planName }: { id: string; planName: string
       <input type="hidden" name="id" value={id} />
       <FormMessage state={state} />
       <SubmitButton size="lg" className="w-full" pendingText={tr("Confirming…")}>{tr("Confirm demo payment & activate {plan}", { plan: planName })}</SubmitButton>
-      <Link href="/app" className="block text-center text-sm text-muted hover:text-ink">{tr("Not now — continue on Free")}</Link>
+      <Link href={home} className="block text-center text-sm text-muted hover:text-ink">{home === "/business" ? tr("Not now") : tr("Not now — continue on Free")}</Link>
     </form>
   );
 }
 
 /** Stripe: the plan is activated by the signed webhook, not by this redirect. Poll until it arrives. */
-export function AwaitPayment() {
+export function AwaitPayment({ home = "/app" }: { home?: string }) {
   const tr = useT();
   const router = useRouter();
   const [tries, setTries] = useState(0);
@@ -43,7 +43,7 @@ export function AwaitPayment() {
       ) : (
         <p>{tr("This is taking longer than usual. Your plan activates automatically as soon as Stripe confirms the payment — you can safely continue.")}</p>
       )}
-      <Link href="/app" className="mt-4 block text-accent-strong hover:underline">{tr("Continue to ONE")}</Link>
+      <Link href={home} className="mt-4 block text-accent-strong hover:underline">{tr("Continue to ONE")}</Link>
     </div>
   );
 }

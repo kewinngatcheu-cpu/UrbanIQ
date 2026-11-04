@@ -1,3 +1,4 @@
+import { daysUntil } from "@/lib/utils";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { requireOrg } from "@/lib/org";
@@ -28,7 +29,7 @@ export default async function BusinessLayout({ children }: { children: React.Rea
     { href: "/business/settings", label: "Settings", icon: "settings" },
   ];
   const o = ctx.org;
-  const trialLeft = o.subscription_status === "trial" && o.trial_ends_at ? Math.ceil((Date.parse(o.trial_ends_at) - Date.now()) / 86400000) : null;
+  const trialLeft = o.subscription_status === "trial" && o.trial_ends_at ? daysUntil(o.trial_ends_at) : null;
   return (
     <>
       <TzCookie current={store.get("one_tz")?.value ?? null} />
