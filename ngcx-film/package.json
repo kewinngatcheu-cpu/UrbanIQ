@@ -1,0 +1,29 @@
+{
+  "name": "ngcx-brand-film",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NGCX Intelligence – premium brand film & social commercial (Remotion)",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "audio": "python3 scripts/generate_audio.py",
+    "render:16x9": "remotion render src/index.ts NGCX-Film-16x9 out/NGCX_Brand_Film_16x9_1080p.mp4",
+    "render:9x16": "remotion render src/index.ts NGCX-Film-9x16 out/NGCX_Social_9x16_1080x1920.mp4",
+    "still": "remotion still src/index.ts NGCX-Thumbnail out/NGCX_Thumbnail_1920x1080.png",
+    "render": "npm run audio && npm run render:16x9 && npm run render:9x16 && npm run still",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/sora": "^5.3.0",
+    "@remotion/bundler": "^4.0.541",
+    "@remotion/cli": "^4.0.541",
+    "@remotion/renderer": "^4.0.541",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.541"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "typescript": "^5.6.3"
+  }
+}
