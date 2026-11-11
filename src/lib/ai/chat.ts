@@ -9,6 +9,7 @@ import { buildSystemPrompt } from "./systemPrompt";
 import { resolveEnabledProvider } from "./registry";
 import { parseCommand, HELP_TEXT } from "./commands";
 import { extractMemories } from "./memoryExtraction";
+import { chatSnapshot } from "@/lib/myday";
 import type { ChatTurn, LLMProvider } from "./types";
 
 export type ChatEvent =
@@ -104,7 +105,8 @@ export async function handleChat(
     `SELECT role, content FROM (SELECT role, content, created_at FROM messages WHERE conversation_id = $1 AND role IN ('user','assistant')
        ORDER BY created_at DESC LIMIT $2) t ORDER BY created_at`, [conv.id, HISTORY_WINDOW]);
   const messages = normalizeTurns(history);
-  const system = buildSystemPrompt({ workspace, memories, tasks, conversationSummary: conv.summary });
+  const snapshot = await chatSnapshot(workspace.id).catch((e) => `(Status nicht verfügbar: ${e instanceof Error ? e.message : e})`);
+  const system = buildSystemPrompt({ workspace, memories, tasks, conversationSummary: conv.summary, snapshot });
 
   try {
     const result = await provider.stream({ system, messages, model: model ?? undefined, effort: settings.effort, signal: input.signal }, (text) => emit({ type: "delta", text }));

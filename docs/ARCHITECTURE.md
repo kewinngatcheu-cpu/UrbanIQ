@@ -86,6 +86,14 @@ All routes are JSON, authenticated by session cookie, Origin-checked for mutatio
 | `GET /api/integrations` · `PATCH /api/integrations/:id` | connector status / enable |
 | `GET /api/audit` | activity log |
 | `GET /api/health` | liveness (no personal data) |
+| `GET /api/myday` · `POST /api/myday` (`briefing_ai` · `plan` · `evening`) | briefing, planner, evening review |
+| `GET/POST /api/goals` · `PATCH/DELETE /api/goals/:id` · `POST /api/goals/:id/milestones` · `PATCH/DELETE /api/milestones/:id` | goals |
+| `GET/POST /api/habits` · `POST (check-in)/DELETE /api/habits/:id` | habits |
+| `GET/POST /api/focus` · `PATCH /api/focus/:id` | focus sessions |
+| `GET/POST /api/procrastination` | candidates, root-cause resolution |
+| `GET/POST /api/finance` · `PATCH/DELETE /api/finance/tx/:id` · `POST /api/finance/import` · `PUT /api/finance/budgets` · `POST /api/finance/scenario` · `PUT /api/finance/balances` | finance |
+| `GET/POST /api/fitness` · `DELETE /api/fitness/:id` | fitness |
+| `GET/POST /api/courses` · `PATCH/DELETE /api/courses/:id` | university |
 
 ## 5. Expected recurring costs (estimates, Nov 2026 list prices)
 

@@ -34,7 +34,10 @@ Always requiring explicit confirmation: sending email, publishing content, purch
 
 ## Data flows to third parties
 
-- Chat: the message, the retrieved memories, open tasks of the workspace and the workspace profile are sent to the selected AI provider. Nothing else.
+- Chat: the message, the retrieved memories, open tasks of the workspace, the workspace profile and a computed `<status>` block are sent to the selected AI provider. Nothing else.
+- `<status>` in the **personal** workspace: active goals, habits today, focus minutes, upcoming exams; finance summary only if `aiContextFinance` is on (default on); training data only if `aiContextHealth` is on (default off). In **business** workspaces: only that workspace's goals – personal data never enters business chats (tested).
+- AI briefing / evening feedback: the same privacy filter applies (`briefingForAI`).
+- Finance: no bank connection. CSV files are parsed in memory; only resulting bookings are stored. No transactions are ever executed.
 - Embeddings: only with `EMBEDDING_PROVIDER=openai` (memory texts go to OpenAI). Default is local.
 - Browser voice: speech may be processed by the browser vendor.
 

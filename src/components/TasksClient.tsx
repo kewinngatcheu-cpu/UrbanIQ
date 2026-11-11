@@ -5,10 +5,15 @@ import { apiFetch, fmtDate, PRIORITY_COLOR, PRIORITY_LABEL } from "@/lib/client/
 
 type Ws = { id: string; name: string; color: string };
 type Task = { id: string; workspace_id: string; title: string; notes: string; priority: string; status: string; due_at: string | null;
-  postponed_count: number; project: string | null; completed_at: string | null };
+  postponed_count: number; project: string | null; completed_at: string | null; goal_id?: string | null; estimate_min?: number | null };
+type GoalRef = { id: string; title: string };
 
-export function TasksClient({ workspaces, fixedWorkspace }: { workspaces: Ws[]; fixedWorkspace?: string }) {
+export function TasksClient({ workspaces, fixedWorkspace, goals = [], goalId, courseId }: {
+  workspaces: Ws[]; fixedWorkspace?: string; goals?: GoalRef[]; goalId?: string; courseId?: string;
+}) {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [goal, setGoal] = useState(goalId ?? "");
+  const [estimate, setEstimate] = useState("");
   const [filterWs, setFilterWs] = useState(fixedWorkspace ?? "");
   const [view, setView] = useState<"open" | "done">("open");
   const [title, setTitle] = useState("");
@@ -21,17 +26,20 @@ export function TasksClient({ workspaces, fixedWorkspace }: { workspaces: Ws[]; 
   const load = useCallback(async () => {
     const q = new URLSearchParams({ status: view });
     if (filterWs) q.set("workspace", filterWs);
+    if (goalId) q.set("goal", goalId);
+    if (courseId) q.set("course", courseId);
     const r = await apiFetch<{ tasks: Task[] }>(`/api/tasks?${q}`);
     setTasks(r.tasks);
-  }, [view, filterWs]);
+  }, [view, filterWs, goalId, courseId]);
   useEffect(() => { load().catch((e) => setError(e.message)); }, [load]);
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
     try {
-      await apiFetch("/api/tasks", { body: { workspaceId: ws, title, priority, dueAt: due ? new Date(due).toISOString() : null } });
-      setTitle(""); setDue(""); setError(null); load();
+      await apiFetch("/api/tasks", { body: { workspaceId: ws, title, priority, dueAt: due ? new Date(due).toISOString() : null,
+        goalId: goal || null, courseId: courseId ?? null, estimateMin: estimate ? Number(estimate) : null } });
+      setTitle(""); setDue(""); setEstimate(""); setError(null); load();
     } catch (err) { setError((err as Error).message); }
   }
   async function patch(id: string, body: Record<string, unknown>) {
@@ -55,6 +63,13 @@ export function TasksClient({ workspaces, fixedWorkspace }: { workspaces: Ws[]; 
         {!fixedWorkspace && (
           <select className="input !w-auto" value={ws} onChange={(e) => setWs(e.target.value)} aria-label="Workspace">
             {workspaces.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+          </select>
+        )}
+        <input className="input !w-24" type="number" min={5} max={600} placeholder="Min." value={estimate} onChange={(e) => setEstimate(e.target.value)} aria-label="Schätzung in Minuten" title="Zeitschätzung (Minuten) – hilft dem Planer" />
+        {goals.length > 0 && !goalId && (
+          <select className="input !w-auto" value={goal} onChange={(e) => setGoal(e.target.value)} aria-label="Ziel">
+            <option value="">Kein Ziel</option>
+            {goals.map((g) => <option key={g.id} value={g.id}>{g.title}</option>)}
           </select>
         )}
         <button className="btn btn-primary" disabled={!title.trim()}><Plus size={15} /> Anlegen</button>

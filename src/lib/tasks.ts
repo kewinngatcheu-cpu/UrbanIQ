@@ -19,6 +19,10 @@ export interface Task {
   estimate_min: number | null;
   completed_at: string | null;
   created_by: string;
+  goal_id: string | null;
+  course_id: string | null;
+  blocker_reason: string | null;
+  parent_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -31,6 +35,8 @@ export const taskInput = z.object({
   project: z.string().max(100).nullish(),
   dueAt: z.string().datetime({ offset: true }).nullish(),
   estimateMin: z.number().int().min(1).max(10000).nullish(),
+  goalId: z.string().uuid().nullish(),
+  courseId: z.string().uuid().nullish(),
 });
 export const taskPatch = taskInput.partial().omit({ workspaceId: true }).extend({ status: z.enum(TASK_STATUSES).optional() });
 
@@ -38,9 +44,9 @@ export async function createTask(raw: z.input<typeof taskInput>, actor: string):
   const t = taskInput.parse(raw);
   const db = await getDb();
   const rows = await db.query<Task>(
-    `INSERT INTO tasks (workspace_id, title, notes, priority, project, due_at, estimate_min, created_by)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-    [t.workspaceId, t.title, t.notes, t.priority, t.project ?? null, t.dueAt ?? null, t.estimateMin ?? null, actor],
+    `INSERT INTO tasks (workspace_id, title, notes, priority, project, due_at, estimate_min, created_by, goal_id, course_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+    [t.workspaceId, t.title, t.notes, t.priority, t.project ?? null, t.dueAt ?? null, t.estimateMin ?? null, actor, t.goalId ?? null, t.courseId ?? null],
   );
   await audit({ actor, action: "task.create", target: rows[0].id, workspaceId: t.workspaceId, level: actor === "owner" ? 3 : 2, details: { title: t.title } });
   return rows[0];
@@ -57,12 +63,13 @@ export async function updateTask(id: string, raw: z.input<typeof taskPatch>, act
   const status = p.status ?? cur.status;
   const rows = await db.query<Task>(
     `UPDATE tasks SET title=$2, notes=$3, priority=$4, project=$5, due_at=$6, estimate_min=$7, status=$8,
-       postponed_count = postponed_count + $9,
+       postponed_count = postponed_count + $9, goal_id = $10, course_id = $11,
        completed_at = CASE WHEN $8 = 'done' AND status <> 'done' THEN now() WHEN $8 <> 'done' THEN NULL ELSE completed_at END,
        updated_at = now()
      WHERE id = $1 RETURNING *`,
     [id, p.title ?? cur.title, p.notes ?? cur.notes, p.priority ?? cur.priority, p.project !== undefined ? p.project : cur.project,
-      newDue, p.estimateMin !== undefined ? p.estimateMin : cur.estimate_min, status, postponed],
+      newDue, p.estimateMin !== undefined ? p.estimateMin : cur.estimate_min, status, postponed,
+      p.goalId !== undefined ? p.goalId : cur.goal_id, p.courseId !== undefined ? p.courseId : cur.course_id],
   );
   await audit({ actor, action: "task.update", target: id, workspaceId: cur.workspace_id, level: 3, details: { fields: Object.keys(p), postponed: !!postponed } });
   return rows[0];
@@ -75,11 +82,13 @@ export async function deleteTask(id: string, actor: string) {
   await audit({ actor, action: "task.delete", target: id, workspaceId: rows[0].workspace_id, level: 3, details: { title: rows[0].title } });
 }
 
-export async function listTasks(opts: { workspaceId?: string; status?: "open" | "done" | "all" } = {}): Promise<Task[]> {
+export async function listTasks(opts: { workspaceId?: string; status?: "open" | "done" | "all"; goalId?: string; courseId?: string } = {}): Promise<Task[]> {
   const db = await getDb();
   const where: string[] = [];
   const params: unknown[] = [];
   if (opts.workspaceId) { params.push(opts.workspaceId); where.push(`workspace_id = $${params.length}`); }
+  if (opts.goalId) { params.push(opts.goalId); where.push(`goal_id = $${params.length}`); }
+  if (opts.courseId) { params.push(opts.courseId); where.push(`course_id = $${params.length}`); }
   if (opts.status === "open" || !opts.status) where.push(`status IN ('open','in_progress')`);
   if (opts.status === "done") where.push(`status = 'done'`);
   return db.query<Task>(

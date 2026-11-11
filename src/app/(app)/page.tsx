@@ -6,6 +6,8 @@ import { listTasks, priorityScore, taskStats, completionsByDay } from "@/lib/tas
 import { listWorkspaces } from "@/lib/workspaces";
 import { providerStatus } from "@/lib/ai/registry";
 import { listAudit } from "@/lib/audit";
+import { buildBriefing } from "@/lib/myday";
+import { fmtEUR } from "@/lib/time";
 import { JarvisCore } from "@/components/JarvisCore";
 import { LiveClock } from "@/components/LiveClock";
 
@@ -17,8 +19,8 @@ const PRIO_COLOR: Record<string, string> = { critical: "#EF4444", high: "#F59E0B
 export default async function CommandCenter() {
   const owner = await requireOwner();
   const db = await getDb();
-  const [tasks, stats, days, workspaces, audit] = await Promise.all([
-    listTasks({ status: "open" }), taskStats(), completionsByDay(14), listWorkspaces(), listAudit(6),
+  const [tasks, stats, days, workspaces, audit, brief] = await Promise.all([
+    listTasks({ status: "open" }), taskStats(), completionsByDay(14), listWorkspaces(), listAudit(6), buildBriefing(),
   ]);
   const memCounts = await db.query<{ workspace_id: string; active: number; proposed: number }>(
     `SELECT workspace_id, count(*) FILTER (WHERE status IN ('active','uncertain'))::int AS active, count(*) FILTER (WHERE status = 'proposed')::int AS proposed
@@ -58,10 +60,43 @@ export default async function CommandCenter() {
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Link href="/chat" className="btn btn-primary"><Sparkles size={16} /> Mit JARVIS sprechen</Link>
-            <Link href="/tasks" className="btn btn-ghost">Aufgaben</Link>
+            <Link href="/my-day" className="btn btn-ghost">Daily Briefing</Link>
           </div>
         </div>
       </section>
+
+      {/* Personal OS strip – every value links to its module */}
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Link href="/discipline" className="card card-hover p-4">
+          <div className="label">Gewohnheiten heute</div>
+          <div className="mt-1 text-xl font-semibold">{brief.personal.habitsTotal ? `${brief.personal.habitsDone}/${brief.personal.habitsTotal}` : "–"}</div>
+          <div className="text-xs text-muted">{brief.personal.habitsTotal ? "erledigt" : "noch keine angelegt"}</div>
+        </Link>
+        <Link href="/discipline" className="card card-hover p-4">
+          <div className="label">Fokus</div>
+          <div className="mt-1 text-xl font-semibold">{brief.personal.focusMinToday} Min.</div>
+          <div className="text-xs text-muted">{brief.personal.focusMinWeek} Min. diese Woche</div>
+        </Link>
+        <Link href="/finance" className="card card-hover p-4">
+          <div className="label">Noch verfügbar</div>
+          <div className={`mt-1 text-xl font-semibold ${brief.finance && brief.finance.available < 0 ? "text-err" : ""}`}>{brief.finance ? fmtEUR(brief.finance.available) : "–"}</div>
+          <div className="text-xs text-muted">{brief.finance ? `${fmtEUR(brief.finance.perDay)}/Tag${brief.finance.warnings.length ? ` · ${brief.finance.warnings.length} Warnung(en)` : ""}` : "keine Buchungen"}</div>
+        </Link>
+        <Link href="/university" className="card card-hover p-4">
+          <div className="label">Nächste Prüfung</div>
+          {brief.university.exams[0] ? (
+            <><div className="mt-1 truncate text-xl font-semibold">{brief.university.exams[0].name}</div>
+              <div className={`text-xs ${brief.university.exams[0].daysLeft <= 14 ? "text-warn" : "text-muted"}`}>in {brief.university.exams[0].daysLeft} Tagen</div></>
+          ) : <><div className="mt-1 text-xl font-semibold">–</div><div className="text-xs text-muted">keine in 60 Tagen</div></>}
+        </Link>
+      </section>
+
+      {brief.risks.length > 0 && (
+        <section className="card border-warn/25 p-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium"><AlertTriangle size={16} className="text-warn" /> Risiken</div>
+          <ul className="space-y-1 text-sm text-muted">{brief.risks.slice(0, 4).map((r, i) => <li key={i}>· {r}</li>)}</ul>
+        </section>
+      )}
 
       {!aiReady && (
         <div className="card flex items-start gap-3 border-warn/30 p-4 text-sm">

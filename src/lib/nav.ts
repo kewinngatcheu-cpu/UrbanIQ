@@ -14,16 +14,16 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   { label: "Zentrale", items: [
     { slug: "command-center", href: "/", label: "Command Center", icon: "LayoutDashboard", status: "live", phase: 1, summary: "Überblick über Tag, Aufgaben, Unternehmen und Systemstatus." },
     { slug: "jarvis", href: "/chat", label: "JARVIS AI", icon: "Sparkles", status: "live", phase: 1, summary: "Konversationelle KI mit Gedächtnis und Workspace-Kontext." },
-    { slug: "my-day", href: "/modules/my-day", label: "My Day", icon: "Sun", status: "planned", phase: 2, summary: "Morgen-Briefing, Top-3-Prioritäten, empfohlene Zeitblöcke, Abend-Review mit Reflexion." },
+    { slug: "my-day", href: "/my-day", label: "My Day", icon: "Sun", status: "live", phase: 2, summary: "Morgen-Briefing, Top-3-Prioritäten, empfohlene Zeitblöcke, Abend-Review mit Reflexion." },
     { slug: "tasks", href: "/tasks", label: "Tasks", icon: "CheckSquare", status: "live", phase: 1, summary: "Aufgaben mit Priorität, Fälligkeit, Workspace und Verschiebe-Erkennung." },
     { slug: "calendar", href: "/modules/calendar", label: "Calendar", icon: "Calendar", status: "planned", phase: 7, summary: "Google-/Apple-Kalender lesen (OAuth), Zeitblöcke vorschlagen, Termine nur mit Freigabe anlegen." },
   ]},
   { label: "Persönlich", items: [
-    { slug: "discipline", href: "/modules/discipline", label: "Discipline", icon: "Flame", status: "planned", phase: 2, summary: "Habit-Tracking, Fokus-Sessions, Prokrastinationsmuster erkennen und Ursachen analysieren." },
-    { slug: "goals", href: "/modules/goals", label: "Goals", icon: "Target", status: "planned", phase: 2, summary: "Ziele mit Meilensteinen, Fortschritt und Verknüpfung zu Aufgaben." },
-    { slug: "finance", href: "/modules/finance", label: "Personal Finance", icon: "Wallet", status: "planned", phase: 2, summary: "Einnahmen, Ausgaben, Budgets, Sparziele, Szenarien. Manuelle Eingabe/CSV – keine automatische Bankverbindung." },
-    { slug: "fitness", href: "/modules/fitness", label: "Fitness", icon: "Dumbbell", status: "planned", phase: 2, summary: "Trainingspläne, Trainingslog, Körperwerte mit Datum (alte Werte gelten nicht automatisch als aktuell)." },
-    { slug: "university", href: "/modules/university", label: "University", icon: "GraduationCap", status: "planned", phase: 2, summary: "HWR-Aufgaben, Vorlesungsunterlagen analysieren, Lernkarten, Prüfungsfragen – Unterlagen haben Vorrang vor externem Wissen." },
+    { slug: "discipline", href: "/discipline", label: "Discipline", icon: "Flame", status: "live", phase: 2, summary: "Habit-Tracking, Fokus-Sessions, Prokrastinationsmuster erkennen und Ursachen analysieren." },
+    { slug: "goals", href: "/goals", label: "Goals", icon: "Target", status: "live", phase: 2, summary: "Ziele mit Meilensteinen, Fortschritt und Verknüpfung zu Aufgaben." },
+    { slug: "finance", href: "/finance", label: "Personal Finance", icon: "Wallet", status: "live", phase: 2, summary: "Einnahmen, Ausgaben, Budgets, Sparziele, Szenarien. Manuelle Eingabe/CSV – keine automatische Bankverbindung." },
+    { slug: "fitness", href: "/fitness", label: "Fitness", icon: "Dumbbell", status: "live", phase: 2, summary: "Trainingslog, Körperwerte mit Datum (alte Werte gelten nicht automatisch als aktuell)." },
+    { slug: "university", href: "/university", label: "University", icon: "GraduationCap", status: "partial", phase: 2, summary: "Module, Prüfungen, Lernaufgaben, Notenschnitt. Analyse von Vorlesungsunterlagen folgt in Phase 3." },
   ]},
   { label: "Business", items: [
     { slug: "portfolio", href: "/business", label: "Business Portfolio", icon: "Briefcase", status: "partial", phase: 3, summary: "Alle Ventures mit eigenem Gedächtnis, Profil und Aufgaben. KPIs/Dashboards folgen in Phase 3." },

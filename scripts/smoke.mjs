@@ -102,6 +102,89 @@ for (const path of ["/agents", "/integrations", "/settings", "/modules/studio", 
   check(`page ${path} renders`, r.status() === 200);
 }
 
+// ── Phase 2: Personal OS ──
+// Goals
+await page.goto(`${BASE}/goals`);
+await page.getByRole("button", { name: "Neues Ziel" }).click();
+await page.getByLabel("Titel").fill("Notgroschen 3.000 €");
+await page.getByLabel("Kategorie").selectOption("finance");
+await page.getByLabel("Einheit").fill("€");
+await page.getByLabel("Startwert").fill("0");
+await page.getByLabel("Zielwert").fill("3000");
+await page.getByLabel("Meilensteine").fill("1.000 € erreicht\n2.000 € erreicht");
+await page.getByRole("button", { name: "Ziel anlegen" }).click();
+await page.getByText("Notgroschen 3.000 €").waitFor();
+await page.getByLabel("Aktueller Wert").fill("750");
+await page.getByRole("button", { name: "Speichern" }).click();
+await page.getByText("25 %").waitFor();
+check("goals: create goal with metric + milestones, progress 25 %", true);
+
+// Discipline: habit + focus session
+await page.goto(`${BASE}/discipline`);
+await page.getByLabel("Neue Gewohnheit").fill("20 Min. lesen");
+await page.getByRole("button", { name: "Anlegen" }).click();
+await page.getByText("20 Min. lesen").waitFor();
+const todayISO = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
+await page.getByLabel(`20 Min. lesen ${todayISO}`).click();
+await page.getByText("1/7 diese Woche").waitFor();
+check("discipline: habit check-in for today", true);
+await page.getByLabel("Aufgabe").selectOption({ label: "10 Interviews mit IT-Dienstleistern führen" });
+await page.getByRole("button", { name: "Fokus starten" }).click();
+await page.getByText("von 50 Min.").waitFor();
+check("discipline: focus session running (server-side)", true);
+if (SHOTS) await page.screenshot({ path: `${SHOTS}/08-discipline.png`, fullPage: true });
+await page.getByRole("button", { name: "Abschließen", exact: true }).click();
+await page.getByRole("button", { name: "Fokus starten" }).waitFor();
+check("discipline: focus session stopped and logged", true);
+
+// Finance: CSV import + manual booking → "how much can I spend"
+await page.goto(`${BASE}/finance`);
+const d = new Date();
+const ym = (off) => { const x = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + off, 1)); return [x.getUTCFullYear(), String(x.getUTCMonth() + 1).padStart(2, "0")]; };
+const [py, pm] = ym(-1);
+const csv = `Buchungstag;Auftraggeber/Empfänger;Verwendungszweck;Betrag (EUR)\n01.${pm}.${py};Arbeitgeber GmbH;Gehalt;1.400,00\n02.${pm}.${py};Hausverwaltung;Miete;-560,00\n05.${pm}.${py};REWE;Einkauf;-84,30\n06.${pm}.${py};Spotify AB;Abo;-10,99\n09.${pm}.${py};BVG;Monatsticket;-58,00`;
+await page.locator('input[type="file"]').setInputFiles({ name: "umsaetze.csv", mimeType: "text/csv", buffer: Buffer.from(csv, "latin1") });
+await page.getByText("5 neue Buchungen erkannt").waitFor();
+await page.getByRole("button", { name: "5 Buchungen importieren" }).click();
+await page.getByText("✓ 5 Buchungen importiert.").waitFor();
+check("finance: CSV preview + import (latin1, German format)", true);
+await page.getByLabel("Betrag", { exact: true }).fill("23,50");
+await page.getByRole("button", { name: "Buchen" }).click();
+await page.getByText("variabel bisher 23,50 €").waitFor();
+const avail = await page.locator(".card", { hasText: "Noch verfügbar (Monat)" }).first().innerText();
+// 1.400 income (baseline) − 570,99 fixed (rent + Spotify, baseline) − 23,50 spent = 805,51 €
+check("finance: 'noch verfügbar' = baseline income − fixed − spent", avail.includes("805,51"), avail.split("\n").slice(0, 2).join(" "));
+if (SHOTS) await page.screenshot({ path: `${SHOTS}/09-finance.png`, fullPage: true });
+
+// University + fitness
+await page.goto(`${BASE}/university`);
+await page.getByLabel("Modulname").fill("Finanzmathematik");
+await page.getByLabel("ECTS").fill("5");
+const exam = new Date(Date.now() + 10 * 864e5).toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
+await page.getByLabel("Prüfungsdatum").fill(exam);
+await page.getByRole("button", { name: "Anlegen" }).first().click();
+await page.getByText("Finanzmathematik").first().waitFor();
+check("university: course with exam date", true);
+await page.goto(`${BASE}/fitness`);
+await page.getByRole("button", { name: "Speichern" }).first().click();
+await page.getByText("Training gespeichert.").waitFor();
+check("fitness: workout logged", true);
+
+// My Day: briefing from real data + planner
+await page.goto(`${BASE}/my-day`);
+await page.getByText("Kewin – Daily Briefing").waitFor();
+await page.getByText(/Prüfung Finanzmathematik|Finanzmathematik/).first().waitFor();
+check("my day: briefing shows exam risk + real data", (await page.getByText("Kalender nicht verbunden").count()) > 0);
+await page.getByRole("button", { name: "2 h" }).click();
+await page.getByRole("button", { name: "Plan erstellen" }).click();
+await page.getByText("regelbasiert").first().waitFor();
+check("my day: time-block plan created", (await page.getByText("10 Interviews mit IT-Dienstleistern führen").count()) > 0);
+await page.getByLabel("Was habe ich erreicht?").fill("Smoke-Test bestanden");
+await page.getByRole("button", { name: "Review speichern" }).click();
+await page.getByText(/Gespeichert\./).waitFor();
+check("my day: evening review saved (no fake AI feedback)", true);
+if (SHOTS) await page.screenshot({ path: `${SHOTS}/10-my-day.png`, fullPage: true });
+
 // Mobile (iPhone)
 const mctx = await browser.newContext({ ...devices["iPhone 15 Pro"] });
 await mctx.addCookies([{ ...sess }]);

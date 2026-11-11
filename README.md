@@ -2,7 +2,7 @@
 
 Personal AI operating system for Kewin Ngatcheu: one central intelligence with persistent memory, separate business workspaces (NGCX, VenturesX, …), task management and an AI core — built to grow phase by phase without rebuilds.
 
-> **Status: Phase 1 (Foundation) – working.** See [ROADMAP](docs/ROADMAP.md) for what is built and what is not. Modules that are not built yet are shown as "planned" in the UI – never with fake data.
+> **Status: Phase 2 (Personal OS) – working.** See [ROADMAP](docs/ROADMAP.md) for what is built and what is not. Modules that are not built yet are shown as "planned" in the UI – never with fake data.
 
 ## What works today
 
@@ -21,6 +21,13 @@ Personal AI operating system for Kewin Ngatcheu: one central intelligence with p
 | Business Portfolio: NGCX, VenturesX, unlimited new ventures, editable business profile | ✅ |
 | Activity log (every action, incl. failures) + autonomy levels | ✅ |
 | Integrations registry with real status (only Claude/OpenAI implemented) | ✅ |
+| **My Day**: 10-section daily briefing from real data, time-block planner, evening review | ✅ (AI wording/feedback needs a key) |
+| **Goals**: metric/milestone/task progress, alignment check | ✅ |
+| **Discipline**: habits + streaks, server-side focus timer, procrastination root-cause flow | ✅ |
+| **Personal Finance**: bookings, bank CSV import, budgets, "how much can I spend", scenarios | ✅ no bank connection by design |
+| **Fitness**: training log, measurements with staleness | ✅ |
+| **University**: modules, exams, study tasks, ECTS grade | 🟡 document analysis in Phase 3 |
+| Privacy switches: finance/health data in AI context on/off | ✅ |
 | Voice: push-to-talk + spoken replies via browser speech APIs (de-DE) | ⚠️ preview, browser-dependent |
 | Responsive PWA (MacBook, iPad, iPhone – "Add to Home Screen") | ✅ |
 

@@ -18,6 +18,22 @@ PostgreSQL 15+ with `pgvector`. Development uses PGlite (embedded) with the same
 | `settings` | key/value owner settings | `key`, `value` JSONB |
 | `integrations` | non-secret connector state | `enabled`, `config`, `last_sync`, `last_error` |
 
+### Phase 2 tables (`0002_personal_os`)
+
+| Table | Purpose | Key columns |
+|---|---|---|
+| `goals` | goals per workspace | `category`, `horizon`, `target_date`, `status`, `metric_unit/start/target/current` |
+| `milestones` | goal milestones | `goal_id`, `due_date`, `done_at`, `position` |
+| `courses` | HWR modules | `semester`, `ects`, `exam_date`, `status`, `grade` (1.0–5.0) |
+| `habits` / `habit_checkins` | habits and one row per done day | `target_per_week`; PK (`habit_id`, `day`) |
+| `focus_sessions` | server-side focus timer | `task_id`, `workspace_id`, `planned_min`, `started_at`, `ended_at`, `actual_min`, `completed` |
+| `daily_reviews` | one row per Berlin day | `briefing` (snapshot), `briefing_ai`, `plan`, `evening` (answers + stats), `ai_feedback` |
+| `finance_transactions` | bookings | `amount_cents` (income > 0, outflow < 0), `kind`, `category`, `source` (manual/csv), `import_hash` (unique, dedupe) |
+| `finance_budgets` | monthly budget per category | `monthly_cents` |
+| `fitness_workouts` / `body_measurements` | training log and dated measurements | `type`, `duration_min`, `intensity` / `metric`, `value` |
+
+`tasks` gained `goal_id`, `course_id`, `blocker_reason`, `parent_id`. Money is stored as integer cents; "today" is always the Europe/Berlin calendar day.
+
 Secrets are **never** stored in the database; they come from environment variables.
 
 ## Vector search

@@ -150,4 +150,132 @@ CREATE TABLE integrations (
 );
 `,
   },
+  {
+    id: "0002_personal_os",
+    sql: /* sql */ `
+CREATE TABLE goals (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  workspace_id   TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+  title          TEXT NOT NULL,
+  description    TEXT NOT NULL DEFAULT '',
+  category       TEXT NOT NULL DEFAULT 'personal' CHECK (category IN ('personal','business','finance','fitness','learning','career')),
+  horizon        TEXT NOT NULL DEFAULT 'quarter' CHECK (horizon IN ('month','quarter','year','long_term')),
+  target_date    DATE,
+  status         TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','achieved','paused','dropped')),
+  metric_unit    TEXT,
+  metric_start   NUMERIC,
+  metric_target  NUMERIC,
+  metric_current NUMERIC,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE milestones (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  goal_id    UUID NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
+  title      TEXT NOT NULL,
+  due_date   DATE,
+  done_at    TIMESTAMPTZ,
+  position   INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE courses (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name       TEXT NOT NULL,
+  semester   TEXT,
+  ects       NUMERIC CHECK (ects >= 0),
+  exam_date  DATE,
+  status     TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','passed','failed','dropped')),
+  grade      NUMERIC CHECK (grade BETWEEN 1 AND 5),
+  notes      TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE tasks ADD COLUMN goal_id UUID REFERENCES goals(id) ON DELETE SET NULL;
+ALTER TABLE tasks ADD COLUMN course_id UUID REFERENCES courses(id) ON DELETE SET NULL;
+ALTER TABLE tasks ADD COLUMN blocker_reason TEXT;
+ALTER TABLE tasks ADD COLUMN parent_id UUID REFERENCES tasks(id) ON DELETE SET NULL;
+
+CREATE TABLE habits (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title           TEXT NOT NULL,
+  category        TEXT NOT NULL DEFAULT 'personal',
+  target_per_week SMALLINT NOT NULL DEFAULT 7 CHECK (target_per_week BETWEEN 1 AND 7),
+  active          BOOLEAN NOT NULL DEFAULT true,
+  goal_id         UUID REFERENCES goals(id) ON DELETE SET NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE habit_checkins (
+  habit_id UUID NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
+  day      DATE NOT NULL,
+  PRIMARY KEY (habit_id, day)
+);
+
+CREATE TABLE focus_sessions (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  task_id      UUID REFERENCES tasks(id) ON DELETE SET NULL,
+  workspace_id TEXT REFERENCES workspaces(id) ON DELETE SET NULL,
+  label        TEXT NOT NULL DEFAULT '',
+  planned_min  INTEGER NOT NULL DEFAULT 50 CHECK (planned_min BETWEEN 1 AND 600),
+  started_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  ended_at     TIMESTAMPTZ,
+  actual_min   INTEGER,
+  completed    BOOLEAN,
+  note         TEXT
+);
+CREATE INDEX focus_started_idx ON focus_sessions (started_at DESC);
+
+CREATE TABLE daily_reviews (
+  day         DATE PRIMARY KEY,
+  briefing    JSONB,          -- snapshot of the deterministic briefing data
+  briefing_ai TEXT,           -- AI-written briefing text (if generated)
+  plan        JSONB,          -- time-block plan
+  evening     JSONB,          -- evening review answers + stats
+  ai_feedback TEXT,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE finance_transactions (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  day          DATE NOT NULL,
+  amount_cents BIGINT NOT NULL,                -- > 0 income, < 0 outflow
+  kind         TEXT NOT NULL CHECK (kind IN ('income','fixed','variable','savings','investment')),
+  category     TEXT NOT NULL DEFAULT 'sonstiges',
+  description  TEXT NOT NULL DEFAULT '',
+  source       TEXT NOT NULL DEFAULT 'manual' CHECK (source IN ('manual','csv')),
+  import_hash  TEXT UNIQUE,                    -- dedupe for CSV imports
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX fin_tx_day_idx ON finance_transactions (day);
+
+CREATE TABLE finance_budgets (
+  category     TEXT PRIMARY KEY,
+  monthly_cents BIGINT NOT NULL CHECK (monthly_cents >= 0),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE fitness_workouts (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  day          DATE NOT NULL,
+  type         TEXT NOT NULL,
+  duration_min INTEGER CHECK (duration_min BETWEEN 1 AND 600),
+  intensity    SMALLINT CHECK (intensity BETWEEN 1 AND 5),
+  notes        TEXT NOT NULL DEFAULT '',
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE body_measurements (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  day        DATE NOT NULL,
+  metric     TEXT NOT NULL,
+  value      NUMERIC NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX body_metric_idx ON body_measurements (metric, day DESC);
+`,
+  },
 ];
