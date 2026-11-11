@@ -1,0 +1,14 @@
+node_modules/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+# Local embedded database (contains personal data – never commit)
+data/
+# Generated app workspaces (Phase 6)
+workspaces/
+backups/
+coverage/
+.DS_Store
