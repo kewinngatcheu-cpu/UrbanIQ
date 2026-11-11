@@ -14,6 +14,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   { label: "Zentrale", items: [
     { slug: "command-center", href: "/", label: "Command Center", icon: "LayoutDashboard", status: "live", phase: 1, summary: "Überblick über Tag, Aufgaben, Unternehmen und Systemstatus." },
     { slug: "jarvis", href: "/chat", label: "JARVIS AI", icon: "Sparkles", status: "live", phase: 1, summary: "Konversationelle KI mit Gedächtnis und Workspace-Kontext." },
+    { slug: "voice", href: "/voice", label: "Voice", icon: "AudioLines", status: "live", phase: 4, summary: "Mit JARVIS sprechen: Push-to-Talk, freihändiger Dialog, gesprochenes Briefing, Sprachbefehle." },
     { slug: "my-day", href: "/my-day", label: "My Day", icon: "Sun", status: "live", phase: 2, summary: "Morgen-Briefing, Top-3-Prioritäten, empfohlene Zeitblöcke, Abend-Review mit Reflexion." },
     { slug: "tasks", href: "/tasks", label: "Tasks", icon: "CheckSquare", status: "live", phase: 1, summary: "Aufgaben mit Priorität, Fälligkeit, Workspace und Verschiebe-Erkennung." },
     { slug: "calendar", href: "/modules/calendar", label: "Calendar", icon: "Calendar", status: "planned", phase: 7, summary: "Google-/Apple-Kalender lesen (OAuth), Zeitblöcke vorschlagen, Termine nur mit Freigabe anlegen." },

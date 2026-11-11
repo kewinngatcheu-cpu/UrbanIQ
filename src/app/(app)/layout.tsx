@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { Sidebar } from "@/components/Sidebar";
+import { FloatingVoice } from "@/components/FloatingVoice";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           {children}
         </div>
       </main>
+      <FloatingVoice />
     </div>
   );
 }

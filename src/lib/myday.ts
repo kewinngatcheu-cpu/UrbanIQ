@@ -81,7 +81,7 @@ export async function buildBriefing(now = new Date()): Promise<Briefing> {
   const risks: string[] = [];
   if (overdue.length) risks.push(`${overdue.length} überfällige Aufgabe(n), älteste: „${overdue[0].title}“.`);
   for (const t of stalled.filter((t) => t.postponed_count >= 3).slice(0, 2)) risks.push(`„${t.title}“ wurde ${t.postponed_count}× verschoben – Ursache klären (Discipline).`);
-  for (const e of exams.filter((e) => e.daysLeft <= 14)) risks.push(`Prüfung ${e.name} in ${e.daysLeft} Tag(en)${e.openTasks ? ` – noch ${e.openTasks} offene Lernaufgabe(n)` : " – keine Lernaufgaben geplant"}.`);
+  for (const e of exams.filter((e) => e.daysLeft <= 14)) risks.push(`Prüfung ${e.name} ${e.daysLeft === 0 ? "heute" : e.daysLeft === 1 ? "morgen" : `in ${e.daysLeft} Tagen`}${e.openTasks ? ` – noch ${e.openTasks} offene Lernaufgabe${e.openTasks > 1 ? "n" : ""}` : " – keine Lernaufgaben geplant"}.`);
   for (const g of goalsOut.filter((g) => g.daysLeft != null && g.daysLeft <= 14 && g.daysLeft >= 0 && (g.progress ?? 0) < 0.7))
     risks.push(`Ziel „${g.title}“ endet in ${g.daysLeft} Tagen, Fortschritt ${g.progress == null ? "unbekannt" : Math.round(g.progress * 100) + " %"}.`);
   for (const w of finance?.warnings ?? []) risks.push(`Budget ${CATEGORIES[w.category]?.label ?? w.category}: ${Math.round(w.ratio * 100)} % verbraucht${w.state === "over" ? " (überschritten)" : ""}.`);
@@ -343,6 +343,64 @@ export async function saveBriefing(b: Briefing, aiText: string | null) {
     `INSERT INTO daily_reviews (day, briefing, briefing_ai) VALUES ($1,$2,$3)
      ON CONFLICT (day) DO UPDATE SET briefing = $2, briefing_ai = COALESCE($3, daily_reviews.briefing_ai), updated_at = now()`,
     [b.day, JSON.stringify(b), aiText]);
+}
+
+/* ───────────────────────────── Spoken briefing ───────────────────────────── */
+
+/** "805,51 €" → "805 Euro"; small amounts keep cents ("12 Euro 50"). Negative → "minus …". */
+export function spokenEUR(cents: number): string {
+  const neg = cents < 0;
+  const abs = Math.abs(cents);
+  const euros = Math.floor(abs / 100);
+  const ct = abs % 100;
+  const body = euros >= 100 || ct === 0 ? `${euros.toLocaleString("de-DE")} Euro` : `${euros} Euro ${ct}`;
+  return neg ? `minus ${body}` : body;
+}
+
+const join = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} und ${xs[xs.length - 1]}`);
+const days = (n: number) => (n === 0 ? "heute" : n === 1 ? "morgen" : `in ${n} Tagen`);
+
+/**
+ * The daily briefing as natural spoken German – deterministic, built only from real data, works without any AI key.
+ * Finance is only included when the owner allows it for AI/voice output.
+ */
+export function spokenBriefing(b: Briefing, opts: { name: string; includeFinance: boolean; now?: Date }): string {
+  const now = opts.now ?? new Date();
+  const hour = Number(now.toLocaleString("de-DE", { timeZone: "Europe/Berlin", hour: "2-digit", hour12: false }));
+  const greet = hour < 11 ? "Guten Morgen" : hour < 18 ? "Guten Tag" : "Guten Abend";
+  const date = now.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", weekday: "long", day: "numeric", month: "long" });
+  const time = now.toLocaleTimeString("de-DE", { timeZone: "Europe/Berlin", hour: "2-digit", minute: "2-digit" });
+  const parts: string[] = [`${greet}, ${opts.name}. Es ist ${date}, ${time} Uhr.`];
+
+  const open = b.priorities.length;
+  if (!open && !b.schedule.overdue.length) parts.push("Du hast keine offenen Aufgaben erfasst.");
+  else {
+    if (b.schedule.overdue.length) parts.push(`${b.schedule.overdue.length === 1 ? "Eine Aufgabe ist" : `${b.schedule.overdue.length} Aufgaben sind`} überfällig.`);
+    if (b.schedule.dueToday.length) parts.push(`Heute ${b.schedule.dueToday.length === 1 ? "ist eine Aufgabe" : `sind ${b.schedule.dueToday.length} Aufgaben`} fällig.`);
+    const [p1, ...rest] = b.priorities;
+    if (p1) parts.push(`Deine wichtigste Priorität: ${p1.title}.${rest.length ? ` Danach ${join(rest.map((t) => t.title))}.` : ""}`);
+  }
+  for (const v of b.ventures) {
+    if (v.openTasks || v.phase) parts.push(`${v.name}: ${v.phase ? `${v.phase}, ` : ""}${v.openTasks === 0 ? "keine offenen Aufgaben" : `${v.openTasks} offene Aufgabe${v.openTasks > 1 ? "n" : ""}${v.critical ? `, davon ${v.critical} kritisch` : ""}`}.`);
+  }
+  const exam = b.university.exams.find((e) => e.daysLeft <= 21);
+  if (exam) parts.push(`Die Prüfung ${exam.name} ist ${days(exam.daysLeft)}${exam.openTasks ? `, ${exam.openTasks} Lernaufgaben sind offen` : ", und es sind noch keine Lernaufgaben geplant"}.`);
+  if (b.personal.habitsTotal) parts.push(`Gewohnheiten: ${b.personal.habitsDone} von ${b.personal.habitsTotal} erledigt.`);
+  if (opts.includeFinance && b.finance) {
+    parts.push(`Finanzen: Diesen Monat sind noch ${spokenEUR(b.finance.available)} verfügbar${b.finance.warnings.length ? `, ${b.finance.warnings.length} Budget${b.finance.warnings.length > 1 ? "s" : ""} im Warnbereich` : ""}.`);
+  }
+  if (b.decisions.uncertain.length || b.decisions.proposals) {
+    const n = b.decisions.uncertain.length + b.decisions.proposals;
+    parts.push(`${n} offene ${n === 1 ? "Entscheidung wartet" : "Entscheidungen warten"} auf dich im Memory Center.`);
+  }
+  // Biggest risk not already said above (the exam was mentioned, finance only if allowed).
+  const risk = b.risks.find((r) => !(exam && r.startsWith(`Prüfung ${exam.name}`)) && (opts.includeFinance || !/^Budget|Monatsbudget/.test(r)));
+  if (risk) parts.push(`Größtes Risiko: ${risk.replace(/[„“]/g, "").replace(/\s–\s/g, ", ")}`);
+  const p1 = b.priorities[0];
+  if (p1) parts.push(`Mein Vorschlag: Starte jetzt eine Fokus-Session von ${p1.estimate_min ?? 45} Minuten für ${p1.title}.`);
+  else parts.push("Lege deine Prioritäten fest, dann plane ich deinen Tag.");
+  parts.push("Kalender und Nachrichten sind noch nicht verbunden.");
+  return parts.join(" ").replace(/\s+/g, " ").replace(/\.\./g, ".");
 }
 
 export async function recentReviews(limit = 14) {

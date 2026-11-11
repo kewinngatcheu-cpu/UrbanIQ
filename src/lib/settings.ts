@@ -19,6 +19,12 @@ export const settingsSchema = z.object({
   financeLiquidCents: z.number().int().nullable().default(null),
   financeSavedCents: z.number().int().nullable().default(null),
   financeBalanceAsOf: z.string().nullable().default(null),
+  /** Voice: provider choice (auto = best configured, browser = built-in speech APIs). */
+  voiceTts: z.enum(["auto", "browser", "openai", "elevenlabs"]).default("auto"),
+  voiceStt: z.enum(["auto", "browser", "openai"]).default("auto"),
+  voiceName: z.string().max(40).default("onyx"),
+  voiceSpeed: z.number().min(0.7).max(1.4).default(1.05),
+  voiceAutoSpeak: z.boolean().default(true),
   /** Working day used by the time-block planner. */
   dayStart: z.string().regex(/^\d{2}:\d{2}$/).default("08:00"),
   dayEnd: z.string().regex(/^\d{2}:\d{2}$/).default("20:00"),

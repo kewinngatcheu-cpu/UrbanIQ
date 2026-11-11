@@ -185,6 +185,36 @@ await page.getByText(/Gespeichert\./).waitFor();
 check("my day: evening review saved (no fake AI feedback)", true);
 if (SHOTS) await page.screenshot({ path: `${SHOTS}/10-my-day.png`, fullPage: true });
 
+// ── Voice (Phase 4) ──
+// Headless Chromium has no audio device: capture what JARVIS would say by intercepting speechSynthesis.
+await page.addInitScript(() => {
+  window.__spoken = [];
+  const synth = window.speechSynthesis;
+  synth.speak = (u) => { window.__spoken.push(u.text); setTimeout(() => u.onend && u.onend(new Event("end")), 30); };
+  synth.cancel = () => {};
+});
+const vcfg = await page.evaluate(async () => (await fetch("/api/voice/config")).json());
+check("voice: config reports honest provider (browser without keys)", vcfg.tts.provider === "browser" && vcfg.stt.provider === "browser");
+await page.goto(`${BASE}/voice`);
+await page.getByText("Tippe auf JARVIS").waitFor();
+await page.getByRole("button", { name: "Briefing anhören" }).click();
+await page.waitForFunction(() => window.__spoken.join(" ").includes("Mein Vorschlag"), null, { timeout: 30000 });
+const spoken = (await page.evaluate(() => window.__spoken)).join(" ");
+check("voice: 'Guten Morgen' → JARVIS speaks the briefing from real data", /Guten (Morgen|Tag|Abend), Kewin/.test(spoken) && spoken.includes("10 Interviews"), spoken.slice(0, 120) + "…");
+check("voice: spoken text contains no markdown", !/[*#`]/.test(spoken));
+await page.getByRole("button", { name: "Tastatur" }).click();
+await page.getByLabel("Nachricht an JARVIS (Sprachmodus)").fill("Neue Aufgabe: Sprachsteuerung testen, wichtig");
+await page.getByRole("button", { name: "Senden" }).click();
+await page.getByText("✓ task.create").waitFor();
+await page.waitForFunction(() => window.__spoken.some((t) => t.includes("Sprachsteuerung testen")));
+check("voice: spoken command creates a real task and confirms by voice", true);
+if (SHOTS) await page.screenshot({ path: `${SHOTS}/11-voice.png` });
+await page.goto(`${BASE}/settings`);
+await page.evaluate(() => { window.__spoken = []; });
+await page.getByRole("button", { name: "Stimme testen" }).click();
+await page.waitForFunction(() => window.__spoken.some((t) => t.includes("Alle Systeme sind bereit")));
+check("voice: settings voice test speaks", true);
+
 // Mobile (iPhone)
 const mctx = await browser.newContext({ ...devices["iPhone 15 Pro"] });
 await mctx.addCookies([{ ...sess }]);

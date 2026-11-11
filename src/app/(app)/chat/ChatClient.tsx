@@ -168,7 +168,7 @@ export function ChatClient({ workspaces }: { workspaces: Ws[] }) {
           <button onClick={newChat} className="btn btn-ghost !px-2.5 md:hidden" aria-label="Neue Unterhaltung"><Plus size={16} /></button>
           {voice.supported.tts && (
             <button className="btn btn-ghost !px-2.5" aria-label="Antworten vorlesen" title="Antworten vorlesen (Browser-Stimme)"
-              onClick={() => { const v = !speakReplies; setSpeakReplies(v); try { localStorage.setItem("jarvis.speak", v ? "1" : "0"); } catch {} if (!v) voice.stopSpeaking(); }}>
+              onClick={() => { const v = !speakReplies; setSpeakReplies(v); try { localStorage.setItem("jarvis.speak", v ? "1" : "0"); } catch {} if (v) voice.unlock(); else voice.stopSpeaking(); }}>
               {speakReplies ? <Volume2 size={16} className="text-cyan" /> : <VolumeX size={16} />}
             </button>
           )}

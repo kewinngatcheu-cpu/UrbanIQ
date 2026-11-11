@@ -19,7 +19,9 @@ Legend: ✅ done · 🟡 partial · ⏳ planned
 ## Phase 3 – Business Portfolio ⏳
 Venture dashboards (KPIs, pipeline, customers, projects), decision log with versions, roadmap per venture, Research Radar with cited sources, document & spreadsheet analysis, prompt caching.
 
-## Phase 4 – Cross-device & Voice ⏳
+## Phase 4 – Cross-device & Voice 🟡
+✅ Voice (v0.3.0): voice mode, server TTS/STT adapters (OpenAI, ElevenLabs) with browser fallback, streaming sentence playback, barge-in, hands-free loop, spoken briefing and voice commands — see VOICE_SYSTEM.
+⏳ Remaining:
 Production deployment (HTTPS, managed Postgres, backups, monitoring, 2FA/passkeys), service worker/offline shell, SSE live updates, server-side German STT/TTS adapters with streaming and barge-in, spoken briefings.
 
 ## Phase 5 – Multi-agent system ⏳

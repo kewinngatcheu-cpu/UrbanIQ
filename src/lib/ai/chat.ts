@@ -9,7 +9,17 @@ import { buildSystemPrompt } from "./systemPrompt";
 import { resolveEnabledProvider } from "./registry";
 import { parseCommand, HELP_TEXT } from "./commands";
 import { extractMemories } from "./memoryExtraction";
-import { chatSnapshot } from "@/lib/myday";
+import { buildBriefing, chatSnapshot, spokenBriefing, spokenEUR } from "@/lib/myday";
+import { financeOverview } from "@/lib/finance/service";
+import { startFocus } from "@/lib/discipline";
+import { parseVoiceIntent } from "./commands";
+
+const VOICE_HELP = "Du kannst zum Beispiel sagen: Guten Morgen, für dein Briefing. Merke dir, gefolgt von einer Information. Neue Aufgabe, gefolgt vom Titel. Wie viel kann ich ausgeben. Oder: Starte Fokus für fünfzig Minuten. Alles andere beantworte ich frei.";
+
+async function ownerName() {
+  const db = await getDb();
+  return (await db.query<{ display_name: string }>(`SELECT display_name FROM owner`))[0]?.display_name ?? "Kewin";
+}
 import type { ChatTurn, LLMProvider } from "./types";
 
 export type ChatEvent =
@@ -25,7 +35,7 @@ const HISTORY_WINDOW = 20;   // recent messages sent verbatim
 const SUMMARIZE_AFTER = 30;  // summarize older messages once more than this many are unsummarized
 
 export async function handleChat(
-  input: { conversationId?: string | null; workspaceId: string; message: string; signal?: AbortSignal },
+  input: { conversationId?: string | null; workspaceId: string; message: string; signal?: AbortSignal; mode?: "text" | "voice" },
   emit: (e: ChatEvent) => void,
 ) {
   const db = await getDb();
@@ -48,11 +58,34 @@ export async function handleChat(
   await db.query(`UPDATE conversations SET updated_at = now() WHERE id = $1`, [conv.id]);
 
   // 2. Deterministic commands (no AI needed, results are real)
-  const cmd = parseCommand(input.message);
+  const voice = input.mode === "voice";
+  const cmd = parseCommand(input.message) ?? (voice ? parseVoiceIntent(input.message) : null);
   if (cmd) {
     let reply: string;
-    if (cmd.kind === "help") reply = HELP_TEXT;
-    else if (cmd.kind === "remember") {
+    if (cmd.kind === "help") reply = voice ? VOICE_HELP : HELP_TEXT;
+    else if (cmd.kind === "briefing") {
+      const settings = await getSettings();
+      reply = spokenBriefing(await buildBriefing(), { name: await ownerName(), includeFinance: settings.aiContextFinance });
+      emit({ type: "action", action: "briefing.read", status: "succeeded" });
+    } else if (cmd.kind === "spendable") {
+      const settings = await getSettings();
+      const fin = await financeOverview();
+      if (!settings.aiContextFinance && voice) reply = "Deine Finanzdaten sind für Sprachausgabe nicht freigegeben. Du findest die Zahl im Finanzbereich.";
+      else if (!fin.spendable) reply = "Ich habe noch keine Buchungen von dir. Erfasse Einnahmen und Ausgaben im Finanzbereich, dann kann ich das berechnen.";
+      else reply = `Diesen Monat kannst du noch ${spokenEUR(fin.spendable.available)} ausgeben, das sind etwa ${spokenEUR(fin.spendable.perDay)} pro Tag für die restlichen ${fin.spendable.daysLeft} Tage.` +
+        (fin.budgetStatus.some((b) => b.state !== "ok") ? ` Achtung: ${fin.budgetStatus.filter((b) => b.state !== "ok").length} Budget${fin.budgetStatus.filter((b) => b.state !== "ok").length > 1 ? "s sind" : " ist"} fast oder ganz aufgebraucht.` : "") +
+        (fin.spendable.explanation.length && fin.baseline.months === 0 ? " Hinweis: Ohne Vormonate ist das nur eine grobe Rechnung." : "");
+      emit({ type: "action", action: "finance.read", status: "succeeded" });
+    } else if (cmd.kind === "focus") {
+      try {
+        const s = await startFocus({ plannedMin: cmd.minutes, label: "Per Sprache gestartet" });
+        reply = `Fokus-Session über ${cmd.minutes} Minuten läuft. Ich halte dir den Rücken frei.`;
+        emit({ type: "action", action: "focus.start", status: "succeeded", target: s.id });
+      } catch (e) {
+        reply = e instanceof Error ? e.message : String(e);
+        emit({ type: "action", action: "focus.start", status: "failed", detail: reply });
+      }
+    } else if (cmd.kind === "remember") {
       const r = await createMemory({
         workspaceId: workspace.id,
         layer: workspace.kind === "business" ? "business" : "personal",
@@ -106,7 +139,7 @@ export async function handleChat(
        ORDER BY created_at DESC LIMIT $2) t ORDER BY created_at`, [conv.id, HISTORY_WINDOW]);
   const messages = normalizeTurns(history);
   const snapshot = await chatSnapshot(workspace.id).catch((e) => `(Status nicht verfügbar: ${e instanceof Error ? e.message : e})`);
-  const system = buildSystemPrompt({ workspace, memories, tasks, conversationSummary: conv.summary, snapshot });
+  const system = buildSystemPrompt({ workspace, memories, tasks, conversationSummary: conv.summary, snapshot, voice });
 
   try {
     const result = await provider.stream({ system, messages, model: model ?? undefined, effort: settings.effort, signal: input.signal }, (text) => emit({ type: "delta", text }));

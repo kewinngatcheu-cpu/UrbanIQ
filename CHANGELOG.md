@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0 – JARVIS speaks (Phase 4 voice) (2026-11-11)
+
+### Added
+- **Voice mode** (`/voice`, sidebar "Voice", floating mic button on every page): tap or Space to talk, voice-activity detection (auto-stop after silence), hands-free dialogue loop, barge-in by tap/Space, live transcript, keyboard input with spoken answers, workspace selection; conversations are saved like chats.
+- **Voice engine**: server TTS (OpenAI `gpt-4o-mini-tts` with JARVIS voice instructions, ElevenLabs multilingual) and server STT (OpenAI `gpt-4o-transcribe`, German, domain vocabulary) with automatic fallback to the browser's speech APIs; sentence-by-sentence playback with prefetch so JARVIS starts speaking after the first sentence.
+- **Spoken commands without AI key**: "Guten Morgen, JARVIS" (spoken briefing), "Merke dir …", "Neue Aufgabe …", "Wie viel kann ich ausgeben?", "Starte Fokus für N Minuten".
+- Voice-mode answer style for the AI core (short spoken sentences, no markdown).
+- Settings: voice provider, voice, speaking rate, recognition, "Stimme testen"; privacy switches for finance/training data now in the UI.
+- Integrations: ElevenLabs connector; OpenAI connector covers voice. Disabling a connector disables its voice use.
+- API: `GET /api/voice/config`, `POST /api/voice/tts`, `POST /api/voice/stt` (audio never stored, audit logs size only).
+- Tests: 67 unit/integration tests (incl. TTS/STT routes with simulated providers), 38-check browser smoke test including spoken output.
+
+### Fixed
+- Briefing risk text "in N Tag(en)" now uses proper German plurals.
+
 ## 0.2.0 – Phase 2: Personal Operating System (2026-11-11)
 
 ### Added

@@ -40,6 +40,7 @@ Always requiring explicit confirmation: sending email, publishing content, purch
 - Finance: no bank connection. CSV files are parsed in memory; only resulting bookings are stored. No transactions are ever executed.
 - Embeddings: only with `EMBEDDING_PROVIDER=openai` (memory texts go to OpenAI). Default is local.
 - Browser voice: speech may be processed by the browser vendor.
+- Server voice: text to be spoken goes to the TTS provider (OpenAI/ElevenLabs); recordings go to the STT provider (OpenAI) for transcription only and are not stored by JARVIS. Audit entries contain provider and size, never content. Voice routes require a session, are rate-limited (TTS 120/min, STT 40/min), size-limited (text 4,000 chars, audio 10 MB) and type-checked (audio/* only).
 
 ## Open items (planned)
 

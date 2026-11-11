@@ -10,6 +10,7 @@ const body = z.object({
   conversationId: z.string().uuid().nullish(),
   workspaceId: z.string().min(1).max(64).default("personal"),
   message: z.string().min(1).max(20000),
+  mode: z.enum(["text", "voice"]).default("text"),
 });
 
 /** Streams newline-delimited JSON events (see ChatEvent). */
