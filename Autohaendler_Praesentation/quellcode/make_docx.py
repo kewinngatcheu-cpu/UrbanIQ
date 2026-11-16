@@ -7,20 +7,20 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
 RED = RGBColor(0xE6, 0x39, 0x35); ANTH = RGBColor(0x15, 0x17, 0x19); GREY = RGBColor(0x6B, 0x70, 0x75)
-notes = json.load(open("notes.json", encoding="utf8"))
+notes = json.load(open(sys.argv[2] if len(sys.argv) > 2 else "notes.json", encoding="utf8"))
 SLIDE_TITLES = ["Titelfolie", "Was macht ein Autohändler?", "Die wichtigsten Aufgaben", "Welche Fähigkeiten braucht man?",
                 "Ausbildung & Einstieg", "Ein typischer Arbeitstag", "Gehalt & Verdienstmöglichkeiten", "Vor- und Nachteile",
                 "Die Zukunft des Autoberufs", "Fazit", "Quellen"]
 TIPS = [
-    "Langsam starten, Blickkontakt zur Klasse. Erst sprechen, wenn alle Elemente eingeblendet sind.",
-    "Auf das Bild zeigen: So sieht Beratung im Autohaus aus. Die zwei Karten unten kurz gegenüberstellen.",
+    "Langsam starten und Blickkontakt zur Klasse halten.",
+    "Die zwei Kästen unten (selbstständig/angestellt) kurz vergleichen.",
     "Mit der Hand die Schritte von links nach rechts nachfahren.",
-    "Die rote Karte am Ende betonen – kleine Pause danach.",
-    "Die große „3“ als Einstieg nutzen. Den Hinweis zur Selbstständigkeit als Überleitung zum Fazit merken.",
+    "Den Satz im roten Kasten betonen und kurz Pause machen.",
+    "Den Kasten „Ohne Ausbildung selbstständig?“ nicht vergessen.",
     "Den Hinweis „Beispiel“ unbedingt erwähnen.",
-    "Zahlen langsam sprechen. Den Unterschied Brutto/Netto deutlich machen – das interessiert die Klasse.",
+    "Zahlen langsam sprechen. Den Unterschied zwischen Brutto und Netto deutlich machen.",
     "Abwechselnd sprechen: eine Person die Vorteile, eine Person die Nachteile.",
-    "Die 19,1 % als Aufhänger nutzen, dann zur Frage überleiten: Braucht man noch Verkäufer?",
+    "Auf die 19,1 % zeigen und dann zur Frage überleiten, ob man noch Verkäufer braucht.",
     "Frage stellen und wirklich auf Antworten warten (ca. 10 Sekunden).",
     "Nur bei Nachfragen zeigen.",
 ]
@@ -50,7 +50,7 @@ def shade(cell, hexcolor):
 # Title
 p = d.add_paragraph(); r = p.add_run("BERUFSPRÄSENTATION · KLASSE 10"); r.bold = True; r.font.size = Pt(10); r.font.color.rgb = RED
 d.add_heading("Sprechtext: Der Beruf Autohändler", level=1)
-p = d.add_paragraph(); r = p.add_run("Mehr als nur Autos verkaufen. – Ausformulierter Vortrag, nach Folien sortiert, mit Zeitangaben")
+p = d.add_paragraph(); r = p.add_run("Ausformulierter Vortrag, nach Folien sortiert, mit Zeitangaben")
 r.italic = True; r.font.color.rgb = GREY
 
 words = [len(n["text"].split()) for n in notes[:10]]
@@ -96,23 +96,14 @@ for i, n in enumerate(notes):
     r2 = p.add_run(TIPS[i]); r2.italic = True; r2.font.size = Pt(10); r2.font.color.rgb = GREY
 
 d.add_page_break()
-d.add_heading("Anhang: Animationen und Canva-Import", level=2)
-for txt in [
-    "In der PowerPoint-Datei sind bereits Folienübergänge (Verblassen; Titel- und Fazitfolie „durch Schwarz“) und Animationen enthalten. Die Elemente jeder Folie werden nach dem Folienwechsel automatisch nacheinander eingeblendet (Verblassen bzw. Wischen von links). Auf der Titel- und Fazitfolie zoomt das Hintergrundbild langsam heran. Ihr müsst also nur einmal pro Folie klicken.",
-    "Optional in PowerPoint: Wer einen Morph-Effekt möchte, kann bei Folie 2 bis 9 unter „Übergänge“ → „Morphen“ wählen. Weil Titel und Folienaufbau gleich positioniert sind, wirkt der Wechsel dann besonders flüssig.",
-    "Canva übernimmt beim Import von PowerPoint-Dateien Texte, Bilder und Formen als einzeln bearbeitbare Elemente, aber keine PowerPoint-Animationen. Empfehlung für Canva nach dem Import:",
-]:
-    d.add_paragraph(txt)
+d.add_heading("Anhang: So kommt die Präsentation in Canva", level=2)
 for b in [
-    "Folie 1 und 10: Seitenanimation „Verblassen“ oder „Aufsteigen“; Hintergrundbild mit „Zoom“ (langsam).",
-    "Folie 2, 4, 9: Icons und Karten mit „Verblassen“, Option „Elemente nacheinander“.",
-    "Folie 3 und 6: Prozess bzw. Zeitstrahl mit „Wischen“ (von links nach rechts).",
-    "Folie 5 und 7: Große Zahlen (3 Jahre, 4.238 €, Diagramm) mit „Aufsteigen“ oder „Verblassen“.",
-    "Folie 8: Erst die Spalte „Vorteile“, dann „Nachteile“ einblenden.",
-    "Folienübergang in Canva: überall „Auflösen“ (dezent). Keine Dreh- oder Sprungeffekte.",
-    "Schriftart: Arial (in Canva vorhanden). Farben: #090A0B, #151719, #FFFFFF, #E63935, #BFC3C7.",
+    "Canva öffnen und oben auf „Hochladen“ bzw. „Importieren“ klicken (oder die Datei einfach in Canva hineinziehen).",
+    "Die Datei Autohändler_Berufspraesentation_Canva.pptx auswählen. Canva wandelt sie automatisch in eine Präsentation um.",
+    "Alle Texte, Kästen und Bilder sind danach einzeln bearbeitbar. Auf Folie 1 eure Namen eintragen.",
+    "Der Sprechtext steht bei jeder Folie unten in den Notizen.",
+    "Animationen (optional): Folie anklicken, oben „Animieren“ wählen, z. B. „Verblassen“ oder „Aufsteigen“. Lieber dezent bleiben.",
 ]:
-    d.add_paragraph(b, style="List Bullet")
-d.add_paragraph("Hinweis: Nach dem Import in Canva die Folie 7 prüfen – das Säulendiagramm wird je nach Canva-Version als bearbeitbares Diagramm oder als Grafik übernommen. Falls nötig, mit „Diagramme“ in Canva neu anlegen (Werte: 1.103 €, 1.149 €, 1.225 €).")
+    d.add_paragraph(b, style="List Number")
 d.save(sys.argv[1])
 print("ok", sum(words))
