@@ -6,12 +6,13 @@ Ausgaben in unter 30 Sekunden eintragen, Sparziele füllen, Vermögen und Eigenk
 ## Starten
 
 ```bash
-cd kewin-finance
 npm install
 npm run dev        # http://localhost:3000
 ```
 
-Produktion: `npm run build && npm start`. Auf dem iPhone in Safari öffnen → Teilen → **Zum Home-Bildschirm** (startet dann wie eine App).
+Produktion: `npm run build && npm start`.
+
+**Online (Vercel):** Repository importieren – Next.js wird automatisch erkannt, keine Einstellungen nötig (Root Directory leer lassen). Auf dem iPhone in Safari öffnen → Teilen → **Zum Home-Bildschirm** (startet dann wie eine App).
 
 ## Bereiche
 
