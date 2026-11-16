@@ -46,7 +46,8 @@ export interface MonthPlan {
   plannedSavings: number; // investments + savingsPlans + surplus
   surplus: number; // frei verfügbarer Rest → Immobilien-Eigenkapital
   savingsRate: number; // plannedSavings / income
-  byCategory: Record<ExpenseCategory, number>; // Soll je Kategorie
+  byCategory: Record<ExpenseCategory, number>; // Soll je Kategorie (fix + variabel)
+  variableByCategory: Record<ExpenseCategory, number>; // nur variable Budgets
   items: { item: RecurringItem; amount: number }[];
 }
 
@@ -87,15 +88,19 @@ export function planForMonth(data: Pick<FinanceData, "recurring" | "budgets">, m
   }
 
   let variableBudget = 0;
+  const variableByCategory = emptyCategoryRecord();
   for (const c of CATEGORIES) {
     if (SAVINGS_CATEGORIES.includes(c)) continue;
     const b = budgetForMonth(data.budgets, c, month);
     variableBudget += b;
     byCategory[c] += b;
+    variableByCategory[c] = b;
   }
 
   const plannedSpending = fixedCosts + variableBudget;
   const surplus = income - plannedSpending - investments - savingsPlans;
+  // Der freie Überschuss ist als Sparen (Immobilien-Eigenkapital) eingeplant
+  if (surplus > 0) byCategory.Sparen += surplus;
   const plannedSavings = investments + savingsPlans + Math.max(0, surplus);
   return {
     month,
@@ -109,6 +114,7 @@ export function planForMonth(data: Pick<FinanceData, "recurring" | "budgets">, m
     surplus: round2(surplus),
     savingsRate: income > 0 ? plannedSavings / income : 0,
     byCategory,
+    variableByCategory,
     items,
   };
 }
@@ -187,7 +193,8 @@ export function compareBudget(
     let status: BudgetStatus = "ok";
     if (planned === 0 && actual > 0) status = "unplanned";
     else if (usedPct !== null && usedPct > 100.0001) status = "over";
-    else if (usedPct !== null && usedPct >= warnThresholdPct) status = "warning";
+    // Warnschwelle nur für variable Budgets – reine Fixkosten (genau 100 %) sind kein Warnsignal
+    else if (usedPct !== null && usedPct >= warnThresholdPct && plan.variableByCategory[category] > 0) status = "warning";
     // Sparen/Investments: "über Budget" ist positiv – nie als Warnung markieren
     if (isSavingsCategory(category) && status !== "ok") status = "ok";
     return { category, planned: round2(planned), actual: round2(actual), diff: round2(planned - actual), usedPct, status };

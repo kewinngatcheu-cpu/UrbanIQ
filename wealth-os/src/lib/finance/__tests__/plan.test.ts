@@ -16,6 +16,7 @@ describe("Monatsplan (Briefing-Werte)", () => {
     expect(p.investments).toBe(150);
     expect(p.surplus).toBe(418); // 1400 - 432 - 400 - 150
     expect(p.plannedSavings).toBe(568);
+    expect(p.byCategory.Sparen).toBe(418); // Überschuss als Sparen eingeplant
     expect(p.savingsRate).toBeCloseTo(568 / 1400, 6);
   });
 
@@ -71,6 +72,14 @@ describe("Soll-Ist & Warnungen", () => {
     expect(c.Transport.status).toBe("over");
     expect(c.Wohnen.status).toBe("unplanned");
     expect(c.Investments.status).toBe("ok");
+  });
+
+  it("reine Fixkosten-Kategorie bei exakt 100 % ist keine Warnung", () => {
+    const a2 = actualsForMonth([...txs, tx(150, "Versicherungen")], "2026-11");
+    const c = Object.fromEntries(compareBudget(plan, a2, 80).map((x) => [x.category, x]));
+    expect(c.Versicherungen.status).toBe("ok");
+    const a3 = actualsForMonth([...txs, tx(180, "Versicherungen")], "2026-11");
+    expect(compareBudget(plan, a3, 80).find((x) => x.category === "Versicherungen")!.status).toBe("over");
   });
 
   it("persönliches Limit 200 € wird geprüft", () => {

@@ -42,7 +42,8 @@ export function propertyEquityTarget(data: FinanceData): number {
 export function propertyStatus(data: FinanceData, now: Date = new Date()) {
   const month = toMonth(now);
   const summary = wealthSummary(data);
-  const equity = data.property.equity ?? summary.property;
+  const equity = summary.property; // heute angespart
+
   const target = propertyEquityTarget(data);
   const monthsLeft = Math.max(0, (Number(data.property.targetDate.slice(0, 4)) - now.getFullYear()) * 12 + Number(data.property.targetDate.slice(5, 7)) - (now.getMonth() + 1));
   const plan = planForMonth(data, month);
@@ -60,7 +61,8 @@ export function propertyStatus(data: FinanceData, now: Date = new Date()) {
     projectedAtTarget,
     onTrack: projectedAtTarget >= target,
     etaMonth: etaMonths !== null ? addMonths(month, etaMonths) : null,
-    financing: financing(data.property, equity),
+    // Finanzierung zum Kaufzeitpunkt: geplantes Eigenkapital (manuell) oder Ziel-Eigenkapital
+    financing: financing(data.property, data.property.equity ?? target),
   };
 }
 

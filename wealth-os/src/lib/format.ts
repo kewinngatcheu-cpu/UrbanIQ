@@ -1,12 +1,12 @@
 const eur = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 const eur2 = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const num = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 });
-const compact = new Intl.NumberFormat("de-DE", { notation: "compact", maximumFractionDigits: 1 });
 
 export const fmtEUR = (v: number) => eur.format(Math.round(v));
 export const fmtEUR2 = (v: number) => eur2.format(v);
 export const fmtNum = (v: number) => num.format(v);
-export const fmtCompactEUR = (v: number) => `${compact.format(v)} €`;
+export const fmtCompactEUR = (v: number) =>
+  Math.abs(v) >= 1000 ? `${new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 }).format(v / 1000)}k €` : `${Math.round(v)} €`;
 export const fmtPct = (v: number, digits = 1) =>
   `${new Intl.NumberFormat("de-DE", { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(v)} %`;
 
