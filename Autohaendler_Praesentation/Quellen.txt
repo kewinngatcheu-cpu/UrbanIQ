@@ -1,0 +1,87 @@
+QUELLEN – Präsentation „Der Beruf Autohändler“
+Stand der Recherche: 16.11.2026
+
+========================================================
+1. BERUF, AUSBILDUNG, RECHTLICHES
+========================================================
+
+[1] Bundesagentur für Arbeit – BERUFENET: Automobilkaufmann/-frau
+    https://web.arbeitsagentur.de/berufenet/
+    (Suche: „Automobilkaufmann/-frau“) – Berufsbild, Aufgaben, Ausbildung
+
+[2] Verordnung über die Berufsausbildung zum Automobilkaufmann und zur
+    Automobilkauffrau (AutoKflAusbV, 2017)
+    https://www.gesetze-im-internet.de/autokflausbv/
+    → 3 Jahre Ausbildungsdauer, gestreckte Abschlussprüfung
+    https://www.gesetze-im-internet.de/autokflausbv/__8.html
+    → Teil 1 der Abschlussprüfung (Mitte 2. Ausbildungsjahr,
+      Prüfungsbereich Warenwirtschafts- und Werkstattprozesse)
+
+[3] IHK Köln – Ausbildungsberuf Automobilkaufmann/-frau
+    https://www.ihk.de/koeln/hauptnavigation/ausbildung/ausbildungsberufe-a-bis-z/automobilkaufmann-frau-5237872
+
+[4] IHK Ulm – Prüfungsinhalte Automobilkaufmann/-frau
+    https://www.ihk.de/ulm/hauptnavigation/ausbildungsbetriebe-azubis/beratung-und-infos/infos-fuer-ausbildungsbetriebe/pruefungsinhalte-und-ansprechpartner-berufe-a-z-/automobilkaufmann-6954618
+
+[5] Gewerbeordnung § 14 – Anzeigepflicht (Gewerbeanmeldung für Selbstständige)
+    https://www.gesetze-im-internet.de/gewo/__14.html
+
+========================================================
+2. GEHALT UND AUSBILDUNGSVERGÜTUNG
+========================================================
+
+[6] BIBB – Tarifliche Ausbildungsvergütungen 2025, Gesamtübersicht Ost/West
+    (Stand 01.10.2025)
+    https://www.bibb.de/dokumente/pdf/2025_Dav-Gesamt%c3%bcbersicht_Ausbildungsverg%c3%bctungen_Ost_West.pdf
+    Automobilkaufmann/-frau (Industrie und Handel), brutto pro Monat:
+      West: 1.103 € / 1.149 € / 1.225 €  (1. / 2. / 3. Jahr)
+      Ost:  1.051 € / 1.095 € / 1.139 €
+
+[7] BIBB – Datenbank Ausbildungsvergütungen
+    https://www.bibb.de/ausbildungsverguetung
+
+[8] Bundesagentur für Arbeit – Entgeltatlas: Automobilkaufmann/-frau
+    https://web.arbeitsagentur.de/entgeltatlas/beruf/6619
+    Fachkräfte in Vollzeit, Bruttomonatsentgelt:
+      Median 4.238 €, unteres Quartil 3.259 €, oberes Quartil 5.866 €
+    Hinweis: Der Entgeltatlas weist Werte für die zugehörige Berufsgruppe aus,
+    nicht für jede einzelne Person. Werte können sich bei Aktualisierung ändern.
+
+[9] Netto-Angabe (ca. 2.700 € von 4.238 € brutto): eigene grobe Schätzung,
+    Steuerklasse I, ohne Kinder, ohne Kirchensteuer, gesetzlich versichert.
+    Zum Nachrechnen z. B. mit dem offiziellen Rechner des BMF:
+    https://www.bmf-steuerrechner.de/
+
+========================================================
+3. ZUKUNFT / MARKT
+========================================================
+
+[10] Kraftfahrt-Bundesamt (KBA) – Fahrzeugzulassungen, Jahresbilanz 2025
+     https://www.kba.de/  (Rubrik Presse → Pressemitteilungen → Fahrzeugzulassungen
+     im Dezember 2025 – Jahresbilanz)
+     → 2.857.591 Pkw-Neuzulassungen 2025, davon 545.142 reine Elektroautos
+       (BEV) = 19,1 %
+     Zusammenfassung der KBA-Zahlen u. a. bei:
+     https://www.electrive.net/2026/01/06/bilanz-2025-neuzulassungen-von-elektroautos-2025-auf-rekordhoch/
+
+========================================================
+4. BILDNACHWEISE (freie Lizenzen, Nutzung ohne Namensnennung erlaubt)
+========================================================
+
+Unsplash-Lizenz: https://unsplash.com/license
+Pexels-Lizenz:   https://www.pexels.com/license/
+
+Folie 1  – Schwarze Limousine (Unsplash):
+           https://images.unsplash.com/photo-1485291571150-772bcfc10da5
+Folie 2  – Beratung im Autohaus (Pexels):   https://www.pexels.com/photo/7144177/
+Folie 4/11 – Sportwagen in Garage (Unsplash):
+           https://images.unsplash.com/photo-1492144534655-ae79c964c9d7
+Folie 6  – Sportwagen im Showroom (Pexels): https://www.pexels.com/photo/3874337/
+Folie 8  – Sportwagen auf der Straße (Unsplash):
+           https://images.unsplash.com/photo-1503376780353-7e6692767b70
+Folie 9  – Ladestecker E-Auto (Unsplash):
+           https://images.unsplash.com/photo-1593941707882-a5bba14938c7
+Folie 10 – Sportwagen in Fahrt (Pexels):    https://www.pexels.com/photo/3136673/
+
+Icons: Tabler Icons (MIT-Lizenz) – https://tabler.io/icons
+Alle Fotos wurden zugeschnitten und abgedunkelt.
