@@ -1,0 +1,402 @@
+{
+ "Beispielwerte": {
+  "inputs": [
+   20,
+   30000,
+   100,
+   15,
+   10,
+   8
+  ],
+  "results": {
+   "Stunden": 33,
+   "Verlust/Projekt": 3300,
+   "Anteil": 0.11,
+   "Verlust/Jahr": 66000,
+   "Äquivalente": 2.2,
+   "Ampel": "ROT",
+   "Hebel": 15000,
+   "Hero": 66000,
+   "Satz": "Ihr verliert rechnerisch den Gegenwert von 2,2 durchschnittlichen Projekten pro Jahr.",
+   "Ampeltext": "Verlustanteil am Projektvolumen: 11,0 %",
+   "Rechnung": "Rechnung: 15 Std. Zusatzwünsche × 50 % × 100 € Stundensatz × 20 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Alles null": {
+  "inputs": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "results": {
+   "Stunden": 0,
+   "Verlust/Projekt": 0,
+   "Anteil": "–",
+   "Verlust/Jahr": 0,
+   "Äquivalente": "–",
+   "Ampel": "–",
+   "Hebel": 0,
+   "Hero": 0,
+   "Satz": "Tragt ein Projektvolumen ein, um die Projektäquivalente zu berechnen.",
+   "Ampeltext": "Ohne Projektvolumen ist keine Bewertung möglich.",
+   "Rechnung": "Rechnung: 0 Std. Zusatzwünsche × 50 % × 0 € Stundensatz × 0 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Projektvolumen null": {
+  "inputs": [
+   20,
+   0,
+   100,
+   15,
+   10,
+   8
+  ],
+  "results": {
+   "Stunden": 33,
+   "Verlust/Projekt": 3300,
+   "Anteil": "–",
+   "Verlust/Jahr": 66000,
+   "Äquivalente": "–",
+   "Ampel": "–",
+   "Hebel": 15000,
+   "Hero": 66000,
+   "Satz": "Tragt ein Projektvolumen ein, um die Projektäquivalente zu berechnen.",
+   "Ampeltext": "Ohne Projektvolumen ist keine Bewertung möglich.",
+   "Rechnung": "Rechnung: 15 Std. Zusatzwünsche × 50 % × 100 € Stundensatz × 20 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Stundensatz null": {
+  "inputs": [
+   20,
+   30000,
+   0,
+   15,
+   10,
+   8
+  ],
+  "results": {
+   "Stunden": 33,
+   "Verlust/Projekt": 0,
+   "Anteil": 0,
+   "Verlust/Jahr": 0,
+   "Äquivalente": 0,
+   "Ampel": "GRÜN",
+   "Hebel": 0,
+   "Hero": 0,
+   "Satz": "Ihr verliert rechnerisch den Gegenwert von 0,0 durchschnittlichen Projekten pro Jahr.",
+   "Ampeltext": "Verlustanteil am Projektvolumen: 0,0 %",
+   "Rechnung": "Rechnung: 15 Std. Zusatzwünsche × 50 % × 0 € Stundensatz × 20 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Sehr hoher Stundensatz": {
+  "inputs": [
+   20,
+   30000,
+   1000,
+   15,
+   10,
+   8
+  ],
+  "results": {
+   "Stunden": 33,
+   "Verlust/Projekt": 33000,
+   "Anteil": 1.1,
+   "Verlust/Jahr": 660000,
+   "Äquivalente": 22,
+   "Ampel": "ROT",
+   "Hebel": 150000,
+   "Hero": 660000,
+   "Satz": "Ihr verliert rechnerisch den Gegenwert von 22,0 durchschnittlichen Projekten pro Jahr.",
+   "Ampeltext": "Verlustanteil am Projektvolumen: 110,0 %",
+   "Rechnung": "Rechnung: 15 Std. Zusatzwünsche × 50 % × 1.000 € Stundensatz × 20 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Sehr viele Projekte": {
+  "inputs": [
+   1000,
+   30000,
+   100,
+   15,
+   10,
+   8
+  ],
+  "results": {
+   "Stunden": 33,
+   "Verlust/Projekt": 3300,
+   "Anteil": 0.11,
+   "Verlust/Jahr": 3300000,
+   "Äquivalente": 110,
+   "Ampel": "ROT",
+   "Hebel": 750000,
+   "Hero": 3300000,
+   "Satz": "Ihr verliert rechnerisch den Gegenwert von 110,0 durchschnittlichen Projekten pro Jahr.",
+   "Ampeltext": "Verlustanteil am Projektvolumen: 11,0 %",
+   "Rechnung": "Rechnung: 15 Std. Zusatzwünsche × 50 % × 100 € Stundensatz × 1.000 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Sehr hohe Stunden": {
+  "inputs": [
+   20,
+   30000,
+   100,
+   10000,
+   10000,
+   10000
+  ],
+  "results": {
+   "Stunden": 30000,
+   "Verlust/Projekt": 3000000,
+   "Anteil": 100,
+   "Verlust/Jahr": 60000000,
+   "Äquivalente": 2000,
+   "Ampel": "ROT",
+   "Hebel": 10000000,
+   "Hero": 60000000,
+   "Satz": "Ihr verliert rechnerisch den Gegenwert von 2.000,0 durchschnittlichen Projekten pro Jahr.",
+   "Ampeltext": "Verlustanteil am Projektvolumen: 10.000,0 %",
+   "Rechnung": "Rechnung: 10.000 Std. Zusatzwünsche × 50 % × 100 € Stundensatz × 20 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Null + Maximalwerte": {
+  "inputs": [
+   1000,
+   0,
+   1000,
+   10000,
+   0,
+   10000
+  ],
+  "results": {
+   "Stunden": 20000,
+   "Verlust/Projekt": 20000000,
+   "Anteil": "–",
+   "Verlust/Jahr": 20000000000,
+   "Äquivalente": "–",
+   "Ampel": "–",
+   "Hebel": 5000000000,
+   "Hero": 20000000000,
+   "Satz": "Tragt ein Projektvolumen ein, um die Projektäquivalente zu berechnen.",
+   "Ampeltext": "Ohne Projektvolumen ist keine Bewertung möglich.",
+   "Rechnung": "Rechnung: 10.000 Std. Zusatzwünsche × 50 % × 1.000 € Stundensatz × 1.000 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Alle Maximalwerte": {
+  "inputs": [
+   10000,
+   100000000,
+   10000,
+   10000,
+   10000,
+   10000
+  ],
+  "results": {
+   "Stunden": 30000,
+   "Verlust/Projekt": 300000000,
+   "Anteil": 3,
+   "Verlust/Jahr": 3000000000000,
+   "Äquivalente": 30000,
+   "Ampel": "ROT",
+   "Hebel": 500000000000,
+   "Hero": 3000000000000,
+   "Satz": "Ihr verliert rechnerisch den Gegenwert von 30.000,0 durchschnittlichen Projekten pro Jahr.",
+   "Ampeltext": "Verlustanteil am Projektvolumen: 300,0 %",
+   "Rechnung": "Rechnung: 10.000 Std. Zusatzwünsche × 50 % × 10.000 € Stundensatz × 10.000 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Grenze 5 % (gelb)": {
+  "inputs": [
+   20,
+   30000,
+   100,
+   15,
+   0,
+   0
+  ],
+  "results": {
+   "Stunden": 15,
+   "Verlust/Projekt": 1500,
+   "Anteil": 0.05,
+   "Verlust/Jahr": 30000,
+   "Äquivalente": 1,
+   "Ampel": "GELB",
+   "Hebel": 15000,
+   "Hero": 30000,
+   "Satz": "Ihr verliert rechnerisch den Gegenwert von 1,0 durchschnittlichen Projekten pro Jahr.",
+   "Ampeltext": "Verlustanteil am Projektvolumen: 5,0 %",
+   "Rechnung": "Rechnung: 15 Std. Zusatzwünsche × 50 % × 100 € Stundensatz × 20 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Grenze 10 % (gelb)": {
+  "inputs": [
+   20,
+   30000,
+   100,
+   15,
+   15,
+   0
+  ],
+  "results": {
+   "Stunden": 30,
+   "Verlust/Projekt": 3000,
+   "Anteil": 0.1,
+   "Verlust/Jahr": 60000,
+   "Äquivalente": 2,
+   "Ampel": "GELB",
+   "Hebel": 15000,
+   "Hero": 60000,
+   "Satz": "Ihr verliert rechnerisch den Gegenwert von 2,0 durchschnittlichen Projekten pro Jahr.",
+   "Ampeltext": "Verlustanteil am Projektvolumen: 10,0 %",
+   "Rechnung": "Rechnung: 15 Std. Zusatzwünsche × 50 % × 100 € Stundensatz × 20 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Knapp unter 5 % (grün)": {
+  "inputs": [
+   20,
+   30000,
+   100,
+   14.9,
+   0,
+   0
+  ],
+  "results": {
+   "Stunden": 14.9,
+   "Verlust/Projekt": 1490,
+   "Anteil": 0.0496666666666667,
+   "Verlust/Jahr": 29800,
+   "Äquivalente": 0.993333333333333,
+   "Ampel": "GRÜN",
+   "Hebel": 14900,
+   "Hero": 29800,
+   "Satz": "Ihr verliert rechnerisch den Gegenwert von 1,0 durchschnittlichen Projekten pro Jahr.",
+   "Ampeltext": "Verlustanteil am Projektvolumen: 5,0 %",
+   "Rechnung": "Rechnung: 14,9 Std. Zusatzwünsche × 50 % × 100 € Stundensatz × 20 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Leere Felder": {
+  "inputs": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "results": {
+   "Stunden": 0,
+   "Verlust/Projekt": 0,
+   "Anteil": "–",
+   "Verlust/Jahr": 0,
+   "Äquivalente": "–",
+   "Ampel": "–",
+   "Hebel": 0,
+   "Hero": 0,
+   "Satz": "Tragt ein Projektvolumen ein, um die Projektäquivalente zu berechnen.",
+   "Ampeltext": "Ohne Projektvolumen ist keine Bewertung möglich.",
+   "Rechnung": "Rechnung: 0 Std. Zusatzwünsche × 50 % × 0 € Stundensatz × 0 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Text eingefügt": {
+  "inputs": [
+   "abc",
+   "x",
+   100,
+   "15",
+   10,
+   8
+  ],
+  "results": {
+   "Stunden": 18,
+   "Verlust/Projekt": 1800,
+   "Anteil": "–",
+   "Verlust/Jahr": 0,
+   "Äquivalente": "–",
+   "Ampel": "–",
+   "Hebel": 0,
+   "Hero": 0,
+   "Satz": "Tragt ein Projektvolumen ein, um die Projektäquivalente zu berechnen.",
+   "Ampeltext": "Ohne Projektvolumen ist keine Bewertung möglich.",
+   "Rechnung": "Rechnung: 0 Std. Zusatzwünsche × 50 % × 100 € Stundensatz × 0 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Negativ eingefügt": {
+  "inputs": [
+   20,
+   30000,
+   -100,
+   15,
+   10,
+   8
+  ],
+  "results": {
+   "Stunden": 33,
+   "Verlust/Projekt": 0,
+   "Anteil": 0,
+   "Verlust/Jahr": 0,
+   "Äquivalente": 0,
+   "Ampel": "GRÜN",
+   "Hebel": 0,
+   "Hero": 0,
+   "Satz": "Ihr verliert rechnerisch den Gegenwert von 0,0 durchschnittlichen Projekten pro Jahr.",
+   "Ampeltext": "Verlustanteil am Projektvolumen: 0,0 %",
+   "Rechnung": "Rechnung: 15 Std. Zusatzwünsche × 50 % × 0 € Stundensatz × 20 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ },
+ "Dezimalstunden": {
+  "inputs": [
+   12,
+   45000,
+   95.5,
+   7.5,
+   3.25,
+   0
+  ],
+  "results": {
+   "Stunden": 10.75,
+   "Verlust/Projekt": 1026.625,
+   "Anteil": 0.0228138888888889,
+   "Verlust/Jahr": 12319.5,
+   "Äquivalente": 0.273766666666667,
+   "Ampel": "GRÜN",
+   "Hebel": 4297.5,
+   "Hero": 12319.5,
+   "Satz": "Ihr verliert rechnerisch den Gegenwert von 0,3 durchschnittlichen Projekten pro Jahr.",
+   "Ampeltext": "Verlustanteil am Projektvolumen: 2,3 %",
+   "Rechnung": "Rechnung: 7,5 Std. Zusatzwünsche × 50 % × 96 € Stundensatz × 12 Projekte. Theoretisches Szenario – keine garantierte Ergebnisverbesserung."
+  },
+  "errors": [],
+  "recalc_errors": 0
+ }
+}
