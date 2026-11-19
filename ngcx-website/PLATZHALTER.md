@@ -6,9 +6,9 @@ Alle Stellen sind auf der Website gelb gestrichelt markiert. Nichts davon wurde 
 
 | Platzhalter | Wo | Hinweis |
 |---|---|---|
-| `[BUCHUNGSLINK]` | `BOOKING_URL` | Calendly / Cal.com / Google-Terminbuchung. Solange `#`, führen Buchungs-Buttons zum Kontaktbereich. |
-| `[E-MAIL]` | `CONTACT_EMAIL` | z. B. `kontakt@ngcxintelligence.de` |
-| `[LINKEDIN_URL]` | `LINKEDIN_URL` | Profil-URL von Kewin |
+| ~~`[BUCHUNGSLINK]`~~ ✅ | `BOOKING_URL` | https://calendly.com/kewin-ngcxintelligence/30min |
+| ~~`[E-MAIL]`~~ ✅ | `CONTACT_EMAIL` | kewin@ngcxintelligence.de |
+| ~~`[LINKEDIN_URL]`~~ ✅ | `LINKEDIN_URL` | https://www.linkedin.com/in/kewin-ngatcheu-455358284 |
 | `[PREIS_SPRINT]`, `[PREIS_MANAGEMENT]` | `PRICES` | nur relevant, wenn `SHOW_PRICES = true` |
 | Preise anzeigen? | `SHOW_PRICES` | aktuell `false` |
 | Ansprache | `ANSPRACHE` | `'ihr'` (Standard) oder `'sie'` |
@@ -37,7 +37,7 @@ Alle Stellen sind auf der Website gelb gestrichelt markiert. Nichts davon wurde 
 - `[HOSTING-ANBIETER]` – voraussichtlich Cloudflare Pages
 - `[SPEICHERDAUER LOGS]`
 - `[E-MAIL-ANBIETER]` – voraussichtlich Google Workspace
-- `[BUCHUNGSTOOL]` und `[LINK ZUR DATENSCHUTZERKLÄRUNG DES BUCHUNGSTOOLS]`
+- ✅ Buchungstool: Calendly eingetragen (Drittlandübermittlung/AVV noch rechtlich prüfen)
 - `[BESTÄTIGEN]` (4×) – AVV und DPF-Zertifizierung von Hosting- und E-Mail-Anbieter prüfen
 - `[ZUSTÄNDIGKEIT PRÜFEN]` – Aufsichtsbehörde richtet sich nach dem Sitz (eingetragen: Berlin)
 - `[DATUM]` – Stand

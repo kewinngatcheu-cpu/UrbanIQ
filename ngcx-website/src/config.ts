@@ -12,13 +12,13 @@ export const SITE_URL = 'https://ngcxintelligence.de';
  * Solange hier "#" steht, führen alle Buchungs-Buttons zum Kontaktbereich der Startseite.
  * [BUCHUNGSLINK]
  */
-export const BOOKING_URL: string = '#';
+export const BOOKING_URL: string = 'https://calendly.com/kewin-ngcxintelligence/30min';
 
 /** Geschäftliche E-Mail-Adresse. [E-MAIL] */
-export const CONTACT_EMAIL = '[E-MAIL]@ngcxintelligence.de';
+export const CONTACT_EMAIL = 'kewin@ngcxintelligence.de';
 
 /** LinkedIn-Profil von Kewin. Solange "#", ist der Link ohne Ziel. [LINKEDIN_URL] */
-export const LINKEDIN_URL: string = '#';
+export const LINKEDIN_URL: string = 'https://www.linkedin.com/in/kewin-ngatcheu-455358284';
 
 /**
  * Preisanzeige. Auf `true` setzen, um Preise bei Sprint und Management einzublenden.
