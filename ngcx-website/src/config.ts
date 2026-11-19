@@ -30,11 +30,11 @@ export const PRICES = {
 };
 
 /**
- * Ansprache auf der gesamten Website: 'ihr' (wie im Pipeline-Check) oder 'sie'.
+ * Ansprache auf der gesamten Website: 'ihr' oder 'sie'.
  * Alle Texte stehen in src/content/texte.ts in beiden Varianten.
- * Hinweis: Der Pipeline-Check selbst bleibt textlich 1:1 beim "ihr".
+ * Hinweis: Der Pipeline-Check (src/pages/pipeline-check.astro) ist fest auf "Sie" formuliert.
  */
-export const ANSPRACHE: 'ihr' | 'sie' = 'ihr';
+export const ANSPRACHE: 'ihr' | 'sie' = 'sie';
 
 /** Schmale Hinweisleiste ganz oben ein-/ausblenden. */
 export const SHOW_ANNOUNCEMENT: boolean = true;

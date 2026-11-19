@@ -27,7 +27,7 @@ Produktions-Build: `npm run build` (Ausgabe in `dist/`), Vorschau des Builds: `n
 | OG-Bild neu erzeugen | `scripts/og-image.html` bearbeiten, dann `npm run og` |
 
 - **Preise aktivieren:** in `src/config.ts` `SHOW_PRICES = true` und `PRICES` ausfüllen.
-- **Auf „Sie“ umstellen:** in `src/config.ts` `ANSPRACHE = 'sie'`. (Der Pipeline-Check bleibt textlich beim „ihr“.)
+- **Ansprache:** aktuell „Sie“ (`ANSPRACHE` in `src/config.ts`). Der Pipeline-Check ist fest auf „Sie“ formuliert.
 
 ## Struktur
 

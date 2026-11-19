@@ -14,7 +14,7 @@ export const meta = {
     ),
   },
   check: {
-    title: 'NGCX Pipeline-Check – Wie planbar ist euer Neukundengeschäft?',
+    title: t('NGCX Pipeline-Check – Wie planbar ist euer Neukundengeschäft?', 'NGCX Pipeline-Check – Wie planbar ist Ihr Neukundengeschäft?'),
     description:
       'Kostenloser Selbsttest für IT-Beratungen: 12 Fragen, 3 Minuten, sofortige Auswertung. Läuft komplett im Browser, keine Daten werden gespeichert.',
   },
