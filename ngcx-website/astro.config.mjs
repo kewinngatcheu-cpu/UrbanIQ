@@ -6,8 +6,9 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'never',
   build: {
-    // /impressum.html wird auf Cloudflare Pages als /impressum ausgeliefert
-    format: 'file',
+    // Jede Seite als Ordner mit index.html (/pipeline-check/index.html) –
+    // funktioniert auf Vercel, Cloudflare Pages und jedem anderen Static-Host
+    format: 'directory',
     // CSS immer als Datei ausliefern (passt zur Content-Security-Policy)
     inlineStylesheets: 'never',
   },
