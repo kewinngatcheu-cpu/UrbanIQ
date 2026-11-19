@@ -1,0 +1,103 @@
+---
+import Logo from './Logo.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { nav } from '../content/texte';
+import { bookingLink } from '../config';
+const booking = bookingLink();
+const current = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+---
+<header class="site-header" id="site-header">
+  <div class="container header-inner">
+    <a href="/" class="brand" aria-label="NGCX – zur Startseite"><Logo eager height={24} /></a>
+
+    <nav class="nav-desktop" aria-label="Hauptnavigation">
+      <ul>
+        {nav.map((n) => (
+          <li>
+            <a href={n.href} class:list={{ 'is-check': !!n.badge }} aria-current={current === n.href ? 'page' : undefined}>
+              {n.label}{n.badge && <span class="badge">{n.badge}</span>}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <Button href={booking.href} external={booking.external} size="small" class="header-cta">Erstgespräch</Button>
+      <button type="button" class="burger" id="burger" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü öffnen">
+        <span class="burger-open"><Icon name="menu" /></span>
+        <span class="burger-close"><Icon name="close" /></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobile-menu" hidden>
+    <nav class="container" aria-label="Mobile Navigation">
+      <ul>
+        {nav.map((n) => (
+          <li>
+            <a href={n.href} aria-current={current === n.href ? 'page' : undefined}>
+              {n.label}{n.badge && <span class="badge">{n.badge}</span>}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <Button href={booking.href} external={booking.external} block arrow>15-Min-Gespräch vereinbaren</Button>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    border-bottom: 1px solid transparent;
+    transition: background .25s, border-color .25s;
+  }
+  .site-header.scrolled, .site-header.menu-open {
+    background: rgba(8, 11, 16, .82);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-bottom-color: rgba(31, 53, 80, .7);
+  }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 72px; }
+  .brand { display: inline-flex; align-items: center; padding: 6px 0; flex-shrink: 0; }
+  .nav-desktop { display: none; }
+  .nav-desktop ul { display: flex; gap: 4px; list-style: none; }
+  .nav-desktop a {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px;
+    color: var(--muted); text-decoration: none; font-size: 15px; font-weight: 500; transition: color .15s;
+  }
+  .nav-desktop a:hover, .nav-desktop a[aria-current='page'] { color: var(--text); }
+  .nav-desktop a.is-check { color: var(--text); }
+  .badge {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid rgba(92, 200, 255, .4); border-radius: 999px; padding: 2px 7px; line-height: 1.3;
+  }
+  .header-actions { display: flex; align-items: center; gap: 8px; }
+  .header-actions :global(.header-cta) { display: none; }
+  .burger {
+    display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px;
+    background: transparent; border: 1px solid var(--line); color: var(--text); cursor: pointer;
+  }
+  .burger span { display: grid; place-items: center; }
+  .burger .burger-close { display: none; }
+  .burger[aria-expanded='true'] .burger-open { display: none; }
+  .burger[aria-expanded='true'] .burger-close { display: grid; }
+
+  .mobile-menu { border-top: 1px solid var(--line); height: calc(100dvh - 72px); overflow-y: auto; }
+  .mobile-menu ul { list-style: none; padding: 12px 0 24px; }
+  .mobile-menu li a {
+    display: flex; align-items: center; justify-content: space-between; padding: 16px 0;
+    font-size: 20px; font-weight: 600; text-decoration: none; border-bottom: 1px solid rgba(31, 53, 80, .6);
+  }
+  .mobile-menu nav { padding-bottom: 40px; }
+
+  @media (min-width: 640px) {
+    .header-actions :global(.header-cta) { display: inline-flex; }
+  }
+  @media (min-width: 1060px) {
+    .nav-desktop { display: block; }
+    .burger, .mobile-menu { display: none !important; }
+  }
+</style>

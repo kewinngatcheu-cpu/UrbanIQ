@@ -1,0 +1,90 @@
+---
+/**
+ * Abstraktes Pipeline-Visual: Kontakte → Gespräche → Projekte.
+ * Bewusst ohne Zahlen oder Werte – nur Form und Bewegung.
+ */
+const L = [40, 78, 116, 154, 192, 230, 268, 306, 344].map((y) => ({ x: 70, y }));
+const M = [120, 180, 240, 300].map((y) => ({ x: 270, y }));
+const R = [170, 250].map((y) => ({ x: 470, y }));
+const curve = (a: { x: number; y: number }, b: { x: number; y: number }) => {
+  const mx = (a.x + b.x) / 2;
+  return `M${a.x} ${a.y} C${mx} ${a.y} ${mx} ${b.y} ${b.x} ${b.y}`;
+};
+const lm = L.map((p, i) => curve(p, M[Math.min(3, Math.floor(i / 2.3))]));
+const mr = M.map((p, i) => curve(p, R[i < 2 ? 0 : 1]));
+// Einige Pfade tragen einen wandernden Lichtpunkt
+const flowLM = [1, 4, 7];
+const flowMR = [1, 2];
+---
+<figure class="pv" aria-hidden="true">
+  <svg viewBox="0 0 540 400" role="presentation">
+    <defs>
+      <linearGradient id="pv-line" x1="0" x2="1">
+        <stop offset="0" stop-color="#D8DCE4" stop-opacity=".18" />
+        <stop offset="1" stop-color="#5CC8FF" stop-opacity=".5" />
+      </linearGradient>
+      <radialGradient id="pv-glow">
+        <stop offset="0" stop-color="#087BFF" stop-opacity=".55" />
+        <stop offset="1" stop-color="#087BFF" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+
+    <!-- Spalten-Führungslinien -->
+    {[70, 270, 470].map((x) => <line x1={x} y1="24" x2={x} y2="360" stroke="#1F3550" stroke-dasharray="2 6" />)}
+
+    <g fill="none" stroke="url(#pv-line)" stroke-width="1">
+      {lm.map((d) => <path d={d} />)}
+      {mr.map((d) => <path d={d} stroke-width="1.3" />)}
+    </g>
+
+    <g fill="none" stroke="#5CC8FF" stroke-width="1.6" stroke-linecap="round">
+      {flowLM.map((i, k) => <path class="flow" d={lm[i]} pathLength="100" style={`animation-delay:${k * 1.3}s`} />)}
+      {flowMR.map((i, k) => <path class="flow" d={mr[i]} pathLength="100" style={`animation-delay:${0.9 + k * 1.6}s`} />)}
+    </g>
+
+    {L.map((p) => <circle cx={p.x} cy={p.y} r="3.5" fill="#D8DCE4" fill-opacity=".55" />)}
+    {M.map((p) => (
+      <g>
+        <circle cx={p.x} cy={p.y} r="9" fill="#0D1B2E" stroke="#5CC8FF" stroke-opacity=".55" />
+        <circle cx={p.x} cy={p.y} r="3" fill="#5CC8FF" />
+      </g>
+    ))}
+    {R.map((p, i) => (
+      <g>
+        <circle cx={p.x} cy={p.y} r="34" fill="url(#pv-glow)" class={i === 0 ? 'pulse' : 'pulse delay'} />
+        <circle cx={p.x} cy={p.y} r="14" fill="#0D1B2E" stroke="#087BFF" stroke-width="1.5" />
+        <circle cx={p.x} cy={p.y} r="5" fill="#087BFF" />
+      </g>
+    ))}
+  </svg>
+  <figcaption class="pv-labels">
+    <span>Kontakte</span><span>Gespräche</span><span>Projekte</span>
+  </figcaption>
+</figure>
+<style>
+  .pv {
+    position: relative; margin: 0;
+    background: linear-gradient(160deg, rgba(17, 36, 59, .55), rgba(13, 27, 46, .25));
+    border: 1px solid var(--line); border-radius: var(--r-card); padding: 24px 18px 18px;
+  }
+  .pv svg { width: 100%; height: auto; }
+  .pv-labels {
+    display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; margin-top: 6px;
+    font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+  }
+  .pv-labels span:last-child { color: var(--accent2); }
+  .flow { stroke-dasharray: 6 94; stroke-dashoffset: 100; opacity: 0; animation: flow 4.2s linear infinite; }
+  @keyframes flow {
+    0% { stroke-dashoffset: 100; opacity: 0; }
+    10% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 0; }
+  }
+  .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 4s ease-in-out infinite; }
+  .pulse.delay { animation-delay: 2s; }
+  @keyframes pulse { 0%, 100% { opacity: .55; transform: scale(.9); } 50% { opacity: 1; transform: scale(1.08); } }
+  @media (prefers-reduced-motion: reduce) {
+    .flow { display: none; }
+    .pulse { animation: none; }
+  }
+</style>

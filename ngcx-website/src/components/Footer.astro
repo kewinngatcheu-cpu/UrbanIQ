@@ -1,0 +1,85 @@
+---
+import Logo from './Logo.astro';
+import Email from './Email.astro';
+import Icon from './Icon.astro';
+import { footer } from '../content/texte';
+import { LINKEDIN_URL, isPlaceholder } from '../config';
+const year = new Date().getFullYear();
+const li = isPlaceholder(LINKEDIN_URL);
+---
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <Logo variant="lockup" height={64} />
+        <p class="muted">{footer.description}</p>
+      </div>
+      <nav aria-label="Website">
+        <h2 class="footer-h">Website</h2>
+        <ul>
+          <li><a href="/#leistung">Leistung</a></li>
+          <li><a href="/#methode">Methode</a></li>
+          <li><a href="/#ablauf">Ablauf</a></li>
+          <li><a href="/#faq">FAQ</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Pipeline-Check">
+        <h2 class="footer-h">Kostenlos</h2>
+        <ul>
+          <li><a href="/pipeline-check" class="accent">Pipeline-Check starten →</a></li>
+          <li><a href="/#kontakt">15-Min-Gespräch</a></li>
+        </ul>
+      </nav>
+      <div class="footer-contact">
+        <h2 class="footer-h">Kontakt</h2>
+        <ul>
+          <li class="with-icon"><Icon name="mail" size={18} /><Email /></li>
+          <li class="with-icon"><Icon name="linkedin" size={18} />
+            {li ? <a href="#" aria-disabled="true">LinkedIn <span class="ph">[LINKEDIN_URL]</span></a>
+                : <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">LinkedIn</a>}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="claim"><b>Know.</b> Decide. Grow.</p>
+      <ul class="legal">
+        <li><a href="/impressum">Impressum</a></li>
+        <li><a href="/datenschutz">Datenschutz</a></li>
+        <li><a href="/agb">AGB</a></li>
+      </ul>
+      <p class="copy">© {year} NGCX</p>
+    </div>
+  </div>
+</footer>
+<style>
+  .site-footer { border-top: 1px solid var(--line); padding: 64px 0 40px; background: linear-gradient(180deg, transparent, rgba(13, 27, 46, .35)); }
+  .footer-grid { display: grid; gap: 40px; grid-template-columns: 1fr 1fr; }
+  .footer-brand { grid-column: 1 / -1; max-width: 360px; }
+  .footer-contact { grid-column: 1 / -1; }
+  .footer-brand p { font-size: 15px; margin-top: 18px; }
+  .footer-h { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 16px; }
+  ul { list-style: none; }
+  li { margin-bottom: 10px; font-size: 15px; }
+  a { text-decoration: none; color: var(--text); transition: color .15s; overflow-wrap: anywhere; }
+  a:hover { color: var(--accent2); }
+  a.accent { color: var(--accent2); font-weight: 600; }
+  .with-icon { display: flex; gap: 10px; align-items: center; color: var(--muted); }
+  .footer-bottom {
+    margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line);
+    display: flex; flex-direction: column; gap: 18px; align-items: flex-start;
+  }
+  .claim { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  .claim b { color: var(--accent2); font-weight: 500; }
+  .legal { display: flex; gap: 22px; flex-wrap: wrap; }
+  .legal li { margin: 0; font-size: 14px; }
+  .legal a { color: var(--muted); }
+  .legal a:hover { color: var(--text); }
+  .copy { font-size: 13px; color: var(--muted); }
+  @media (min-width: 900px) {
+    .footer-grid { grid-template-columns: 1.6fr 1fr 1fr 1.2fr; }
+    .footer-brand, .footer-contact { grid-column: auto; }
+    .footer-bottom { flex-direction: row; justify-content: space-between; align-items: center; }
+  }
+</style>

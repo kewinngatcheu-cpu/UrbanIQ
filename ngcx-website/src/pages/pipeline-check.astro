@@ -1,0 +1,277 @@
+---
+/**
+ * NGCX Pipeline-Check – funktional 1:1 aus assets/pipeline-check.html übernommen, Texte auf „Sie“ umgestellt.
+ * Änderungen: Header/Footer der Website, Manrope lokal, Farb-Variablen vereinheitlicht (--gold → --accent),
+ * Inline-onclick → addEventListener (Content-Security-Policy), BOOKING_URL aus src/config.ts.
+ * Alle Berechnungen laufen im Browser, es wird nichts gespeichert oder übertragen.
+ */
+import Base from '../layouts/Base.astro';
+import { bookingLink } from '../config';
+import { meta } from '../content/texte';
+const booking = bookingLink();
+---
+<Base title={meta.check.title} description={meta.check.description} sticky={false} announcement={false}>
+<div class="pc" data-booking={booking.href} data-external={booking.external ? '1' : '0'}>
+<div class="wrap">
+  <div class="brand"><span><b>NGCX</b> · Pipeline-Check</span><span>Für IT-Beratungen</span></div>
+
+  <!-- START -->
+  <section id="start" class="fade">
+    <h1>Wie <em>planbar</em> ist Ihr Neukundengeschäft wirklich?</h1>
+    <p class="lead">Die meisten IT-Beratungen wachsen über Empfehlungen, bis die irgendwann ausbleiben. Dieser Check zeigt Ihnen in 3 Minuten, wo Ihre Pipeline Lücken hat und was Sie freie Kapazität kostet.</p>
+    <div class="meta"><span class="chip">12 Fragen</span><span class="chip">3 Minuten</span><span class="chip">Sofort-Auswertung</span></div>
+    <button class="btn" type="button" data-action="begin">Check starten →</button>
+    <p class="privacy">Die Auswertung läuft komplett in Ihrem Browser. Es werden keine Antworten gespeichert oder übertragen.</p>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="hidden" aria-live="polite">
+    <div class="progress" role="progressbar" aria-label="Fortschritt" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="pwrap"><div id="pbar"></div></div>
+    <div class="ptext"><span id="pcount"></span><span id="parea"></span></div>
+    <div class="card fade" id="qcard">
+      <div class="area-tag" id="qtag"></div>
+      <h2 class="q" id="qtext" tabindex="-1"></h2>
+      <div id="qopts" role="group" aria-labelledby="qtext"></div>
+    </div>
+    <div class="nav"><button class="btn ghost" type="button" id="back" data-action="back">← Zurück</button><span></span></div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section id="calc" class="hidden fade">
+    <div class="area-tag">Letzter Schritt</div>
+    <h2 tabindex="-1" id="calc-h">Was kostet Sie <em>freie Kapazität</em>?</h2>
+    <p class="lead">Jeder Beratertag ohne Projekt ist Umsatz, der nicht zurückkommt. Stellen Sie Ihre Werte ungefähr ein.</p>
+    <div class="card">
+      <div class="calc-row"><label for="team">Berater im Team <b id="v-team"></b></label><input type="range" id="team" min="2" max="50" value="10"></div>
+      <div class="calc-row"><label for="cur">Aktuelle Auslastung <b id="v-cur"></b></label><input type="range" id="cur" min="30" max="100" value="70"></div>
+      <div class="calc-row"><label for="goal">Ziel-Auslastung <b id="v-goal"></b></label><input type="range" id="goal" min="50" max="100" value="85"></div>
+      <div class="calc-row"><label for="rate">Durchschn. Tagessatz <b id="v-rate"></b></label><input type="range" id="rate" min="400" max="2000" step="50" value="900"></div>
+      <div class="loss" aria-live="polite"><div class="big" id="loss-m">0 €</div><small>ungenutztes Umsatzpotenzial pro Monat · <span id="loss-y"></span> pro Jahr</small></div>
+      <p class="note">Rechnung: Berater × (Ziel- minus Ist-Auslastung) × 20 Arbeitstage × Tagessatz. Ein Richtwert, keine Prognose.</p>
+    </div>
+    <div style="margin-top:18px"><button class="btn" type="button" data-action="result">Auswertung anzeigen →</button></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="hidden fade">
+    <div class="area-tag">Ihre Auswertung</div>
+    <div class="score-wrap">
+      <div class="ring">
+        <svg width="120" height="120" aria-hidden="true"><circle cx="60" cy="60" r="52" stroke="#1F3550" stroke-width="8" fill="none"/>
+        <circle id="ring" cx="60" cy="60" r="52" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset 1s ease"/></svg>
+        <div class="num"><b id="score" style="font-weight:800">0</b><span>von 24</span></div>
+      </div>
+      <div><div class="level" id="lvl-tag"></div><h2 id="lvl-title" style="margin-bottom:6px" tabindex="-1"></h2><p style="color:var(--muted);font-size:15px" id="lvl-text"></p></div>
+    </div>
+
+    <div class="loss" id="res-loss"><div class="big" id="res-loss-m"></div><small>ungenutztes Umsatzpotenzial pro Monat, nach Ihren Angaben</small></div>
+
+    <h3>Wo Ihre Pipeline steht</h3>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:16px">Die vier Bausteine, die über planbares Wachstum entscheiden.</p>
+    <div class="areas" id="areas"></div>
+
+    <div class="cta">
+      <h2>Ihr größter Hebel liegt bei <em id="cta-area"></em></h2>
+      <p>Im kostenlosen 15-Minuten-Gespräch schauen wir uns Ihr Vertriebssystem gemeinsam an. Sie bekommen eine klare Einschätzung, wo Sie anfangen sollten, ganz ohne Verkaufsdruck.</p>
+      <a class="btn" id="book" href="#" target="_blank" rel="noopener">15-Min-Gespräch sichern →</a>
+    </div>
+    <div style="text-align:center;margin-top:16px"><button class="btn ghost" type="button" data-action="restart">Check neu starten</button></div>
+  </section>
+</div>
+</div>
+</Base>
+
+<script>
+const root = document.querySelector<HTMLElement>('.pc')!;
+const BOOKING_URL = root.dataset.booking || '#';
+const BOOKING_EXTERNAL = root.dataset.external === '1';
+
+const AREAS = [
+  {name:"Zielkunden-Klarheit", short:"Zielkunden",
+   weak:"Ohne klar definierten Wunschkunden wird Akquise zum Schuss ins Blaue: Sie sprechen viele an und erreichen kaum die Richtigen.",
+   mid:"Sie wissen grob, wen Sie wollen. Was fehlt, ist die Schärfe: konkrete Auslöser und Namen statt nur Branchen.",
+   strong:"Sie wissen genau, wen Sie wollen. Das ist das Fundament, das den meisten fehlt.",
+   teaser:"NGCX übersetzt das in eine Zielliste echter Entscheider, die gerade Bedarf haben könnten."},
+  {name:"Akquise-Motor", short:"der aktiven Akquise",
+   weak:"Ihr Wachstum hängt an Empfehlungen und an der Zeit des Geschäftsführers. Bleiben beide aus, wird es eng.",
+   mid:"Akquise passiert, aber nicht verlässlich. Sobald das Tagesgeschäft brennt, steht der Vertrieb still.",
+   strong:"Neukunden kommen bei Ihnen nicht nur zufällig. Jetzt geht es darum, das zu skalieren.",
+   teaser:"NGCX baut einen Akquise-Prozess, der läuft, auch wenn Sie im Projekt stecken."},
+  {name:"Ansprache & Botschaft", short:"Ihrer Ansprache",
+   weak:"Wenn ein Entscheider nicht sofort versteht, welches Problem Sie lösen, ist die Nachricht nach drei Sekunden weg.",
+   mid:"Ihre Botschaft ist da, aber noch nicht auf Rolle und Situation des Empfängers zugeschnitten.",
+   strong:"Ihre Botschaft sitzt. Jetzt zählt, sie konsequent vor die richtigen Leute zu bringen.",
+   teaser:"NGCX entwickelt Ansprachen, die Entscheider in IT-Beratungen wirklich lesen."},
+  {name:"Pipeline & Steuerung", short:"der Pipeline-Steuerung",
+   weak:"Ohne Überblick über Ihre Pipeline merken Sie Engpässe erst, wenn das Projekt schon zu Ende ist.",
+   mid:"Sie haben Daten, nutzen sie aber noch nicht, um rechtzeitig gegenzusteuern.",
+   strong:"Sie steuern Ihren Vertrieb mit Zahlen. Das machen nur wenige Beratungen Ihrer Größe.",
+   teaser:"NGCX macht sichtbar, wie viele Gespräche Sie für Ihre Ziele brauchen und wo es hakt."}
+];
+
+const Q = [
+  {a:0,t:"Wie würden Sie Ihren idealen Neukunden beschreiben?",o:["„Eigentlich jedes Unternehmen mit IT-Bedarf.“","Branche und Größe sind grob klar.","Branche, Größe, typische Auslöser und Entscheider sind schriftlich definiert."]},
+  {a:0,t:"Wissen Sie, welche Ereignisse bei Unternehmen Ihren Bedarf auslösen?",o:["Nicht wirklich, Anfragen kommen einfach.","Wir haben eine Ahnung, beobachten das aber nicht aktiv.","Ja, wir kennen die Auslöser und achten gezielt darauf."]},
+  {a:0,t:"Kennen Sie die konkreten Entscheider in Ihren Wunschunternehmen?",o:["Nein, wir kennen nur die Firmennamen.","Bei einzelnen Firmen ja.","Ja, wir haben eine gepflegte Liste mit Namen und Rollen."]},
+  {a:1,t:"Woher kamen Ihre letzten 5 Neukunden?",o:["Alle über Empfehlungen oder bestehende Kontakte.","Überwiegend Empfehlungen, 1–2 aus eigener Akquise.","Mehrheitlich aus aktiver, eigener Akquise."]},
+  {a:1,t:"Wer kümmert sich bei Ihnen um Neukundengewinnung?",o:["Die Geschäftsführung, wenn Zeit übrig ist.","Die Geschäftsführung, mit festen Zeitblöcken.","Ein fester Prozess oder eine Person, unabhängig vom Tagesgeschäft."]},
+  {a:1,t:"Ein großes Projekt endet in 6 Wochen. Was passiert?",o:["Leichte Panik, wir telefonieren das Netzwerk ab.","Es gibt ein paar Gespräche, aber nichts Sicheres.","Der Anschluss ist meist schon in der Pipeline."]},
+  {a:2,t:"Warum sollte ein Entscheider genau Sie beauftragen? Was würde er sagen?",o:["„Gute Leute, fairer Preis.“","Ihre Spezialisierung ist grob erkennbar.","Er kann klar sagen, welches Problem Sie lösen und mit welchem Ergebnis."]},
+  {a:2,t:"Wie entsteht Ihre erste Nachricht an einen neuen Kontakt?",o:["Spontan formuliert, jedes Mal neu.","Eine Vorlage, die für alle gleich ist.","Zugeschnitten auf Rolle und Situation, getestet und verbessert."]},
+  {a:2,t:"Ein Kontakt reagiert nicht auf die erste Nachricht. Was dann?",o:["Dann lassen wir es.","Mal ja, mal nein, je nach Zeit.","Es gibt eine feste Abfolge weiterer Kontaktpunkte."]},
+  {a:3,t:"Wo sind Ihre offenen Verkaufschancen dokumentiert?",o:["Im Kopf oder im Postfach.","In Excel oder einem CRM, aber unregelmäßig gepflegt.","In einem aktuellen CRM mit klaren Phasen."]},
+  {a:3,t:"Wissen Sie, wie viele Erstgespräche Sie pro Monat für Ihre Umsatzziele brauchen?",o:["Keine Ahnung.","Grob, aus dem Bauch heraus.","Ja, auf Basis unserer Abschlussquoten."]},
+  {a:3,t:"Wie oft schauen Sie auf Ihre Vertriebszahlen?",o:["Nur, wenn es Probleme gibt.","Etwa einmal im Quartal.","Monatlich oder öfter, mit festem Reporting."]}
+];
+
+let i = 0; const ans: (number|null)[] = Array(Q.length).fill(null);
+const $ = (id: string) => document.getElementById(id) as HTMLElement;
+const $in = (id: string) => document.getElementById(id) as HTMLInputElement;
+const show = (id: string) => ["start","quiz","calc","result"].forEach(s => $(s).classList.toggle("hidden", s!==id));
+const eur = (n: number) => n.toLocaleString("de-DE",{maximumFractionDigits:0}) + " €";
+const top = () => { const y = root.getBoundingClientRect().top + window.scrollY - 80; scrollTo(0, Math.max(0, y)); };
+
+function begin(){ i=0; show("quiz"); render(); top(); $("qtext").focus({preventScroll:true}); }
+function render(){
+  const q = Q[i];
+  $("pbar").style.width = (i/Q.length*100)+"%";
+  $("pwrap").setAttribute("aria-valuenow", String(i));
+  $("pcount").textContent = `Frage ${i+1} von ${Q.length}`;
+  $("parea").textContent = AREAS[q.a].name;
+  $("qtag").textContent = AREAS[q.a].name;
+  $("qtext").textContent = q.t;
+  const box = $("qopts"); box.innerHTML = "";
+  q.o.forEach((txt,k) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "opt" + (ans[i]===k?" sel":""); b.textContent = txt;
+    b.setAttribute("aria-pressed", String(ans[i]===k));
+    b.onclick = () => { ans[i]=k; b.classList.add("sel"); setTimeout(next, 220); };
+    box.appendChild(b);
+  });
+  $("back").style.visibility = i===0 ? "hidden" : "visible";
+  const c = $("qcard"); c.classList.remove("fade"); void c.offsetWidth; c.classList.add("fade");
+}
+function next(){ if(i<Q.length-1){ i++; render(); $("qtext").focus({preventScroll:true}); } else { show("calc"); calc(); top(); $("calc-h").focus({preventScroll:true}); } }
+function back(){ if(i>0){ i--; render(); $("qtext").focus({preventScroll:true}); } }
+
+function loss(){
+  const t=+$in("team").value, c=+$in("cur").value, g=+$in("goal").value, r=+$in("rate").value;
+  return Math.max(0, t*((g-c)/100)*20*r);
+}
+function calc(){
+  $("v-team").textContent = $in("team").value;
+  $("v-cur").textContent = $in("cur").value+" %";
+  $("v-goal").textContent = $in("goal").value+" %";
+  $("v-rate").textContent = eur(+$in("rate").value);
+  const m = loss();
+  $("loss-m").textContent = eur(m);
+  $("loss-y").textContent = eur(m*12);
+}
+["team","cur","goal","rate"].forEach(id => $(id).addEventListener("input", calc));
+
+function showResult(){
+  const total = ans.reduce<number>((s,v)=>s+(v||0),0);
+  const per = AREAS.map((_,a)=>Q.reduce((s,q,k)=>s+(q.a===a?(ans[k]||0):0),0));
+  show("result"); top();
+
+  let col, tag, title, text;
+  if(total<=8){col="var(--red)";tag="Stufe 1";title="Empfehlungs-abhängig";text="Ihr Wachstum liegt in den Händen anderer. Das funktioniert, bis es plötzlich nicht mehr funktioniert.";}
+  else if(total<=16){col="var(--amber)";tag="Stufe 2";title="Zufalls-Pipeline";text="Es gibt Ansätze, aber Neukunden kommen noch nicht planbar. Meist fehlt der eine Baustein, der alles verbindet.";}
+  else {col="var(--green)";tag="Stufe 3";title="Planbarer Vertrieb";text="Sie sind weiter als die meisten Beratungen Ihrer Größe. Jetzt geht es ums gezielte Skalieren.";}
+  $("lvl-tag").textContent=tag; $("lvl-tag").style.color=col;
+  $("lvl-title").textContent=title; $("lvl-text").textContent=text;
+  $("lvl-title").focus({preventScroll:true});
+  const ring=$("ring"); ring.style.stroke = total<=8 ? "#FF6B6B" : total<=16 ? "#FFC94D" : "#3DDC97";
+  let n=0; const tick=setInterval(()=>{ $("score").textContent=String(n); if(n++>=total) clearInterval(tick); }, 40);
+  requestAnimationFrame(()=>{ ring.style.strokeDashoffset = String(326.7*(1-total/24)); });
+
+  const m = loss();
+  $("res-loss").classList.toggle("hidden", m<=0);
+  $("res-loss-m").textContent = eur(m);
+
+  const box=$("areas"); box.innerHTML="";
+  AREAS.forEach((A,a)=>{
+    const s=per[a]; const lv = (s<=2?"weak":s<=4?"mid":"strong") as "weak"|"mid"|"strong";
+    const c = lv==="weak"?"var(--red)":lv==="mid"?"var(--amber)":"var(--green)";
+    const label = lv==="weak"?"Kritisch":lv==="mid"?"Ausbaufähig":"Stark";
+    const d=document.createElement("div"); d.className="area";
+    d.innerHTML=`<div class="area-head"><strong><span class="dot" style="background:${c}"></span>${A.name}</strong><span style="font-size:13px;color:${c}">${label}</span></div>
+      <div class="bar"><div style="width:0;background:${c}"></div></div>
+      <p>${A[lv]}</p>${lv!=="strong"?`<p class="teaser">→ ${A.teaser}</p>`:""}`;
+    box.appendChild(d);
+    setTimeout(()=>{ (d.querySelector(".bar div") as HTMLElement).style.width=(s/6*100)+"%"; }, 100+a*120);
+  });
+  const weakest = per.indexOf(Math.min(...per));
+  $("cta-area").textContent = AREAS[weakest].short;
+  const book = $("book") as HTMLAnchorElement;
+  book.href = BOOKING_URL;
+  if(!BOOKING_EXTERNAL){ book.removeAttribute("target"); book.removeAttribute("rel"); }
+}
+function restart(){ ans.fill(null); show("start"); top(); }
+
+const actions: Record<string, () => void> = { begin, back, result: showResult, restart };
+root.addEventListener("click", (e) => {
+  const el = (e.target as HTMLElement).closest<HTMLElement>("[data-action]");
+  if (el && actions[el.dataset.action!]) actions[el.dataset.action!]();
+});
+</script>
+
+<style is:global>
+  /* Pipeline-Check – Stile aus dem Original, auf .pc begrenzt, Variablen vereinheitlicht */
+  .pc .wrap{max-width:calc(640px + 2 * var(--gutter));margin:0 auto;padding:28px var(--gutter) 72px}
+  .pc .brand{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:40px}
+  .pc .brand b{color:var(--text);font-weight:600}
+  .pc h1,.pc h2,.pc h3{font-weight:700;line-height:1.15;letter-spacing:-.015em}
+  .pc h1{font-size:38px;margin-bottom:16px}
+  .pc h1 em,.pc h2 em{color:var(--accent2);font-style:normal}
+  .pc h2{font-size:26px;margin-bottom:12px}
+  .pc h3{font-size:20px;margin-bottom:6px}
+  .pc h2:focus{outline:none}
+  .pc p.lead{color:var(--muted);font-size:17px;margin-bottom:28px;max-width:none}
+  .pc .meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+  .pc .btn{width:100%;white-space:normal}
+  .pc .btn.ghost{width:auto;padding:12px 18px;font-weight:500}
+  .pc .privacy{margin-top:14px;font-size:13px;color:var(--muted);text-align:center}
+  .pc .hidden{display:none!important}
+  .pc .card{padding:26px}
+  .pc .card:hover{transform:none}
+  .pc .progress{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:10px}
+  .pc .progress div{height:100%;background:var(--accent);width:0;transition:width .35s ease}
+  .pc .ptext{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted);margin-bottom:22px}
+  .pc .area-tag{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2);margin-bottom:10px}
+  .pc .q{font-weight:700;font-size:22px;line-height:1.3;margin-bottom:22px}
+  .pc .opt{display:block;width:100%;text-align:left;background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:12px;
+    padding:16px 18px;margin-bottom:10px;font:500 15px var(--font);cursor:pointer;transition:border-color .15s,background .15s}
+  .pc .opt:hover{border-color:var(--accent)}
+  .pc .opt.sel{border-color:var(--accent);background:rgba(8,123,255,.14)}
+  .pc .nav{display:flex;justify-content:space-between;margin-top:14px}
+  .pc .calc-row{margin-bottom:22px}
+  .pc .calc-row label{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin-bottom:8px}
+  .pc .calc-row label b{color:var(--text);font-weight:600}
+  .pc input[type=range]{width:100%;accent-color:var(--accent)}
+  .pc .loss{background:linear-gradient(135deg,rgba(255,107,107,.12),rgba(255,107,107,.04));border:1px solid rgba(255,107,107,.35);border-radius:14px;padding:20px;margin:6px 0 22px;text-align:center}
+  .pc .loss .big{font-weight:800;font-size:40px;font-variant-numeric:tabular-nums;color:#FF8A8A;line-height:1}
+  .pc .loss small{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+  .pc .note{font-size:12px;color:var(--muted)}
+  .pc .score-wrap{display:flex;align-items:center;gap:22px;margin-bottom:26px}
+  .pc .ring{position:relative;width:120px;height:120px;flex-shrink:0}
+  .pc .ring svg{transform:rotate(-90deg)}
+  .pc .ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+  .pc .ring .num span{font:12px var(--font);color:var(--muted);margin-top:4px}
+  .pc .level{font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+  .pc .areas{display:grid;gap:12px;margin-bottom:28px}
+  .pc .area{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .pc .area-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .pc .area-head strong{font-weight:600;font-size:15px}
+  .pc .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px}
+  .pc .bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:12px}
+  .pc .bar div{height:100%;border-radius:6px;transition:width .8s ease}
+  .pc .area p{font-size:14px;color:var(--muted)}
+  .pc .area p.teaser{color:var(--accent2);margin-top:8px;font-size:13.5px}
+  .pc .cta{background:linear-gradient(160deg,#11243B,#0D1B2E);border:1px solid rgba(92,200,255,.35);border-radius:18px;padding:26px;text-align:center}
+  .pc .cta p{color:var(--muted);margin-bottom:20px;font-size:15px}
+  .pc .fade{animation:pcfade .35s ease}
+  @keyframes pcfade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media(max-width:480px){.pc .brand{flex-direction:column;align-items:flex-start;gap:4px;margin-bottom:28px}.pc h1{font-size:30px}.pc .q{font-size:20px}.pc .score-wrap{flex-direction:column;align-items:flex-start}}
+</style>

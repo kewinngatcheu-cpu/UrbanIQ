@@ -1,0 +1,54 @@
+---
+/** Mini-Rechner „Was kostet freie Kapazität?“ – gleiche Formel wie im Pipeline-Check. Rechnet nur lokal im Browser. */
+import { rechner } from '../content/texte';
+const rows = [
+  { id: 'team', label: 'Berater im Team', min: 2, max: 50, step: 1, value: 10 },
+  { id: 'cur', label: 'Aktuelle Auslastung', min: 30, max: 100, step: 1, value: 70 },
+  { id: 'goal', label: 'Ziel-Auslastung', min: 50, max: 100, step: 1, value: 85 },
+  { id: 'rate', label: 'Durchschn. Tagessatz', min: 400, max: 2000, step: 50, value: 900 },
+];
+const fmt = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 0 }) + ' €';
+const initial = 10 * ((85 - 70) / 100) * 20 * 900;
+---
+<div class="card calc" data-calc>
+  {rows.map((r) => (
+    <div class="calc-row">
+      <label for={`mr-${r.id}`}>{r.label} <b class="tabular" data-out={r.id}>{r.id === 'rate' ? fmt(r.value) : r.id === 'team' ? r.value : r.value + ' %'}</b></label>
+      <input type="range" id={`mr-${r.id}`} data-in={r.id} min={r.min} max={r.max} step={r.step} value={r.value} />
+    </div>
+  ))}
+  <div class="loss" aria-live="polite">
+    <div class="big tabular" data-loss-m>{fmt(initial)}</div>
+    <small>ungenutztes Umsatzpotenzial pro Monat · <span data-loss-y>{fmt(initial * 12)}</span> pro Jahr</small>
+  </div>
+  <p class="note">{rechner.note}</p>
+</div>
+<script>
+  const eur = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 0 }) + ' €';
+  document.querySelectorAll<HTMLElement>('[data-calc]').forEach((box) => {
+    const get = (id: string) => +(box.querySelector<HTMLInputElement>(`[data-in="${id}"]`)!.value);
+    const out = (id: string, v: string) => { const el = box.querySelector(`[data-out="${id}"]`); if (el) el.textContent = v; };
+    const update = () => {
+      const t = get('team'), c = get('cur'), g = get('goal'), r = get('rate');
+      out('team', String(t)); out('cur', c + ' %'); out('goal', g + ' %'); out('rate', eur(r));
+      const m = Math.max(0, t * ((g - c) / 100) * 20 * r);
+      box.querySelector('[data-loss-m]')!.textContent = eur(m);
+      box.querySelector('[data-loss-y]')!.textContent = eur(m * 12);
+    };
+    box.querySelectorAll('input').forEach((i) => i.addEventListener('input', update));
+    update();
+  });
+</script>
+<style>
+  .calc-row { margin-bottom: 22px; }
+  .calc-row label { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+  .calc-row label b { color: var(--text); font-weight: 600; }
+  input[type='range'] { width: 100%; accent-color: var(--accent); height: 24px; cursor: pointer; }
+  .loss {
+    background: linear-gradient(135deg, rgba(255, 107, 107, .12), rgba(255, 107, 107, .04));
+    border: 1px solid rgba(255, 107, 107, .35); border-radius: 14px; padding: 20px; margin: 6px 0 18px; text-align: center;
+  }
+  .loss .big { font-weight: 800; font-size: clamp(32px, 6vw, 42px); color: #ff8a8a; line-height: 1; }
+  .loss small { display: block; color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .note { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+</style>
