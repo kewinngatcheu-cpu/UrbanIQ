@@ -306,55 +306,45 @@ export const ueber = {
 export const faq = {
   eyebrow: 'FAQ',
   title: 'Häufige <em>Fragen</em>',
+  // Texte exakt nach Vorgabe (Sie-Form), unabhängig von ANSPRACHE
   items: [
     {
-      q: 'Was ist der Pipeline-Check?',
-      a: t(
-        'Ein kostenloser Selbsttest mit 12 Fragen zu vier Bereichen: Zielkunden-Klarheit, Akquise-Motor, Ansprache & Botschaft sowie Pipeline & Steuerung. Nach etwa 3 Minuten seht ihr, wo eure Pipeline Lücken hat und was euch freie Kapazität ungefähr kostet. Die Auswertung läuft komplett in eurem Browser, es werden keine Antworten gespeichert oder übertragen. <a href="/pipeline-check">Zum Pipeline-Check →</a>',
-        'Ein kostenloser Selbsttest mit 12 Fragen zu vier Bereichen: Zielkunden-Klarheit, Akquise-Motor, Ansprache & Botschaft sowie Pipeline & Steuerung. Nach etwa 3 Minuten sehen Sie, wo Ihre Pipeline Lücken hat und was Sie freie Kapazität ungefähr kostet. Die Auswertung läuft komplett in Ihrem Browser, es werden keine Antworten gespeichert oder übertragen. <a href="/pipeline-check">Zum Pipeline-Check →</a>',
-      ),
+      q: 'Was macht NGCX?',
+      a: 'NGCX unterstützt Sie in der B2B-Neukundengewinnung: von der Definition Ihrer Zielkunden über die Recherche relevanter Unternehmen und Entscheider bis zur gezielten Ansprache, Pipeline-Pflege und regelmäßigem Reporting.',
     },
     {
-      q: 'Für wen ist NGCX gedacht?',
-      a: 'Für IT-Beratungen und Softwareagenturen im DACH-Raum mit etwa 10 bis 50 Mitarbeitenden. Wir sprechen mit Geschäftsführern, Gründern und Managing Directors, die ihr Wachstum nicht länger allein von Empfehlungen abhängig machen wollen.',
+      q: 'Für wen ist NGCX geeignet?',
+      a: 'Für IT-Beratungen und Softwareagenturen im DACH-Raum mit etwa 10 bis 50 Mitarbeitern, die ihre Neukundengewinnung planbarer gestalten möchten. NGCX konzentriert sich ausschließlich auf diesen Markt.',
     },
     {
-      q: 'Was unterscheidet NGCX von einer Leadgen- oder Marketingagentur?',
-      a: t(
-        'Wir arbeiten nur für eine Branche und verkaufen keine Lead-Pakete. Statt Masse geht es um die gezielte, persönliche Ansprache der richtigen Entscheider, um eine gepflegte Pipeline und um Zahlen, an denen ihr den Fortschritt messen könnt. Und wir beginnen mit einem Pilot, nicht mit einem Jahresvertrag.',
-        'Wir arbeiten nur für eine Branche und verkaufen keine Lead-Pakete. Statt Masse geht es um die gezielte, persönliche Ansprache der richtigen Entscheider, um eine gepflegte Pipeline und um Zahlen, an denen Sie den Fortschritt messen können. Und wir beginnen mit einem Pilot, nicht mit einem Jahresvertrag.',
-      ),
+      q: 'Was kostet die Zusammenarbeit?',
+      a: 'Der Umfang richtet sich nach Ihren Zielen und Ihrer Ausgangslage. Nach einem kostenlosen Erstgespräch erhalten Sie ein individuelles Angebot.',
     },
     {
-      q: t('Garantiert ihr Aufträge?', 'Garantiert NGCX Aufträge?'),
-      a: 'Nein. Ob aus einem Gespräch ein Auftrag wird, hängt von vielen Faktoren ab, die niemand seriös garantieren kann. Wir verpflichten uns auf messbare Leistungen, die wir beeinflussen können, etwa Recherche, Ansprache und die Koordination von Erstgesprächen, und machen transparent, was dabei herauskommt.',
+      q: 'Gibt es eine Garantie auf Neukunden?',
+      a: 'Nein. Ob ein Auftrag zustande kommt, hängt von vielen Faktoren ab, die außerhalb unseres Einflusses liegen. Wir vereinbaren vorab messbare Ziele für unsere Arbeit und machen den Fortschritt transparent.',
     },
     {
-      q: 'Wie viel Zeit muss unsere Geschäftsführung investieren?',
-      a: 'Am Anfang etwas mehr: für das Zielkundenprofil, die Freigabe der Ansprachen und kurzes Feedback zu den ersten Gesprächen. Danach vor allem für die Erstgespräche selbst und einen regelmäßigen, kurzen Abgleich. Den genauen Rahmen legen wir vor dem Start gemeinsam fest.',
+      q: 'Wie läuft die Zusammenarbeit ab?',
+      a: 'Zu Beginn analysieren wir gemeinsam Ihre Ausgangslage und definieren Ihre Zielkunden. Darauf aufbauend entwickeln wir Ansprache und Prozess, setzen diese um und berichten Ihnen regelmäßig über den Stand.',
     },
     {
-      q: t('Welche Daten braucht ihr von uns?', 'Welche Daten braucht NGCX von uns?'),
-      a: t(
-        'Wenig. Der Einstieg ist bewusst ohne sensible Unternehmenszahlen möglich. Wir brauchen vor allem euer Wissen: wer eure besten Kunden sind, welche Probleme ihr löst und wie ihr arbeitet.',
-        'Wenig. Der Einstieg ist bewusst ohne sensible Unternehmenszahlen möglich. Wir brauchen vor allem Ihr Wissen: wer Ihre besten Kunden sind, welche Probleme Sie lösen und wie Sie arbeiten.',
-      ),
+      q: 'Welcher Aufwand entsteht für unser Unternehmen?',
+      a: 'Nur ein geringer. Nach einem kurzen Abstimmungsgespräch übernehmen wir Recherche, Ansprache und Pipeline-Pflege vollständig. Ihre Zeit fließt in das, was zählt: die Gespräche mit interessierten Unternehmen.',
     },
     {
-      q: 'Wie läuft der Pilot ab?',
-      a: t(
-        'Nach dem Erstgespräch legen wir Umfang, Zeitraum und die Kriterien fest, an denen wir den Pilot messen. Dann schärfen wir das Zielkundenprofil, recherchieren Unternehmen und Entscheider, entwickeln die Ansprache und starten nach eurer Freigabe. Ihr bekommt regelmäßige Zwischenstände und am Ende eine ehrliche Auswertung.',
-        'Nach dem Erstgespräch legen wir Umfang, Zeitraum und die Kriterien fest, an denen wir den Pilot messen. Dann schärfen wir das Zielkundenprofil, recherchieren Unternehmen und Entscheider, entwickeln die Ansprache und starten nach Ihrer Freigabe. Sie bekommen regelmäßige Zwischenstände und am Ende eine ehrliche Auswertung.',
-      ),
+      q: 'Worin liegt der Unterschied zu einem eigenen Vertriebsmitarbeiter?',
+      a: 'Eine Festanstellung bedeutet Recruiting, Einarbeitung und langfristige Kosten. NGCX bietet Ihnen einen strukturierten Vertriebsprozess, ohne dass Sie diese Strukturen intern aufbauen müssen.',
     },
     {
-      q: t('Wie sprecht ihr potenzielle Kunden an?', 'Wie spricht NGCX potenzielle Kunden an?'),
-      a: t(
-        'Zuerst über LinkedIn und persönliche, gezielte Ansprache einzelner Entscheider. Keine Massen-Mails. Jede Ansprache wird vorab mit euch abgestimmt und erfolgt rechtskonform nach UWG und DSGVO.',
-        'Zuerst über LinkedIn und persönliche, gezielte Ansprache einzelner Entscheider. Keine Massen-Mails. Jede Ansprache wird vorab mit Ihnen abgestimmt und erfolgt rechtskonform nach UWG und DSGVO.',
-      ),
+      q: 'Ist das sinnvoll, wenn wir bereits über Empfehlungen wachsen?',
+      a: 'Ja. Empfehlungen bleiben ein wertvoller Kanal, lassen sich aber kaum steuern. Eine strukturierte Neukundengewinnung ergänzt sie und macht Ihre Auftragslage unabhängiger.',
     },
   ],
+  checkHint: {
+    text: 'Wo steht die eigene Pipeline? Der kostenlose Pipeline-Check zeigt es in 3 Minuten: 12 Fragen, sofortige Auswertung.',
+    button: 'Pipeline-Check starten',
+  },
 };
 
 export const kontakt = {
