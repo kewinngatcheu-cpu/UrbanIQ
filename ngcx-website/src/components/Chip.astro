@@ -1,0 +1,5 @@
+---
+interface Props { as?: 'span' | 'li' }
+const { as: Tag = 'span' } = Astro.props;
+---
+<Tag class="chip"><slot /></Tag>

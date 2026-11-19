@@ -1,0 +1,76 @@
+/* NGCX Design-Tokens – abgeleitet aus dem Pipeline-Check (assets/pipeline-check.html) */
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('/fonts/manrope-latin-var.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('/fonts/manrope-latin-ext-var.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
+    U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  /* Farben */
+  --bg: #080b10;
+  --card: #0d1b2e;
+  --card2: #11243b;
+  --line: #1f3550;
+  --text: #f5f7fa;
+  --muted: #aab4c0;
+  --accent: #087bff;
+  --accent-hover: #2a8dff;
+  --accent2: #5cc8ff;
+  --silver: #d8dce4;
+
+  /* Ampel – nur dort, wo sie inhaltlich Sinn ergibt (Rechner, Pipeline-Check) */
+  --red: #ff6b6b;
+  --amber: #ffc94d;
+  --green: #3ddc97;
+
+  /* Primär-Button-Hintergrund. Für strikten WCAG-AA-Kontrast (4,5:1) z. B. #0069E0 setzen. */
+  --btn-bg: var(--accent);
+  --btn-bg-hover: var(--accent-hover);
+
+  /* Typografie */
+  --font: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fs-body: 17px;
+  --fs-h1: clamp(34px, 2.6vw + 24px, 62px);
+  --fs-h2: clamp(26px, 1.2vw + 21.5px, 40px);
+  --fs-h3: clamp(20px, 0.2vw + 19px, 22px);
+
+  /* Formen */
+  --r-card: 18px;
+  --r-btn: 12px;
+  --r-inner: 14px;
+
+  /* Layout */
+  --maxw: 1120px;
+  --textw: 680px;
+  --gutter: 20px;
+  --section: 72px;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 32px;
+    --section: 104px;
+  }
+}
+@media (min-width: 1200px) {
+  :root {
+    --section: 128px;
+  }
+}

@@ -1,0 +1,8 @@
+---
+/** E-Mail leicht gegen Bots geschützt: wird per JS zusammengesetzt, mit lesbarem Fallback. */
+import { CONTACT_EMAIL } from '../config';
+interface Props { class?: string }
+const { class: cls } = Astro.props;
+const [user, domain] = CONTACT_EMAIL.split('@');
+---
+<a class:list={['js-mail', cls]} href="/#kontakt" data-u={user} data-d={domain}>{user} (at) {domain}</a>
