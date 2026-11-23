@@ -34,19 +34,19 @@ Da das Format fix ist (Umfrage), unterscheiden sich die drei Alternativen in **w
 **Zielgruppe/Problem:** GF von IT-Beratungen/Softwareagenturen, die ihre Neukundengewinnung nicht aktiv steuern, sondern auf Zufall/Empfehlung warten.
 
 **Hook-Varianten (bewertet):**
-1. „Montag, 9 Uhr. Die wichtigste Frage der Woche — und die Antwort ist fast immer dieselbe." / „Woher kam euer letzter Neukunde wirklich?" — *Aufmerksamkeit: hoch, Konkretheit: mittel, Glaubwürdigkeit: hoch* → gewählt
-2. „Woher kam euer letzter Kunde?" / „Die Antwort sagt mehr über euer Wachstum als jede Strategie-Folie." — zu abstrakt im zweiten Teil
-3. „Die ehrlichste Frage an Geschäftsführer: Woher kam euer letzter Neukunde?" — redundant, „ehrlichste Frage" ist Behauptung statt Beobachtung
+1. „Empfehlungen sind kein Vertriebskanal. Sie sind ein Lottoschein, den ihr für eine Strategie haltet." / „Woher kam euer letzter Neukunde wirklich?" — *Aufmerksamkeit: hoch, Kontroverse: hoch (stellt Selbstbild infrage), Glaubwürdigkeit: hoch, Diskussionspotenzial: hoch* → gewählt
+2. „Empfehlungen fühlen sich nach Erfolg an. Sind aber nur Erfolg, den ihr nicht kontrolliert habt." — gut, aber zweiter Satz grammatisch sperriger als Variante 1
+3. „Wenn euer wichtigster Vertriebskanal 'der Zufall, dass jemand gut über euch redet' heißt — habt ihr dann überhaupt einen Vertrieb?" — stärkste Zuspitzung, aber als Frage schwächer als Aussage+Frage-Kombi; als Nachfolgekommentar aufheben
 
 **Vollständiger Beitrag:**
 ```
-Montag, 9 Uhr. Die wichtigste Frage der Woche — und die Antwort ist fast immer dieselbe.
+Empfehlungen sind kein Vertriebskanal. Sie sind ein Lottoschein, den ihr für eine Strategie haltet.
 
 Woher kam euer letzter Neukunde wirklich?
 
 Nicht die Antwort aus dem Pitch Deck. Die ehrliche.
 
-Bei vielen IT-Beratungen und Softwareagenturen läuft es über Empfehlungen. Das fühlt sich gut an — bis die Empfehlungen ausbleiben und niemand weiß, warum.
+Bei vielen IT-Beratungen und Softwareagenturen läuft fast alles über Empfehlungen. Das fühlt sich nach Vertrauen an — ist aber Kontrollverlust mit gutem Ruf.
 
 Montagsfrage #1: Woher kam euer letzter Neukunde?
 
@@ -55,7 +55,7 @@ Montagsfrage #1: Woher kam euer letzter Neukunde?
 🔘 Eigene Akquise (Kaltakquise, LinkedIn, Telefon)
 🔘 Inbound (Website, Google, Content)
 
-Ich bin gespannt auf die Verteilung. Und auf eure Kommentare, wenn die Antwort nicht in eine der vier Kacheln passt.
+Ich bin gespannt, wie viele hier ehrlich auf „Empfehlung" klicken — und wie viele das lieber nicht öffentlich zugeben.
 
 Wachstum ist kein Zufall. Es ist eine Entscheidung.
 Know. Decide. Grow.
@@ -88,17 +88,17 @@ Know. Decide. Grow.
 **Zielgruppe/Problem:** GF, die ihre Vertriebspipeline nicht strukturiert verfolgen und dadurch den Überblick über laufende Chancen verlieren.
 
 **Hook-Varianten (bewertet):**
-1. „Frag einen Geschäftsführer, wie viele Mitarbeitende er hat. Sofort eine Zahl." / „Frag ihn, wie viele offene Verkaufschancen er gerade hat. Stille." — *Konkretheit: hoch, Diskussionspotenzial: hoch* → gewählt
-2. „Die meisten Geschäftsführer kennen ihre Mitarbeiterzahl auswendig. Ihre Pipeline nicht." — schwächer, weil als Behauptung statt Szene
-3. „Wie viele offene Verkaufschancen habt ihr gerade? Die meisten können die Frage nicht beantworten." — vorweggenommene Antwort, nimmt der Umfrage die Spannung
+1. „Jeder Geschäftsführer kennt seine Mitarbeiterzahl auswendig. Die wenigsten kennen ihre Pipeline. Zufall ist das nicht." — *Konkretheit: hoch, Kontroverse: mittel-hoch (unterstellt Vernachlässigung, bleibt bei der Sache), Diskussionspotenzial: hoch* → gewählt
+2. „Ein Unternehmen ohne sichtbare Pipeline wird nicht geführt. Es wird verwaltet." — sehr scharf, aber als alleiniger Hook zu abstrakt ohne die Mitarbeiterzahl-Gegenüberstellung; als Mittelteil-Satz aufgehoben
+3. „Wie viele offene Verkaufschancen habt ihr gerade? Die ehrliche Antwort ist bei den meisten: keine Ahnung." — nimmt der Umfrage die Spannung vorweg, schwächer als 1
 
 **Vollständiger Beitrag:**
 ```
-Frag einen Geschäftsführer, wie viele Mitarbeitende er hat. Sofort eine Zahl.
+Jeder Geschäftsführer kennt seine Mitarbeiterzahl auswendig.
 
-Frag ihn, wie viele offene Verkaufschancen er gerade hat. Stille.
+Die wenigsten kennen ihre Pipeline. Zufall ist das nicht.
 
-Kein Vorwurf — nur eine Beobachtung aus den letzten Wochen. Die eine Zahl ist Tagesgeschäft. Die andere würde zeigen, wie planbar das Wachstum wirklich ist.
+Ein Unternehmen ohne sichtbare Pipeline wird nicht geführt. Es wird verwaltet — reaktiv, Monat für Monat.
 
 Montagsfrage #1: Wie behaltet ihr den Überblick über laufende Vertriebsgespräche?
 
@@ -107,7 +107,7 @@ Montagsfrage #1: Wie behaltet ihr den Überblick über laufende Vertriebsgesprä
 🔘 Im Kopf, nichts Schriftliches
 🔘 Wird aktuell gar nicht verfolgt
 
-Ich bin auf die Verteilung gespannt — vor allem auf „im Kopf".
+Ich tippe auf „im Kopf" als häufigste ehrliche Antwort. Beweist mir das Gegenteil.
 
 Wachstum ist kein Zufall. Es ist eine Entscheidung.
 Know. Decide. Grow.
@@ -140,17 +140,17 @@ Know. Decide. Grow.
 **Zielgruppe/Problem:** GF, deren Auftragslage zwischen Überlastung und Leerlauf schwankt, ohne dass sie das aktiv planen.
 
 **Hook-Varianten (bewertet):**
-1. „Volle Auftragsbücher im Herbst fühlen sich nach Erfolg an." / „Bis der Februar kommt." — *Neugier: hoch, leicht kontrovers, nicht übertrieben* → gewählt
+1. „Volle Auftragsbücher im Herbst nennt ihr Erfolg. Ist aber nur geliehene Zeit bis Februar." — *Neugier: hoch, Kontroverse: hoch (entlarvt eine Selbsttäuschung), Glaubwürdigkeit: hoch* → gewählt
 2. „Volle Bücher im Herbst. Leerlauf im Februar. Jedes Jahr." — direkt aus dem Formate-Katalog übernommen (F6-Beispiel-Hook), zu nah am Original, keine Weiterentwicklung
-3. „Ist eure Auslastung im Februar genauso hoch wie im Oktober?" — zu neutral, keine Spannung
+3. „Wer im Herbst 'wir sind ausgebucht' sagt und im Februar 'es ist halt ruhig' — beschreibt kein Unternehmen, sondern ein Wetterphänomen." — schärfste Variante, aber Bild ("Wetterphänomen") lenkt leicht vom Kernpunkt ab; als Eröffnungskommentar aufgehoben
 
 **Vollständiger Beitrag:**
 ```
-Volle Auftragsbücher im Herbst fühlen sich nach Erfolg an.
+Volle Auftragsbücher im Herbst nennt ihr Erfolg.
 
-Bis der Februar kommt.
+Ist aber nur geliehene Zeit bis Februar.
 
-Dasselbe Muster, Jahr für Jahr: Phasen, in denen das Team am Limit arbeitet, gefolgt von Phasen, in denen Kapazität frei bleibt. Beides kostet — nur unterschiedlich sichtbar.
+Dasselbe Muster, Jahr für Jahr: Team am Limit, dann Monate mit freier Kapazität. Niemand nennt das Planung. Trotzdem wird es jedes Jahr so hingenommen.
 
 Montagsfrage #1: Wie plant ihr eure Auslastung für die nächsten 3 Monate?
 
@@ -159,7 +159,7 @@ Montagsfrage #1: Wie plant ihr eure Auslastung für die nächsten 3 Monate?
 🔘 Gar nicht, wir reagieren, wenn's kommt
 🔘 Wir hoffen auf Bestandskunden
 
-Was überrascht euch an den Ergebnissen mehr — die Verteilung oder dass es überhaupt eine Verteilung gibt?
+Was überrascht euch mehr an den Ergebnissen — die Verteilung, oder dass „hoffen" überhaupt eine Option ist, die Leute anklicken?
 
 Wachstum ist kein Zufall. Es ist eine Entscheidung.
 Know. Decide. Grow.
