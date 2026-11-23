@@ -23,11 +23,9 @@ export const LINKEDIN_URL: string = 'https://www.linkedin.com/in/kewin-ngatcheu-
 /** Preise, Tarife und Founding-Partner-Programm: siehe src/pricing.config.ts */
 
 /**
- * Ansprache auf der gesamten Website: 'ihr' oder 'sie'.
- * Alle Texte stehen in src/content/texte.ts in beiden Varianten.
- * Hinweis: Der Pipeline-Check (src/pages/pipeline-check.astro) ist fest auf "Sie" formuliert.
+ * Texte: src/locales/de.json (Deutsch, „Sie“) und src/locales/en.json (Englisch).
+ * Seiten- und Sektions-URLs je Sprache: src/i18n/routes.ts
  */
-export const ANSPRACHE: 'ihr' | 'sie' = 'sie';
 
 /** Schmale Hinweisleiste ganz oben ein-/ausblenden. */
 export const SHOW_ANNOUNCEMENT: boolean = true;
@@ -35,13 +33,12 @@ export const SHOW_ANNOUNCEMENT: boolean = true;
 /** Gründer. Foto: Pfad unter /public, z. B. '/img/kewin.webp'. null = Platzhalter mit Initiale. */
 export const FOUNDER = {
   name: 'Kewin',
-  role: 'Gründer von NGCX',
   photo: null as string | null,
 };
 
 /** Hilfsfunktionen */
 export const isPlaceholder = (v: string) => v === '#' || v.includes('[');
-export const bookingLink = () =>
+export const bookingLink = (lang: 'de' | 'en' = 'de') =>
   isPlaceholder(BOOKING_URL)
-    ? { href: '/#kontakt', external: false }
+    ? { href: lang === 'en' ? '/en#contact' : '/#kontakt', external: false }
     : { href: BOOKING_URL, external: true };

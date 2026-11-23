@@ -3,6 +3,8 @@
  * Abstraktes Pipeline-Visual: Kontakte → Gespräche → Projekte.
  * Bewusst ohne Zahlen oder Werte – nur Form und Bewegung.
  */
+import { getLang, useT } from '../i18n';
+const t = useT(getLang(Astro.url));
 const L = [40, 78, 116, 154, 192, 230, 268, 306, 344].map((y) => ({ x: 70, y }));
 const M = [120, 180, 240, 300].map((y) => ({ x: 270, y }));
 const R = [170, 250].map((y) => ({ x: 470, y }));
@@ -58,7 +60,7 @@ const flowMR = [1, 2];
     ))}
   </svg>
   <figcaption class="pv-labels">
-    <span>Kontakte</span><span>Gespräche</span><span>Projekte</span>
+    <span>{t.visual.contacts}</span><span>{t.visual.conversations}</span><span>{t.visual.projects}</span>
   </figcaption>
 </figure>
 <style>

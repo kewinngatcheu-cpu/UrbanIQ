@@ -1,0 +1,636 @@
+{
+  "lang": "de",
+  "meta": {
+    "home": {
+      "title": "NGCX – Planbare Neukundengewinnung für IT-Beratungen",
+      "description": "NGCX ist der Growth Partner für IT-Beratungen und Softwareagenturen im DACH-Raum. Wir bauen Ihnen ein Vertriebssystem, das planbar Gespräche mit den richtigen Entscheidern bringt."
+    },
+    "check": {
+      "title": "NGCX Pipeline-Check – Wie planbar ist Ihr Neukundengeschäft?",
+      "description": "Kostenloser Selbsttest für IT-Beratungen: 12 Fragen, 3 Minuten, sofortige Auswertung. Läuft komplett im Browser, keine Daten werden gespeichert."
+    },
+    "pricing": {
+      "title": "Preise & Konditionen – NGCX",
+      "description": "Transparente Preise für planbare Neukundengewinnung: Pipeline Core und Pipeline Growth, jeweils mit einmaligem Setup und monatlicher Betreuung."
+    },
+    "notFound": {
+      "title": "Seite nicht gefunden – NGCX",
+      "description": "Diese Seite gibt es nicht."
+    },
+    "ogLocale": "de_DE",
+    "ogImageAlt": "NGCX – Know. Decide. Grow.",
+    "orgDescription": "B2B-Growth-Partner für IT-Beratungen und Softwareagenturen im DACH-Raum: planbare Neukundengewinnung als betreute Dienstleistung."
+  },
+  "ui": {
+    "skip": "Zum Inhalt springen",
+    "homeAria": "NGCX – zur Startseite",
+    "mainNav": "Hauptnavigation",
+    "mobileNav": "Mobile Navigation",
+    "menuOpen": "Menü öffnen",
+    "menuClose": "Menü schließen",
+    "headerCta": "Erstgespräch",
+    "menuCta": "15-Min-Gespräch vereinbaren",
+    "newTab": " (öffnet in neuem Tab)",
+    "announceAria": "Hinweis",
+    "announceClose": "Hinweis schließen",
+    "sticky": "Pipeline-Check starten",
+    "langAria": "Sprache wählen",
+    "langNames": {
+      "de": "Deutsch",
+      "en": "English"
+    },
+    "emailAt": "(at)",
+    "logoWordmark": "NGCX",
+    "logoLockup": "NGCX Intelligence – Know. Decide. Grow.",
+    "bookingPlaceholder": "wird in src/config.ts eingetragen",
+    "linkedinPlaceholder": "[LINKEDIN_URL]",
+    "chipsAria": "Schwerpunkte",
+    "principlesAria": "Unsere Prinzipien",
+    "areasAria": "Die vier Bereiche des Checks",
+    "photoAria": "Platzhalter für ein Foto von {name}",
+    "photoPlaceholder": "[FOTO]",
+    "founderRole": "Gründer von NGCX"
+  },
+  "nav": {
+    "services": "Leistung",
+    "method": "Methode",
+    "process": "Ablauf",
+    "pricing": "Preise",
+    "check": "Pipeline-Check",
+    "checkBadge": "kostenlos",
+    "about": "Über NGCX",
+    "faq": "FAQ"
+  },
+  "announcement": {
+    "text": "<strong>Neu:</strong> Der NGCX Pipeline-Check – wie planbar ist Ihr Neukundengeschäft? In 3 Minuten"
+  },
+  "visual": {
+    "contacts": "Kontakte",
+    "conversations": "Gespräche",
+    "projects": "Projekte"
+  },
+  "hero": {
+    "eyebrow": "Growth Partner für IT-Beratungen & Softwareagenturen",
+    "title": "Neukunden, die <em>nicht vom Zufall</em> abhängen.",
+    "lead": "Die meisten IT-Beratungen wachsen über Empfehlungen, bis diese ausbleiben. NGCX baut Ihnen ein Vertriebssystem, das planbar neue Gespräche mit den richtigen Entscheidern bringt.",
+    "primary": "Pipeline-Check starten",
+    "secondary": "15-Min-Gespräch vereinbaren",
+    "note": "Kostenlos · 12 Fragen · 3 Minuten",
+    "chips": [
+      "DACH",
+      "10–50 Mitarbeitende",
+      "Proof-First"
+    ]
+  },
+  "problem": {
+    "eyebrow": "Die Ausgangslage",
+    "title": "Kommt Ihnen das <em>bekannt</em> vor?",
+    "cards": [
+      {
+        "title": "Empfehlungen als einziger Kanal",
+        "text": "Neue Projekte kommen fast nur über Empfehlungen und bestehende Kontakte. Das funktioniert, solange das Netzwerk liefert. Wann es das tut, entscheiden Sie nicht selbst."
+      },
+      {
+        "title": "Akquise läuft nebenbei",
+        "text": "Die Geschäftsführung macht den Vertrieb selbst, wenn Zeit ist. Sobald ein Projekt brennt, steht die Neukundengewinnung still."
+      },
+      {
+        "title": "Projektende heißt Unruhe",
+        "text": "Ein großes Projekt läuft aus und der Anschluss ist nicht in Sicht. Dann wird das Netzwerk abtelefoniert, unter Zeitdruck."
+      }
+    ],
+    "consequence": "Die Folgen: <strong>Berater ohne Projekt</strong>, <strong>Umsatz, der nicht zurückkommt</strong>, und <strong>Wachstumspläne, die warten müssen</strong>.",
+    "bridge": "Wo stehen Sie gerade? Finden Sie es in 3 Minuten heraus.",
+    "bridgeLink": "Zum Pipeline-Check"
+  },
+  "calculator": {
+    "eyebrow": "Rechenbeispiel",
+    "title": "Was kostet Sie <em>freie Kapazität</em>?",
+    "lead": "Jeder Beratertag ohne Projekt ist Umsatz, der nicht zurückkommt. Stellen Sie Ihre Werte ungefähr ein.",
+    "note": "Rechnung: Berater × (Ziel- minus Ist-Auslastung) × 20 Arbeitstage × Tagessatz. Ein Richtwert, keine Prognose.",
+    "link": "Vollständige Auswertung im Pipeline-Check",
+    "labels": {
+      "team": "Berater im Team",
+      "cur": "Aktuelle Auslastung",
+      "goal": "Ziel-Auslastung",
+      "rate": "Durchschn. Tagessatz"
+    },
+    "lossMonth": "ungenutztes Umsatzpotenzial pro Monat",
+    "perYear": "pro Jahr"
+  },
+  "services": {
+    "eyebrow": "Leistung",
+    "title": "Das NGCX <em>Pipeline System</em>",
+    "lead": "NGCX Sales ist Neukundengewinnung als betreute Dienstleistung. Wir übernehmen die Arbeit, die im Tagesgeschäft liegen bleibt, vom Zielkundenprofil bis zum vereinbarten Erstgespräch. Sie konzentrieren sich auf Ihre Projekte und auf die Gespräche selbst.",
+    "items": [
+      {
+        "title": "Ideal Customer Profile schärfen",
+        "text": "Gemeinsam legen wir fest, welche Unternehmen und Rollen wirklich zu Ihnen passen und woran man Bedarf erkennt."
+      },
+      {
+        "title": "Recherche von Zielunternehmen und Entscheidern",
+        "text": "Wir finden die Unternehmen, die ins Profil passen, und die Menschen, die dort entscheiden."
+      },
+      {
+        "title": "Vertriebsstrategie",
+        "text": "Kanäle, Reihenfolge, Schwerpunkte: ein klarer Plan, wie Sie Ihre Wunschkunden erreichen."
+      },
+      {
+        "title": "Leadlisten",
+        "text": "Gepflegte Listen mit Unternehmen, Ansprechpartnern und Kontext statt bloßer Firmennamen."
+      },
+      {
+        "title": "Kommunikationskonzepte und Ansprachen",
+        "text": "Botschaften, die auf Rolle und Situation des Empfängers zugeschnitten sind und zu Ihrer Positionierung passen."
+      },
+      {
+        "title": "CRM- und Pipeline-Management",
+        "text": "Jede Verkaufschance an einem Ort, mit klaren Phasen und nächsten Schritten."
+      },
+      {
+        "title": "Qualifizierung von Kontakten",
+        "text": "Wir klären vorab, ob Bedarf, Zeitpunkt und Rolle passen. So sprechen Sie mit den Richtigen."
+      },
+      {
+        "title": "Koordination von Erstgesprächen",
+        "text": "Termine werden abgestimmt und vorbereitet. Sie gehen informiert ins Gespräch."
+      },
+      {
+        "title": "Reporting",
+        "text": "Sie sehen regelmäßig, was passiert ist, was funktioniert und wo es hakt."
+      }
+    ]
+  },
+  "method": {
+    "eyebrow": "Methode",
+    "title": "Das NGCX <em>Industry Growth System</em>",
+    "lead": "Vier Bausteine, die aufeinander aufbauen. Zusammen machen sie aus Zufall einen Prozess.",
+    "steps": [
+      {
+        "title": "Industry Intelligence",
+        "text": "Markt, Auslöser und Entscheider verstehen. Welche Ereignisse lösen Bedarf aus, und wer entscheidet darüber?"
+      },
+      {
+        "title": "Precision Acquisition",
+        "text": "Die richtigen Unternehmen zur richtigen Zeit gezielt ansprechen. Persönlich, nicht in der Masse."
+      },
+      {
+        "title": "Brand Distribution",
+        "text": "Ihre Botschaft konsequent vor die richtigen Entscheider bringen, damit man Sie kennt, bevor der Bedarf da ist."
+      },
+      {
+        "title": "Pipeline Intelligence",
+        "text": "Pipeline messen, steuern und Engpässe früh erkennen. Entscheidungen auf Basis von Zahlen statt aus dem Bauch."
+      }
+    ]
+  },
+  "process": {
+    "eyebrow": "Einstieg & Zusammenarbeit",
+    "title": "Klein anfangen. <em>Belegen.</em> Dann ausbauen.",
+    "lead": "Ein Setup, das Ihr Akquise-System aufbaut, und eine monatliche Betreuung, die es am Laufen hält. 3 Monate Mindestlaufzeit, danach monatlich kündbar.",
+    "pricesLink": "Alle Leistungen, Preise und Konditionen",
+    "setupLink": "Was im Setup steckt",
+    "stepsTitle": "So beginnt die Zusammenarbeit",
+    "steps": [
+      {
+        "title": "Kostenloses 15-Min-Gespräch",
+        "text": "Wir hören zu, wie Sie heute Neukunden gewinnen, und sagen ehrlich, ob NGCX passt."
+      },
+      {
+        "title": "Setup in 2–3 Wochen",
+        "text": "Onboarding-Interview, Profitabilitäts-ICP, 50–100 Zielaccounts sowie Ansprache und Pipeline."
+      },
+      {
+        "title": "Monatliche Betreuung",
+        "text": "Pipeline Core oder Pipeline Growth. 3 Monate Mindestlaufzeit, danach monatlich kündbar."
+      }
+    ]
+  },
+  "why": {
+    "eyebrow": "Warum NGCX",
+    "title": "Spezialisiert. Ehrlich. <em>Auf Dauer angelegt.</em>",
+    "points": [
+      {
+        "title": "Eine Branche, kein Bauchladen",
+        "text": "NGCX arbeitet ausschließlich für IT-Beratungen und Softwareagenturen. Wir konzentrieren uns auf die Auslöser, Rollen und die Sprache genau dieser Branche."
+      },
+      {
+        "title": "Proof-First",
+        "text": "Erst zeigen, dass es funktioniert, dann skalieren. Deshalb beginnt jede Zusammenarbeit mit einem klar umrissenen Setup und festen Liefermengen."
+      },
+      {
+        "title": "Transparenz",
+        "text": "Klare Kennzahlen, keine leeren Versprechen. Wir garantieren keine Umsätze, sondern verpflichten uns auf Leistungen, die wir beeinflussen können, und machen sie für Sie sichtbar."
+      },
+      {
+        "title": "Langfristige Partnerschaft",
+        "text": "Es geht nicht um ein paar schnelle Termine, sondern um ein Vertriebssystem, das wir mit Ihnen aufbauen und das trägt."
+      }
+    ],
+    "principles": [
+      "Problem vor Produkt",
+      "Mehrwert vor Technologie",
+      "Vertrauen vor Integration",
+      "Positionierung vor Reichweite",
+      "Proof vor Skalierung"
+    ]
+  },
+  "checkBand": {
+    "eyebrow": "Kostenloser Pipeline-Check",
+    "title": "Wie <em>planbar</em> ist Ihr Neukundengeschäft?",
+    "text": "12 Fragen, 3 Minuten, sofortige Auswertung. Sie sehen, in welchem der vier Bereiche Ihr größter Hebel liegt.",
+    "areas": [
+      "Zielkunden-Klarheit",
+      "Akquise-Motor",
+      "Ansprache & Botschaft",
+      "Pipeline & Steuerung"
+    ],
+    "meta": "12 Fragen · 3 Minuten · Sofort-Auswertung",
+    "privacy": "Läuft komplett in Ihrem Browser. Es werden keine Antworten gespeichert oder übertragen.",
+    "button": "Check starten"
+  },
+  "about": {
+    "eyebrow": "Über NGCX",
+    "title": "Wer hinter <em>NGCX</em> steht",
+    "paragraphs": [
+      "Ich bin Kewin, Gründer von NGCX. <span class=\"ph\">[PLATZHALTER: Zwei bis drei Sätze zu deinem beruflichen Hintergrund und dazu, warum du dich auf IT-Beratungen und Softwareagenturen spezialisiert hast.]</span>",
+      "Mit NGCX möchte ich IT-Beratungen und Softwareagenturen etwas geben, das bei vielen fehlt: ein Neukundengeschäft, das nicht vom Zufall abhängt, sondern von einem Prozess, den man messen und verbessern kann."
+    ],
+    "pilot": "NGCX ist im Aufbau. Wir starten bewusst mit einer kleinen Zahl von Pilotpartnern, um gemeinsam zu belegen, was funktioniert. Referenzen zeigen wir, sobald es echte gibt.",
+    "linkedin": "Kewin auf LinkedIn"
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Häufige <em>Fragen</em>",
+    "items": [
+      {
+        "q": "Was macht NGCX?",
+        "a": "NGCX unterstützt Sie in der B2B-Neukundengewinnung: von der Definition Ihrer Zielkunden über die Recherche relevanter Unternehmen und Entscheider bis zur gezielten Ansprache, Pipeline-Pflege und regelmäßigem Reporting."
+      },
+      {
+        "q": "Für wen ist NGCX geeignet?",
+        "a": "Für IT-Beratungen und Softwareagenturen im DACH-Raum mit etwa 10 bis 50 Mitarbeitern, die ihre Neukundengewinnung planbarer gestalten möchten. NGCX konzentriert sich ausschließlich auf diesen Markt."
+      },
+      {
+        "q": "Was kostet die Zusammenarbeit?",
+        "a": "Die Preise sind transparent: Pipeline Core und Pipeline Growth bestehen jeweils aus einem einmaligen Setup und einer monatlichen Betreuung. Alle Beträge und Konditionen finden Sie auf der <a href=\"/preise\">Preisseite</a>. Welcher Tarif passt, klären wir im kostenlosen Erstgespräch."
+      },
+      {
+        "q": "Gibt es eine Garantie auf Neukunden?",
+        "a": "Nein. Ob ein Auftrag zustande kommt, hängt von vielen Faktoren ab, die außerhalb unseres Einflusses liegen. Wir vereinbaren vorab messbare Ziele für unsere Arbeit und machen den Fortschritt transparent."
+      },
+      {
+        "q": "Wie läuft die Zusammenarbeit ab?",
+        "a": "Zu Beginn analysieren wir gemeinsam Ihre Ausgangslage und definieren Ihre Zielkunden. Darauf aufbauend entwickeln wir Ansprache und Prozess, setzen diese um und berichten Ihnen regelmäßig über den Stand."
+      },
+      {
+        "q": "Welcher Aufwand entsteht für unser Unternehmen?",
+        "a": "Nur ein geringer. Nach einem kurzen Abstimmungsgespräch übernehmen wir Recherche, Ansprache und Pipeline-Pflege vollständig. Ihre Zeit fließt in das, was zählt: die Gespräche mit interessierten Unternehmen."
+      },
+      {
+        "q": "Worin liegt der Unterschied zu einem eigenen Vertriebsmitarbeiter?",
+        "a": "Eine Festanstellung bedeutet Recruiting, Einarbeitung und langfristige Kosten. NGCX bietet Ihnen einen strukturierten Vertriebsprozess, ohne dass Sie diese Strukturen intern aufbauen müssen."
+      },
+      {
+        "q": "Ist das sinnvoll, wenn wir bereits über Empfehlungen wachsen?",
+        "a": "Ja. Empfehlungen bleiben ein wertvoller Kanal, lassen sich aber kaum steuern. Eine strukturierte Neukundengewinnung ergänzt sie und macht Ihre Auftragslage unabhängiger."
+      }
+    ],
+    "checkHint": {
+      "text": "Wo steht die eigene Pipeline? Der kostenlose Pipeline-Check zeigt es in 3 Minuten: 12 Fragen, sofortige Auswertung.",
+      "button": "Pipeline-Check starten"
+    }
+  },
+  "contact": {
+    "eyebrow": "Kontakt",
+    "title": "Lassen Sie uns 15 Minuten über Ihre <em>Pipeline</em> sprechen.",
+    "text": "Kein Pitch, keine Verkaufsshow. Sie erzählen, wie Sie heute Neukunden gewinnen, und bekommen eine ehrliche Einschätzung, ob und wo NGCX helfen kann.",
+    "button": "15-Min-Gespräch vereinbaren",
+    "mailLabel": "Lieber per E-Mail?"
+  },
+  "footer": {
+    "description": "Growth Partner für IT-Beratungen und Softwareagenturen im DACH-Raum. Planbare Neukundengewinnung als betreute Dienstleistung.",
+    "website": "Website",
+    "free": "Kostenlos",
+    "contact": "Kontakt",
+    "startCheck": "Pipeline-Check starten",
+    "call": "15-Min-Gespräch",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "legalSuffix": ""
+  },
+  "pricing": {
+    "eyebrow": "Preise & Konditionen",
+    "title": "Planbare Neukunden. <em>Transparente Preise.</em>",
+    "lead": "Ein Setup, das Ihr Akquise-System aufbaut, und eine monatliche Betreuung, die es am Laufen hält. Keine versteckten Kosten, keine Blackbox.",
+    "toggleAria": "Preisansicht",
+    "toggle": {
+      "regular": "Regulär",
+      "founding": "Founding Partner"
+    },
+    "banner": {
+      "title": "NGCX Founding Partner Program",
+      "text": "Die ersten fünf Partner erhalten dauerhaft bessere Konditionen und gestalten das System mit.",
+      "spots": "{left} von {total} Plätzen frei"
+    },
+    "badge": "Founding Partner",
+    "perMonth": "/ Monat",
+    "setupLine": "zzgl. einmalig {amount} Setup",
+    "regularAria": "regulär {amount}",
+    "fitLabel": "Passend für",
+    "tiersAria": "Tarife",
+    "tiers": {
+      "core": {
+        "name": "Pipeline Core",
+        "fit": "IT-Beratungen und Softwareagenturen mit ca. 10–25 Mitarbeitenden",
+        "description": "Das komplette NGCX-System für ein Zielsegment. Ideal, wenn die Geschäftsführung die Akquise bisher selbst macht.",
+        "features": [
+          "Profitabilitäts-ICP aus Ihren besten Bestandskunden",
+          "Setup mit 50–100 recherchierten Zielaccounts",
+          "Marktsignale beobachten: Firmen mit aktuellem Anlass",
+          "Anlassbezogene Ansprache, Follow-ups und Qualifizierung",
+          "Koordination der Erstgespräche in Ihrem Kalender",
+          "Wöchentliches Kurz-Update und monatlicher Steuerungs-Call mit Pipeline- und Kapazitätsabgleich",
+          "Voller Einblick in Listen, Nachrichten und Pipeline"
+        ]
+      },
+      "growth": {
+        "name": "Pipeline Growth",
+        "fit": "IT-Beratungen und Softwareagenturen mit ca. 25–50 Mitarbeitenden",
+        "description": "Für Beratungen mit mehreren Leistungsbereichen, die mehr Kapazität füllen und enger begleitet werden wollen.",
+        "features": [
+          "Alles aus Pipeline Core",
+          "Bis zu zwei Zielsegmente parallel",
+          "Setup mit 50–100 Zielaccounts je Segment",
+          "Etwa doppeltes laufendes Recherche- und Ansprachevolumen",
+          "Wöchentlicher Abstimmungs-Call statt Kurz-Update",
+          "Quartals-Strategie mit der Geschäftsführung",
+          "Priorisierter Zugang zu neuen NGCX-Leistungen"
+        ]
+      }
+    },
+    "cta": {
+      "founding": "Founding-Platz sichern",
+      "regular": "Gespräch vereinbaren"
+    },
+    "setup": {
+      "eyebrow": "Was im Setup steckt",
+      "title": "In 2–3 Wochen zu Ihrem eigenen Akquise-System",
+      "steps": [
+        {
+          "title": "Onboarding-Interview",
+          "text": "60–90 Minuten mit der Geschäftsführung zu Angebot, Projekten und Wunschkunden."
+        },
+        {
+          "title": "Profitabilitäts-ICP",
+          "text": "Wir finden heraus, mit welchen Kunden Sie wirklich Geld verdienen."
+        },
+        {
+          "title": "Zielaccounts",
+          "text": "Recherchiert mit Entscheider und konkretem Anlass für die Ansprache."
+        },
+        {
+          "title": "Ansprache & Pipeline",
+          "text": "Kernbotschaften, Vorlagen und eine eingerichtete Pipeline. Alles gehört Ihnen."
+        }
+      ]
+    },
+    "benefitsAria": "Founding Partner Benefits und Konditionen",
+    "benefits": {
+      "title": "Founding Partner Benefits",
+      "items": [
+        "Bis zu {setup} Ersparnis beim Setup",
+        "Bis zu {monthly} weniger pro Monat, 12 Monate garantiert",
+        "Direkter Draht zum Gründer",
+        "Neue Leistungen aus Operations und Intelligence als Erste testen",
+        "Das System aktiv mitgestalten"
+      ],
+      "note": "Im Gegenzug: eine Referenz bei Erfolg und anonymisiertes Feedback."
+    },
+    "conditions": {
+      "title": "Konditionen",
+      "items": [
+        "3 Monate Mindestlaufzeit, danach monatlich kündbar",
+        "Feste Liefermengen mit klarer Nachbesserungsregel",
+        "Alle Ergebnisse aus dem Setup gehören Ihnen",
+        "Wir bringen qualifizierte Gespräche, Sie führen den Abschluss. Keine Umsatzgarantie.",
+        "Alle Preise zzgl. MwSt."
+      ]
+    },
+    "closing": {
+      "title": "Unsicher, welcher Tarif passt?",
+      "text": "Machen Sie den Pipeline-Check in 3 Minuten oder sprechen Sie 15 Minuten mit uns. Wir schauen uns Ihren Vertrieb an und sagen ehrlich, ob NGCX passt.",
+      "primary": "15-Min-Gespräch sichern",
+      "secondary": "Pipeline-Check starten"
+    }
+  },
+  "check": {
+    "brandLeft": "<b>NGCX</b> · Pipeline-Check",
+    "brandRight": "Für IT-Beratungen",
+    "title": "Wie <em>planbar</em> ist Ihr Neukundengeschäft wirklich?",
+    "lead": "Die meisten IT-Beratungen wachsen über Empfehlungen, bis die irgendwann ausbleiben. Dieser Check zeigt Ihnen in 3 Minuten, wo Ihre Pipeline Lücken hat und was Sie freie Kapazität kostet.",
+    "chips": [
+      "12 Fragen",
+      "3 Minuten",
+      "Sofort-Auswertung"
+    ],
+    "start": "Check starten →",
+    "privacy": "Die Auswertung läuft komplett in Ihrem Browser. Es werden keine Antworten gespeichert oder übertragen.",
+    "progressAria": "Fortschritt",
+    "questionOf": "Frage {n} von {total}",
+    "back": "← Zurück",
+    "lastStep": "Letzter Schritt",
+    "calcTitle": "Was kostet Sie <em>freie Kapazität</em>?",
+    "calcLead": "Jeder Beratertag ohne Projekt ist Umsatz, der nicht zurückkommt. Stellen Sie Ihre Werte ungefähr ein.",
+    "showResult": "Auswertung anzeigen →",
+    "resultTag": "Ihre Auswertung",
+    "of24": "von 24",
+    "resLoss": "ungenutztes Umsatzpotenzial pro Monat, nach Ihren Angaben",
+    "whereTitle": "Wo Ihre Pipeline steht",
+    "whereLead": "Die vier Bausteine, die über planbares Wachstum entscheiden.",
+    "ctaTitle": "Ihr größter Hebel liegt bei",
+    "ctaText": "Im kostenlosen 15-Minuten-Gespräch schauen wir uns Ihr Vertriebssystem gemeinsam an. Sie bekommen eine klare Einschätzung, wo Sie anfangen sollten, ganz ohne Verkaufsdruck.",
+    "ctaButton": "15-Min-Gespräch sichern →",
+    "restart": "Check neu starten",
+    "levels": [
+      {
+        "tag": "Stufe 1",
+        "title": "Empfehlungs-abhängig",
+        "text": "Ihr Wachstum liegt in den Händen anderer. Das funktioniert, bis es plötzlich nicht mehr funktioniert."
+      },
+      {
+        "tag": "Stufe 2",
+        "title": "Zufalls-Pipeline",
+        "text": "Es gibt Ansätze, aber Neukunden kommen noch nicht planbar. Meist fehlt der eine Baustein, der alles verbindet."
+      },
+      {
+        "tag": "Stufe 3",
+        "title": "Planbarer Vertrieb",
+        "text": "Sie sind weiter als die meisten Beratungen Ihrer Größe. Jetzt geht es ums gezielte Skalieren."
+      }
+    ],
+    "rating": {
+      "weak": "Kritisch",
+      "mid": "Ausbaufähig",
+      "strong": "Stark"
+    },
+    "areas": [
+      {
+        "name": "Zielkunden-Klarheit",
+        "short": "Zielkunden",
+        "weak": "Ohne klar definierten Wunschkunden wird Akquise zum Schuss ins Blaue: Sie sprechen viele an und erreichen kaum die Richtigen.",
+        "mid": "Sie wissen grob, wen Sie wollen. Was fehlt, ist die Schärfe: konkrete Auslöser und Namen statt nur Branchen.",
+        "strong": "Sie wissen genau, wen Sie wollen. Das ist das Fundament, das den meisten fehlt.",
+        "teaser": "NGCX übersetzt das in eine Zielliste echter Entscheider, die gerade Bedarf haben könnten."
+      },
+      {
+        "name": "Akquise-Motor",
+        "short": "der aktiven Akquise",
+        "weak": "Ihr Wachstum hängt an Empfehlungen und an der Zeit des Geschäftsführers. Bleiben beide aus, wird es eng.",
+        "mid": "Akquise passiert, aber nicht verlässlich. Sobald das Tagesgeschäft brennt, steht der Vertrieb still.",
+        "strong": "Neukunden kommen bei Ihnen nicht nur zufällig. Jetzt geht es darum, das zu skalieren.",
+        "teaser": "NGCX baut einen Akquise-Prozess, der läuft, auch wenn Sie im Projekt stecken."
+      },
+      {
+        "name": "Ansprache & Botschaft",
+        "short": "Ihrer Ansprache",
+        "weak": "Wenn ein Entscheider nicht sofort versteht, welches Problem Sie lösen, ist die Nachricht nach drei Sekunden weg.",
+        "mid": "Ihre Botschaft ist da, aber noch nicht auf Rolle und Situation des Empfängers zugeschnitten.",
+        "strong": "Ihre Botschaft sitzt. Jetzt zählt, sie konsequent vor die richtigen Leute zu bringen.",
+        "teaser": "NGCX entwickelt Ansprachen, die Entscheider in IT-Beratungen wirklich lesen."
+      },
+      {
+        "name": "Pipeline & Steuerung",
+        "short": "der Pipeline-Steuerung",
+        "weak": "Ohne Überblick über Ihre Pipeline merken Sie Engpässe erst, wenn das Projekt schon zu Ende ist.",
+        "mid": "Sie haben Daten, nutzen sie aber noch nicht, um rechtzeitig gegenzusteuern.",
+        "strong": "Sie steuern Ihren Vertrieb mit Zahlen. Das machen nur wenige Beratungen Ihrer Größe.",
+        "teaser": "NGCX macht sichtbar, wie viele Gespräche Sie für Ihre Ziele brauchen und wo es hakt."
+      }
+    ],
+    "questions": [
+      {
+        "a": 0,
+        "t": "Wie würden Sie Ihren idealen Neukunden beschreiben?",
+        "o": [
+          "„Eigentlich jedes Unternehmen mit IT-Bedarf.“",
+          "Branche und Größe sind grob klar.",
+          "Branche, Größe, typische Auslöser und Entscheider sind schriftlich definiert."
+        ]
+      },
+      {
+        "a": 0,
+        "t": "Wissen Sie, welche Ereignisse bei Unternehmen Ihren Bedarf auslösen?",
+        "o": [
+          "Nicht wirklich, Anfragen kommen einfach.",
+          "Wir haben eine Ahnung, beobachten das aber nicht aktiv.",
+          "Ja, wir kennen die Auslöser und achten gezielt darauf."
+        ]
+      },
+      {
+        "a": 0,
+        "t": "Kennen Sie die konkreten Entscheider in Ihren Wunschunternehmen?",
+        "o": [
+          "Nein, wir kennen nur die Firmennamen.",
+          "Bei einzelnen Firmen ja.",
+          "Ja, wir haben eine gepflegte Liste mit Namen und Rollen."
+        ]
+      },
+      {
+        "a": 1,
+        "t": "Woher kamen Ihre letzten 5 Neukunden?",
+        "o": [
+          "Alle über Empfehlungen oder bestehende Kontakte.",
+          "Überwiegend Empfehlungen, 1–2 aus eigener Akquise.",
+          "Mehrheitlich aus aktiver, eigener Akquise."
+        ]
+      },
+      {
+        "a": 1,
+        "t": "Wer kümmert sich bei Ihnen um Neukundengewinnung?",
+        "o": [
+          "Die Geschäftsführung, wenn Zeit übrig ist.",
+          "Die Geschäftsführung, mit festen Zeitblöcken.",
+          "Ein fester Prozess oder eine Person, unabhängig vom Tagesgeschäft."
+        ]
+      },
+      {
+        "a": 1,
+        "t": "Ein großes Projekt endet in 6 Wochen. Was passiert?",
+        "o": [
+          "Leichte Panik, wir telefonieren das Netzwerk ab.",
+          "Es gibt ein paar Gespräche, aber nichts Sicheres.",
+          "Der Anschluss ist meist schon in der Pipeline."
+        ]
+      },
+      {
+        "a": 2,
+        "t": "Warum sollte ein Entscheider genau Sie beauftragen? Was würde er sagen?",
+        "o": [
+          "„Gute Leute, fairer Preis.“",
+          "Ihre Spezialisierung ist grob erkennbar.",
+          "Er kann klar sagen, welches Problem Sie lösen und mit welchem Ergebnis."
+        ]
+      },
+      {
+        "a": 2,
+        "t": "Wie entsteht Ihre erste Nachricht an einen neuen Kontakt?",
+        "o": [
+          "Spontan formuliert, jedes Mal neu.",
+          "Eine Vorlage, die für alle gleich ist.",
+          "Zugeschnitten auf Rolle und Situation, getestet und verbessert."
+        ]
+      },
+      {
+        "a": 2,
+        "t": "Ein Kontakt reagiert nicht auf die erste Nachricht. Was dann?",
+        "o": [
+          "Dann lassen wir es.",
+          "Mal ja, mal nein, je nach Zeit.",
+          "Es gibt eine feste Abfolge weiterer Kontaktpunkte."
+        ]
+      },
+      {
+        "a": 3,
+        "t": "Wo sind Ihre offenen Verkaufschancen dokumentiert?",
+        "o": [
+          "Im Kopf oder im Postfach.",
+          "In Excel oder einem CRM, aber unregelmäßig gepflegt.",
+          "In einem aktuellen CRM mit klaren Phasen."
+        ]
+      },
+      {
+        "a": 3,
+        "t": "Wissen Sie, wie viele Erstgespräche Sie pro Monat für Ihre Umsatzziele brauchen?",
+        "o": [
+          "Keine Ahnung.",
+          "Grob, aus dem Bauch heraus.",
+          "Ja, auf Basis unserer Abschlussquoten."
+        ]
+      },
+      {
+        "a": 3,
+        "t": "Wie oft schauen Sie auf Ihre Vertriebszahlen?",
+        "o": [
+          "Nur, wenn es Probleme gibt.",
+          "Etwa einmal im Quartal.",
+          "Monatlich oder öfter, mit festem Reporting."
+        ]
+      }
+    ]
+  },
+  "legal": {
+    "eyebrow": "Rechtliches",
+    "draft": "<strong>Entwurf.</strong> Dieser Text ist eine Vorlage und muss vor der Veröffentlichung rechtlich geprüft werden. Angaben in <span class=\"ph\">[ECKIGEN KLAMMERN]</span> sind Platzhalter.",
+    "stand": "Stand:",
+    "toc": "Inhalt"
+  },
+  "notFound": {
+    "eyebrow": "Fehler 404",
+    "title": "Diese Seite gibt es <em>nicht</em>.",
+    "lead": "Vielleicht hat sich die Adresse geändert. Hier geht es weiter:",
+    "check": "Pipeline-Check starten",
+    "home": "Zur Startseite"
+  }
+}

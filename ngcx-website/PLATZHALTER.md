@@ -10,15 +10,14 @@ Alle Stellen sind auf der Website gelb gestrichelt markiert. Nichts davon wurde 
 | ~~`[E-MAIL]`~~ ✅ | `CONTACT_EMAIL` | kewin@ngcxintelligence.de |
 | ~~`[LINKEDIN_URL]`~~ ✅ | `LINKEDIN_URL` | https://www.linkedin.com/in/kewin-ngatcheu-455358284 |
 | ~~Preise~~ ✅ | `src/pricing.config.ts` | Pipeline Core / Growth, Founding-Programm |
-| Ansprache | `ANSPRACHE` | `'ihr'` (Standard) oder `'sie'` |
 | `[FOTO]` | `FOUNDER.photo` | z. B. `/img/kewin.webp` (Datei nach `public/img/` legen, ca. 800 × 960 px) |
 
-## 2. Startseite – `src/content/texte.ts`
+## 2. Startseite – `src/locales/de.json` und `src/locales/en.json`
 
 | Platzhalter | Abschnitt |
 |---|---|
-| `[PLATZHALTER: Zwei bis drei Sätze zu deinem beruflichen Hintergrund …]` | `ueber.paragraphs` (Über NGCX) |
-| H1-Formulierung bestätigen | `hero.title` – zwei Alternativen stehen als Kommentar daneben |
+| `[PLATZHALTER: …]` / `[PLACEHOLDER: …]` – Über-mich-Text, in beiden Sprachen | `about.paragraphs` |
+| H1-Formulierung bestätigen (DE und EN) | `hero.title` |
 
 ## 3. Impressum – `src/pages/impressum.astro`
 

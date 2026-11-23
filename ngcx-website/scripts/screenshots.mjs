@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
 
 const BASE = process.argv[2] || 'http://127.0.0.1:4321';
 const WIDTHS = (process.env.WIDTHS || '375,1440').split(',').map(Number);
-const PAGES = ['/', '/pipeline-check', '/impressum', '/datenschutz', '/agb', '/gibt-es-nicht'];
+const PAGES = ['/', '/preise', '/pipeline-check', '/impressum', '/datenschutz', '/agb', '/en', '/en/pricing', '/en/pipeline-check', '/gibt-es-nicht'];
 fs.mkdirSync('screenshots', { recursive: true });
 
 const browser = await chromium.launch();
@@ -34,24 +34,27 @@ for (const w of WIDTHS) {
     await page.screenshot({ path: `screenshots/${name}-${w}.png`, fullPage: true });
   }
 
-  // Pipeline-Check komplett durchklicken
-  await page.goto(BASE + '/pipeline-check', { waitUntil: 'networkidle' });
-  await page.click('[data-action="begin"]');
-  for (let q = 0; q < 12; q++) {
-    await page.locator('#qopts .opt').nth(q % 3).click();
-    await page.waitForTimeout(320);
+  // Pipeline-Check komplett durchklicken (beide Sprachen)
+  for (const cp of ['/pipeline-check', '/en/pipeline-check']) {
+    await page.goto(BASE + cp, { waitUntil: 'networkidle' });
+    await page.click('[data-action="begin"]');
+    for (let q = 0; q < 12; q++) {
+      await page.locator('#qopts .opt').nth(q % 3).click();
+      await page.waitForTimeout(320);
+    }
+    await page.waitForSelector('#calc:not(.hidden)');
+    const loss = await page.textContent('#loss-m');
+    await page.click('[data-action="result"]');
+    await page.waitForTimeout(1600);
+    const score = await page.textContent('#score');
+    const level = await page.textContent('#lvl-title');
+    const cta = await page.textContent('#cta-area');
+    const href = await page.getAttribute('#book', 'href');
+    const areas = await page.locator('#areas .area').count();
+    const first = await page.textContent('#areas .area p');
+    console.log(`${w}px ${cp}: Rechner ${loss} | Score ${score}/24 | ${level} | Hebel: ${cta} | Bereiche ${areas} | Buchung ${href} | „${first.slice(0, 40)}…“`);
+    await page.screenshot({ path: `screenshots/check-ergebnis${cp.startsWith('/en') ? '-en' : ''}-${w}.png`, fullPage: true });
   }
-  await page.waitForSelector('#calc:not(.hidden)');
-  const loss = await page.textContent('#loss-m');
-  await page.click('[data-action="result"]');
-  await page.waitForTimeout(1600);
-  const score = await page.textContent('#score');
-  const level = await page.textContent('#lvl-title');
-  const cta = await page.textContent('#cta-area');
-  const href = await page.getAttribute('#book', 'href');
-  const areas = await page.locator('#areas .area').count();
-  console.log(`${w}px Check: Rechner ${loss} | Score ${score}/24 | ${level} | Hebel: ${cta} | Bereiche ${areas} | Buchung ${href}`);
-  await page.screenshot({ path: `screenshots/check-ergebnis-${w}.png`, fullPage: true });
   await page.close();
 }
 await browser.close();

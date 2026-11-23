@@ -1,0 +1,294 @@
+---
+/**
+ * Preise & Konditionen – Deutsch (/preise) und Englisch (/en/pricing).
+ * Zahlen und Schalter: src/pricing.config.ts · Texte: src/locales/*.json → "pricing"
+ */
+import Base from '../layouts/Base.astro';
+import Button from '../components/Button.astro';
+import CtaBox from '../components/CtaBox.astro';
+import Icon from '../components/Icon.astro';
+import { pricing, foundingOn, tierOrder, highlightTier, maxSaving } from '../pricing.config';
+import { bookingLink } from '../config';
+import { getLang, useT, fill, eur, pageUrl, sections } from '../i18n';
+
+const lang = getLang(Astro.url);
+const T = useT(lang);
+const P = T.pricing;
+const booking = bookingLink(lang);
+const pad = (n: number) => String(n).padStart(2, '0');
+const spotsTaken = pricing.foundingSpotsTotal - pricing.foundingSpotsLeft;
+const money = (n: number) => eur(n, lang);
+const setupLine = (n: number, old?: number) =>
+  fill(P.setupLine, { amount: `<strong class="tabular">${money(n)}</strong>` }) +
+  (old !== undefined ? ` <s class="old tabular" aria-label="${fill(P.regularAria, { amount: money(old) })}">${money(old)}</s>` : '');
+---
+<Base title={T.meta.pricing.title} description={T.meta.pricing.description} page="pricing">
+  <div class="pricing" data-pricing data-mode={foundingOn ? 'founding' : 'regular'}>
+    <!-- Kopf -->
+    <section class="section p-head grid-bg" aria-labelledby="preise-titel">
+      <div class="container center">
+        <span class="eyebrow">{P.eyebrow}</span>
+        <h1 id="preise-titel" set:html={P.title} />
+        <p class="lead">{P.lead}</p>
+
+        {foundingOn && (
+          <div class="toggle reveal" role="group" aria-label={P.toggleAria}>
+            <button type="button" data-set-mode="regular" aria-pressed="false">{P.toggle.regular}</button>
+            <button type="button" data-set-mode="founding" aria-pressed="true">{P.toggle.founding}</button>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <section class="section p-tiers" aria-label={P.tiersAria}>
+      <div class="container">
+        {foundingOn && (
+          <div class="banner reveal" data-show="founding">
+            <div class="banner-text">
+              <span class="banner-dot" aria-hidden="true"></span>
+              <div>
+                <p class="banner-title">{P.banner.title}</p>
+                <p class="muted">{P.banner.text}</p>
+              </div>
+            </div>
+            <div class="spots">
+              <span class="bars" aria-hidden="true">
+                {Array.from({ length: pricing.foundingSpotsTotal }, (_, i) => <span class:list={['bar', { taken: i < spotsTaken }]} />)}
+              </span>
+              <p class="spots-text tabular">{fill(P.banner.spots, { left: pricing.foundingSpotsLeft, total: pricing.foundingSpotsTotal })}</p>
+            </div>
+          </div>
+        )}
+
+        <div class="tiers">
+          {tierOrder.map((key) => {
+            const tier = P.tiers[key];
+            const reg = pricing[key].regular;
+            const fp = pricing[key].founding;
+            const hl = key === highlightTier;
+            return (
+              <article class:list={['card hover tier reveal', { 'tier-hl': hl }]} aria-labelledby={`tarif-${key}`}>
+                <div class="tier-head">
+                  <h2 id={`tarif-${key}`}>{tier.name}</h2>
+                  {foundingOn && <span class="badge-fp" data-show="founding">{P.badge}</span>}
+                </div>
+                <p class="tier-fit"><span>{P.fitLabel}:</span> {tier.fit}</p>
+                <p class="muted tier-desc">{tier.description}</p>
+
+                <div class="price" data-price>
+                  {foundingOn && (
+                    <div data-show="founding">
+                      <p class="price-main"><span class="amount tabular">{money(fp.monthly)}</span><span class="per">{P.perMonth}</span><s class="old tabular" aria-label={fill(P.regularAria, { amount: money(reg.monthly) })}>{money(reg.monthly)}</s></p>
+                      <p class="price-setup" set:html={setupLine(fp.setup, reg.setup)} />
+                    </div>
+                  )}
+                  <div data-show="regular">
+                    <p class="price-main"><span class="amount tabular">{money(reg.monthly)}</span><span class="per">{P.perMonth}</span></p>
+                    <p class="price-setup" set:html={setupLine(reg.setup)} />
+                  </div>
+                </div>
+
+                <hr />
+
+                <ul class="features">
+                  {tier.features.map((f, i) => {
+                    const include = key === 'growth' && i === 0;
+                    return (
+                      <li class:list={{ include }}>
+                        {include ? <span class="plus" aria-hidden="true">+</span> : <Icon name="check" size={18} />}
+                        <span>{f}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <div class="tier-cta">
+                  {foundingOn && <span data-show="founding"><Button href={booking.href} external={booking.external} variant={hl ? 'primary' : 'ghost'} block arrow>{P.cta.founding}</Button></span>}
+                  <span data-show="regular"><Button href={booking.href} external={booking.external} variant={hl ? 'primary' : 'ghost'} block arrow>{P.cta.regular}</Button></span>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    <!-- Setup -->
+    <section class="section p-tight" id={sections[lang].setup} aria-labelledby="setup-titel">
+      <div class="container">
+        <header class="section-head center reveal">
+          <span class="eyebrow">{P.setup.eyebrow}</span>
+          <h2 id="setup-titel">{P.setup.title}</h2>
+        </header>
+        <ol class="setup">
+          {P.setup.steps.map((s, i) => (
+            <li class="card hover reveal">
+              <span class="num tabular">{pad(i + 1)}</span>
+              <h3>{s.title}</h3>
+              <p class="muted">{s.text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- Benefits & Konditionen -->
+    <section class="section p-tight" aria-label={P.benefitsAria}>
+      <div class:list={['container terms', { single: !foundingOn }]}>
+        {foundingOn && (
+          <div class="card terms-box fp reveal">
+            <h2 class="box-title accent">{P.benefits.title}</h2>
+            <ul class="features">
+              {P.benefits.items.map((b) => <li><Icon name="check" size={18} /><span>{fill(b, { setup: money(maxSaving.setup), monthly: money(maxSaving.monthly) })}</span></li>)}
+            </ul>
+            <p class="muted small">{P.benefits.note}</p>
+          </div>
+        )}
+        <div class="card terms-box reveal">
+          <h2 class="box-title">{P.conditions.title}</h2>
+          <ul class="features muted-icons">
+            {P.conditions.items.map((c) => <li><Icon name="check" size={18} /><span>{c}</span></li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Abschluss -->
+    <section class="section p-tight p-last" aria-labelledby="preise-cta-titel">
+      <div class="container">
+        <CtaBox class="reveal">
+          <h2 id="preise-cta-titel">{P.closing.title}</h2>
+          <p class="lead center-lead">{P.closing.text}</p>
+          <div class="cta-actions">
+            <Button href={booking.href} external={booking.external} arrow>{P.closing.primary}</Button>
+            <Button href={pageUrl('check', lang)} variant="ghost">{P.closing.secondary}</Button>
+          </div>
+        </CtaBox>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-pricing]');
+  const buttons = root?.querySelectorAll<HTMLButtonElement>('[data-set-mode]') ?? [];
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      const mode = b.dataset.setMode!;
+      if (!root || root.dataset.mode === mode) return;
+      root.dataset.mode = mode;
+      buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      // kurze Einblendung der Preise
+      root.querySelectorAll<HTMLElement>('[data-price]').forEach((p) => {
+        p.classList.remove('swap');
+        void p.offsetWidth;
+        p.classList.add('swap');
+      });
+    }),
+  );
+</script>
+
+<style>
+  /* Sichtbarkeit je Modus */
+  [data-mode='regular'] [data-show='founding'],
+  [data-mode='founding'] [data-show='regular'] { display: none !important; }
+
+  .center { text-align: center; }
+  .p-head { padding-bottom: 32px; }
+  .p-head h1 { margin: 0 auto 20px; max-width: 20ch; }
+  .p-head .lead { margin: 0 auto; }
+
+  /* Umschalter */
+  .toggle {
+    display: inline-flex; gap: 4px; padding: 5px; margin-top: 32px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+  }
+  .toggle button {
+    min-height: 44px; padding: 10px 22px; border: 0; border-radius: 999px; cursor: pointer;
+    background: transparent; color: var(--muted); font: 600 15px/1 var(--font);
+    transition: background .2s, color .2s;
+  }
+  .toggle button:hover { color: var(--text); }
+  .toggle button[aria-pressed='true'] { background: var(--btn-bg); color: #fff; font-weight: 700; }
+
+  .p-tiers { padding-top: 24px; padding-bottom: calc(var(--section) * .6); border-top: 0 !important; }
+  .p-tight { padding-block: calc(var(--section) * .45); border-top: 0 !important; }
+  .p-tight .section-head { margin-bottom: 36px; }
+  .p-last { padding-bottom: var(--section); }
+
+  /* Founding-Banner */
+  .banner {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;
+    padding: 22px 26px; margin-bottom: 24px;
+    background: var(--card); border: 1px solid rgba(92, 200, 255, .4); border-radius: var(--r-card);
+  }
+  .banner-text { display: flex; gap: 16px; align-items: flex-start; flex: 1 1 380px; }
+  .banner-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent2); margin-top: 8px; flex-shrink: 0; }
+  .banner-title { font-weight: 700; font-size: 17px; margin-bottom: 2px; }
+  .banner .muted { font-size: 15px; }
+  .spots { display: flex; align-items: center; gap: 12px; }
+  .bars { display: flex; gap: 6px; }
+  .bar { width: 22px; height: 8px; border-radius: 4px; background: var(--accent2); }
+  .bar.taken { background: var(--line); }
+  .spots-text { font-size: 14px; font-weight: 650; color: var(--accent2); }
+
+  /* Tarife */
+  .tiers { display: grid; gap: 20px; }
+  @media (min-width: 900px) { .tiers { grid-template-columns: 1fr 1fr; gap: 24px; } }
+  .tier { display: flex; flex-direction: column; gap: 22px; }
+  .tier-hl { background: var(--card2); border-color: rgba(92, 200, 255, .4); }
+  .tier-fit { font-size: 14px; color: var(--muted); margin-top: -10px; }
+  .tier-fit span { color: var(--accent2); font-weight: 600; }
+  .tier-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .tier-head h2 { font-size: 26px; }
+  .badge-fp {
+    padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    background: rgba(92, 200, 255, .14); color: var(--accent2); border: 1px solid rgba(92, 200, 255, .4);
+  }
+  .tier-desc { font-size: 15.5px; margin-top: -10px; }
+  .price-main { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; }
+  .amount { font-size: clamp(42px, 4vw + 20px, 52px); font-weight: 800; letter-spacing: -.02em; line-height: 1; }
+  .per { color: var(--muted); font-size: 16px; }
+  .old { color: var(--muted); opacity: .7; font-size: 17px; }
+  .price-setup { margin-top: 8px; color: var(--muted); font-size: 15px; }
+  .price-setup :global(strong) { color: var(--text); }
+  .price-setup :global(.old) { color: var(--muted); opacity: .7; font-size: 15px; margin-left: 4px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .price.swap > div { animation: priceIn .32s var(--ease); }
+  }
+  @keyframes priceIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  hr { border: 0; height: 1px; background: var(--line); }
+
+  .features { list-style: none; display: grid; gap: 12px; font-size: 15.5px; line-height: 1.5; }
+  .features li { display: flex; gap: 12px; align-items: flex-start; }
+  .features :global(.icon) { color: var(--accent2); flex-shrink: 0; margin-top: 2px; }
+  .features li.include { font-weight: 650; }
+  .plus { width: 18px; flex-shrink: 0; text-align: center; color: var(--accent2); font-weight: 700; font-size: 18px; line-height: 1.3; }
+  .muted-icons :global(.icon) { color: var(--muted); }
+  .tier-cta { margin-top: auto; padding-top: 4px; }
+  .tier-cta :global(.btn) { min-height: 52px; white-space: normal; }
+
+  /* Setup */
+  .setup { list-style: none; display: grid; gap: 16px; }
+  @media (min-width: 640px) { .setup { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1000px) { .setup { grid-template-columns: repeat(4, 1fr); } }
+  .setup .num { display: block; font-size: 13px; font-weight: 700; color: var(--accent2); letter-spacing: .1em; margin-bottom: 14px; }
+  .setup h3 { font-size: 18px; margin-bottom: 8px; }
+  .setup p { font-size: 15px; line-height: 1.55; }
+
+  /* Benefits & Konditionen */
+  .terms { display: grid; gap: 20px; }
+  @media (min-width: 860px) { .terms:not(.single) { grid-template-columns: 1fr 1fr; gap: 24px; } }
+  .terms.single { max-width: 760px; }
+  .terms-box { display: flex; flex-direction: column; gap: 18px; }
+  .terms-box.fp { border-color: rgba(92, 200, 255, .4); }
+  .box-title { font-size: 12px; font-weight: 650; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .box-title.accent { color: var(--accent2); }
+  .small { font-size: 14px; }
+
+  /* Abschluss */
+  .cta-box h2 { margin-bottom: 14px; }
+  .center-lead { margin: 0 auto 28px; }
+  .cta-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  @media (max-width: 559px) { .cta-actions { flex-direction: column; } }
+</style>

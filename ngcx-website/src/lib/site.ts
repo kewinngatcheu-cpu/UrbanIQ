@@ -1,4 +1,51 @@
-/** Seitenweite Interaktionen: Header, Mobilmenü, Hinweisleiste, Sticky-CTA, Scroll-Animation, E-Mail. */
+/** Seitenweite Interaktionen: Sprache, Header, Mobilmenü, Hinweisleiste, Sticky-CTA, Scroll-Animation, E-Mail. */
+import { STORAGE_KEY, mapSection, type Lang } from '../i18n/routes';
+
+// ---------- Sprache ----------
+const pageLang = (document.documentElement.lang === 'en' ? 'en' : 'de') as Lang;
+const store = {
+  get: (): Lang | null => {
+    try { const v = localStorage.getItem(STORAGE_KEY); return v === 'de' || v === 'en' ? v : null; } catch { return null; }
+  },
+  set: (v: Lang) => { try { localStorage.setItem(STORAGE_KEY, v); } catch {} },
+};
+
+/** Aktuelle Sektion: Anker aus der URL oder die Sektion, die gerade oben im Bild ist */
+const currentSectionId = (): string | null => {
+  if (location.hash.length > 1) return decodeURIComponent(location.hash.slice(1));
+  let found: string | null = null;
+  document.querySelectorAll<HTMLElement>('main section[id]').forEach((el) => {
+    if (el.getBoundingClientRect().top <= 160) found = el.id;
+  });
+  return found;
+};
+const withSection = (href: string, to: Lang) => {
+  const id = currentSectionId();
+  const mapped = id ? mapSection(id, pageLang, to) : null;
+  return mapped ? href.split('#')[0] + '#' + mapped : href;
+};
+
+// Klick auf DE | EN: Wahl merken und auf derselben Seite/Sektion bleiben
+document.querySelectorAll<HTMLAnchorElement>('a[data-lang-switch]').forEach((a) => {
+  a.addEventListener('click', (e) => {
+    const to = a.dataset.langSwitch as Lang;
+    store.set(to);
+    if (to === pageLang) return;
+    e.preventDefault();
+    location.href = withSection(a.getAttribute('href')!, to);
+  });
+});
+
+// Erster Besuch / gemerkte Sprache: nur deutsche Seiten leiten ggf. auf Englisch um.
+// Englische URLs werden immer respektiert. Suchmaschinen werden nie umgeleitet.
+if (pageLang === 'de' && !/bot|crawl|spider|slurp|lighthouse|headless/i.test(navigator.userAgent)) {
+  const stored = store.get();
+  const prefersGerman = (navigator.languages || [navigator.language]).some((l) => /^de\b/i.test(l || ''));
+  const want: Lang = stored ?? (prefersGerman ? 'de' : 'en');
+  const alt = document.querySelector<HTMLLinkElement>('link[rel="alternate"][hreflang="en"]');
+  if (want === 'en' && alt) location.replace(withSection(new URL(alt.href).pathname, 'en'));
+}
+
 
 // Header beim Scrollen abdunkeln
 const header = document.getElementById('site-header');
@@ -14,7 +61,7 @@ if (burger && menu && header) {
     [burger, ...menu.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')];
   const setOpen = (open: boolean, returnFocus = true) => {
     burger.setAttribute('aria-expanded', String(open));
-    burger.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
+    burger.setAttribute('aria-label', (open ? burger.dataset.labelClose : burger.dataset.labelOpen) || '');
     menu.hidden = !open;
     header.classList.toggle('menu-open', open);
     document.body.style.overflow = open ? 'hidden' : '';
@@ -35,7 +82,7 @@ if (burger && menu && header) {
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
   });
-  window.matchMedia('(min-width: 1060px)').addEventListener('change', (m) => { if (m.matches) setOpen(false, false); });
+  window.matchMedia('(min-width: 1180px)').addEventListener('change', (m) => { if (m.matches) setOpen(false, false); });
 }
 
 // Hinweisleiste schließen (nur für diese Sitzung, sessionStorage – kein Cookie)

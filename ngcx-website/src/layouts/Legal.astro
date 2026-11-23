@@ -1,25 +1,29 @@
 ---
 import Base from './Base.astro';
+import { useT, type PageKey } from '../i18n';
 interface Props {
   title: string;
   description: string;
   heading: string;
   toc?: { id: string; label: string }[];
   stand?: string;
+  page: PageKey;
 }
-const { title, description, heading, toc, stand = '[DATUM]' } = Astro.props;
+const { title, description, heading, toc, stand = '[DATUM]', page } = Astro.props;
+// Rechtstexte gibt es nur auf Deutsch (maßgebliche Fassung)
+const t = useT('de');
 ---
-<Base title={title} description={description}>
+<Base title={title} description={description} page={page}>
   <article class="legal container">
     <header class="legal-head">
-      <span class="eyebrow">Rechtliches</span>
+      <span class="eyebrow">{t.legal.eyebrow}</span>
       <h1>{heading}</h1>
-      <p class="draft" role="note"><strong>Entwurf.</strong> Dieser Text ist eine Vorlage und muss vor der Veröffentlichung rechtlich geprüft werden. Angaben in <span class="ph">[ECKIGEN KLAMMERN]</span> sind Platzhalter.</p>
-      <p class="stand">Stand: <span class="ph">{stand}</span></p>
+      <p class="draft" role="note" set:html={t.legal.draft} />
+      <p class="stand">{t.legal.stand} <span class="ph">{stand}</span></p>
     </header>
     {toc && (
       <nav class="toc" aria-label="Inhaltsverzeichnis">
-        <h2>Inhalt</h2>
+        <h2>{t.legal.toc}</h2>
         <ol>{toc.map((t) => <li><a href={`#${t.id}`}>{t.label}</a></li>)}</ol>
       </nav>
     )}

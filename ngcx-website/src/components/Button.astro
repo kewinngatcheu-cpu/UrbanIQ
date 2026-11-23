@@ -1,4 +1,5 @@
 ---
+import { getLang, useT } from '../i18n';
 interface Props {
   href: string;
   variant?: 'primary' | 'ghost';
@@ -9,9 +10,10 @@ interface Props {
   class?: string;
 }
 const { href, variant = 'primary', arrow = false, external = false, size = 'normal', block = false, class: cls } = Astro.props;
+const t = useT(getLang(Astro.url));
 ---
 <a
   href={href}
   class:list={['btn', { ghost: variant === 'ghost', small: size === 'small', block }, cls]}
   {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-><slot />{arrow && <span class="arrow" aria-hidden="true">→</span>}{external && <span class="visually-hidden"> (öffnet in neuem Tab)</span>}</a>
+><slot />{arrow && <span class="arrow" aria-hidden="true">→</span>}{external && <span class="visually-hidden">{t.ui.newTab}</span>}</a>

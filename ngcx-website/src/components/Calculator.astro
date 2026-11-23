@@ -1,31 +1,37 @@
 ---
 /** Mini-Rechner „Was kostet freie Kapazität?“ – gleiche Formel wie im Pipeline-Check. Rechnet nur lokal im Browser. */
-import { rechner } from '../content/texte';
+import { getLang, useT, eur } from '../i18n';
+const lang = getLang(Astro.url);
+const t = useT(lang);
 const rows = [
-  { id: 'team', label: 'Berater im Team', min: 2, max: 50, step: 1, value: 10 },
-  { id: 'cur', label: 'Aktuelle Auslastung', min: 30, max: 100, step: 1, value: 70 },
-  { id: 'goal', label: 'Ziel-Auslastung', min: 50, max: 100, step: 1, value: 85 },
-  { id: 'rate', label: 'Durchschn. Tagessatz', min: 400, max: 2000, step: 50, value: 900 },
-];
-const fmt = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 0 }) + ' €';
+  { id: 'team', min: 2, max: 50, step: 1, value: 10 },
+  { id: 'cur', min: 30, max: 100, step: 1, value: 70 },
+  { id: 'goal', min: 50, max: 100, step: 1, value: 85 },
+  { id: 'rate', min: 400, max: 2000, step: 50, value: 900 },
+] as const;
 const initial = 10 * ((85 - 70) / 100) * 20 * 900;
+const show = (id: string, v: number) => (id === 'rate' ? eur(v, lang) : id === 'team' ? String(v) : v + ' %');
 ---
-<div class="card calc" data-calc>
+<div class="card calc" data-calc data-lang={lang}>
   {rows.map((r) => (
     <div class="calc-row">
-      <label for={`mr-${r.id}`}>{r.label} <b class="tabular" data-out={r.id}>{r.id === 'rate' ? fmt(r.value) : r.id === 'team' ? r.value : r.value + ' %'}</b></label>
+      <label for={`mr-${r.id}`}>{t.calculator.labels[r.id]} <b class="tabular" data-out={r.id}>{show(r.id, r.value)}</b></label>
       <input type="range" id={`mr-${r.id}`} data-in={r.id} min={r.min} max={r.max} step={r.step} value={r.value} />
     </div>
   ))}
   <div class="loss" aria-live="polite">
-    <div class="big tabular" data-loss-m>{fmt(initial)}</div>
-    <small>ungenutztes Umsatzpotenzial pro Monat · <span data-loss-y>{fmt(initial * 12)}</span> pro Jahr</small>
+    <div class="big tabular" data-loss-m>{eur(initial, lang)}</div>
+    <small>{t.calculator.lossMonth} · <span data-loss-y>{eur(initial * 12, lang)}</span> {t.calculator.perYear}</small>
   </div>
-  <p class="note">{rechner.note}</p>
+  <p class="note">{t.calculator.note}</p>
 </div>
 <script>
-  const eur = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 0 }) + ' €';
   document.querySelectorAll<HTMLElement>('[data-calc]').forEach((box) => {
+    const en = box.dataset.lang === 'en';
+    const eur = (n: number) => {
+      const r = Math.round(n);
+      return en ? '€' + r.toLocaleString('en-GB') : r.toLocaleString('de-DE') + ' €';
+    };
     const get = (id: string) => +(box.querySelector<HTMLInputElement>(`[data-in="${id}"]`)!.value);
     const out = (id: string, v: string) => { const el = box.querySelector(`[data-out="${id}"]`); if (el) el.textContent = v; };
     const update = () => {

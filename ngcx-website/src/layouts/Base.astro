@@ -5,35 +5,45 @@ import Footer from '../components/Footer.astro';
 import Announcement from '../components/Announcement.astro';
 import StickyCta from '../components/StickyCta.astro';
 import { SITE_URL, CONTACT_EMAIL, LINKEDIN_URL, isPlaceholder } from '../config';
+import { getLang, useT, pages, LANGS, DEFAULT_LANG, type PageKey } from '../i18n';
 
 interface Props {
   title: string;
   description: string;
-  /** Sticky-Leiste unten (mobil) anzeigen */
+  /** Seitenschlüssel für Sprach-Alternativen (hreflang) und Sprachwähler */
+  page: PageKey;
   sticky?: boolean;
   announcement?: boolean;
   jsonLd?: boolean;
 }
-const { title, description, sticky = true, announcement = true, jsonLd = false } = Astro.props;
-const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '').replace(/\/$/, '');
-const canonical = SITE_URL + (path || '/');
+const { title, description, page, sticky = true, announcement = true, jsonLd = false } = Astro.props;
+const lang = getLang(Astro.url);
+const t = useT(lang);
+
+const ownPath = pages[page][lang] ?? Astro.url.pathname.replace(/\/index(\.html)?$/, '').replace(/\/$/, '');
+const abs = (p: string) => SITE_URL + (p === '/' ? '/' : p);
+const canonical = abs(ownPath || '/');
+// hreflang nur, wenn die Seite in mehr als einer Sprache existiert
+const alternates = LANGS.filter((l) => pages[page][l]).map((l) => ({ lang: l, href: abs(pages[page][l]!) }));
+const hasAlternates = alternates.length > 1;
 const ogImage = SITE_URL + '/og-image.png';
+const otherOg = lang === 'de' ? useT('en').meta.ogLocale : useT('de').meta.ogLocale;
 
 const org = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
   name: 'NGCX',
   alternateName: 'NGCX Intelligence',
-  url: SITE_URL,
+  url: abs(pages.home[lang]!),
   logo: SITE_URL + '/icon-512.png',
   image: ogImage,
   slogan: 'Know. Decide. Grow.',
-  description:
-    'B2B-Growth-Partner für IT-Beratungen und Softwareagenturen im DACH-Raum: planbare Neukundengewinnung als betreute Dienstleistung.',
+  description: t.meta.orgDescription,
+  inLanguage: lang,
   areaServed: [
-    { '@type': 'Country', name: 'Deutschland' },
-    { '@type': 'Country', name: 'Österreich' },
-    { '@type': 'Country', name: 'Schweiz' },
+    { '@type': 'Country', name: lang === 'en' ? 'Germany' : 'Deutschland' },
+    { '@type': 'Country', name: lang === 'en' ? 'Austria' : 'Österreich' },
+    { '@type': 'Country', name: lang === 'en' ? 'Switzerland' : 'Schweiz' },
   ],
   founder: { '@type': 'Person', name: 'Kewin' },
   ...(isPlaceholder(CONTACT_EMAIL) ? {} : { email: CONTACT_EMAIL }),
@@ -41,13 +51,15 @@ const org = {
 };
 ---
 <!doctype html>
-<html lang="de">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {hasAlternates && alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
+    {hasAlternates && <link rel="alternate" hreflang="x-default" href={abs(pages[page][DEFAULT_LANG]!)} />}
     <meta name="theme-color" content="#080B10" />
     <meta name="color-scheme" content="dark" />
 
@@ -59,7 +71,8 @@ const org = {
     <link rel="manifest" href="/site.webmanifest" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="de_DE" />
+    <meta property="og:locale" content={t.meta.ogLocale} />
+    {hasAlternates && <meta property="og:locale:alternate" content={otherOg} />}
     <meta property="og:site_name" content="NGCX" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -67,7 +80,7 @@ const org = {
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="NGCX – Know. Decide. Grow." />
+    <meta property="og:image:alt" content={t.meta.ogImageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -76,9 +89,9 @@ const org = {
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(org)} />}
   </head>
   <body>
-    <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+    <a class="skip-link" href="#inhalt">{t.ui.skip}</a>
     {announcement && <Announcement />}
-    <Header />
+    <Header page={page} />
     <main id="inhalt" tabindex="-1">
       <slot />
     </main>

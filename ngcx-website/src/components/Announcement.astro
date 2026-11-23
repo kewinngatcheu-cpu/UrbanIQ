@@ -1,13 +1,15 @@
 ---
 import { SHOW_ANNOUNCEMENT } from '../config';
-import { announcement } from '../content/texte';
+import { getLang, useT, pageUrl } from '../i18n';
 import Icon from './Icon.astro';
+const lang = getLang(Astro.url);
+const t = useT(lang);
 ---
 {SHOW_ANNOUNCEMENT && (
-  <div class="announce" id="announce" role="region" aria-label="Hinweis">
+  <div class="announce" id="announce" role="region" aria-label={t.ui.announceAria}>
     <div class="container announce-inner">
-      <a href="/pipeline-check" class="announce-link"><span set:html={announcement.text} /> <span aria-hidden="true">→</span></a>
-      <button type="button" class="announce-close" aria-label="Hinweis schließen"><Icon name="close" size={16} /></button>
+      <a href={pageUrl('check', lang)} class="announce-link"><span set:html={t.announcement.text} /> <span aria-hidden="true">→</span></a>
+      <button type="button" class="announce-close" aria-label={t.ui.announceClose}><Icon name="close" size={16} /></button>
     </div>
   </div>
 )}
@@ -20,7 +22,7 @@ import Icon from './Icon.astro';
   .announce-link:hover { color: var(--text); }
   .announce-close {
     position: absolute; right: calc(var(--gutter) - 8px); top: 50%; transform: translateY(-50%);
-    display: grid; place-items: center; width: 36px; height: 36px; border-radius: 8px;
+    display: grid; place-items: center; width: 44px; height: 44px; border-radius: 8px;
     background: transparent; border: 0; color: var(--muted); cursor: pointer;
   }
   .announce-close:hover { color: var(--text); background: var(--card2); }

@@ -18,17 +18,26 @@ Produktions-Build: `npm run build` (Ausgabe in `dist/`), Vorschau des Builds: `n
 
 | Was | Datei |
 |---|---|
-| Buchungslink, E-Mail, LinkedIn, Ansprache ihr/Sie, Hinweisleiste | `src/config.ts` |
-| Preise, Tarife, Founding-Partner-Programm (`foundingActive`, `foundingSpotsLeft`) | `src/pricing.config.ts` |
-| Alle Texte der Startseite (je ihr- und Sie-Variante) | `src/content/texte.ts` |
+| Buchungslink, E-Mail, LinkedIn, Hinweisleiste | `src/config.ts` |
+| Preise und Founding-Schalter (`foundingActive`, `foundingSpotsTotal`, `foundingSpotsLeft`) | `src/pricing.config.ts` (Tariftexte in den Sprachdateien unter `pricing`) |
+| **Alle Texte, Deutsch** | `src/locales/de.json` |
+| **Alle Texte, Englisch** | `src/locales/en.json` (gleiche Struktur wie de.json) |
+| URLs je Sprache, Anker-IDs der Sektionen | `src/i18n/routes.ts` |
+| Seiten-Layouts (für beide Sprachen gemeinsam) | `src/views/` (Home, Pricing, Check) |
 | Farben, Schrift, Abstände (Design-Tokens) | `src/styles/tokens.css` |
-| Pipeline-Check | `src/pages/pipeline-check.astro` (Original: `assets/pipeline-check.html`) |
+| Pipeline-Check | `src/views/Check.astro`, Fragen/Texte in den Sprachdateien unter `check` (Original: `assets/pipeline-check.html`) |
 | Impressum, Datenschutz, AGB | `src/pages/*.astro` |
 | Security-Header (Cloudflare Pages) | `public/_headers` |
 | OG-Bild neu erzeugen | `scripts/og-image.html` bearbeiten, dann `npm run og` |
 
 - **Preise ändern:** in `src/pricing.config.ts`. Founding-Programm beenden: `foundingActive = false` oder `foundingSpotsLeft = 0` (Umschalter, Banner, Badge, Streichpreise und Benefits verschwinden automatisch). Freie Plätze anpassen: `foundingSpotsLeft`.
-- **Ansprache:** aktuell „Sie“ (`ANSPRACHE` in `src/config.ts`). Der Pipeline-Check ist fest auf „Sie“ formuliert.
+
+## Zweisprachigkeit
+
+- Deutsch unter `/`, Englisch unter `/en` (`/en/pricing`, `/en/pipeline-check`). Sprachwähler „DE | EN“ oben rechts bzw. im Mobilmenü.
+- Erster Besuch: Bevorzugt der Browser kein Deutsch, wird auf Englisch umgeleitet. Die gewählte Sprache wird in `localStorage` (`ngcx-lang`) gemerkt. Englische URLs werden immer respektiert, Suchmaschinen nie umgeleitet.
+- Rechtstexte gibt es nur auf Deutsch (maßgeblich); die englische Seite verlinkt sie mit „(German)“.
+- Neue Texte immer in **beiden** Dateien unter demselben Schlüssel anlegen.
 
 ## Struktur
 
@@ -37,7 +46,10 @@ assets/                  Originale: pipeline-check.html, Logo-Screenshot
 public/                  Fonts (Manrope, lokal), Logo/Favicon, OG-Bild, robots.txt, _headers
 scripts/                 OG-Bild- und Screenshot-Skript
 src/config.ts            zentrale Konfiguration
-src/content/texte.ts     Texte
+src/locales/             de.json, en.json (alle Texte)
+src/i18n/                Sprach-Helfer, URLs und Anker je Sprache
+src/views/               Home, Pricing, Check (gemeinsam für DE und EN)
+src/pricing.config.ts    Preise und Founding-Programm
 src/styles/              tokens.css, global.css
 src/layouts/             Base (Header/Footer/SEO), Legal
 src/components/          Header, Footer, Button, Card, Chip, Section, CtaBox, FaqItem, Calculator, PipelineVisual …
