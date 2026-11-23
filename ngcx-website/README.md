@@ -19,7 +19,7 @@ Produktions-Build: `npm run build` (Ausgabe in `dist/`), Vorschau des Builds: `n
 | Was | Datei |
 |---|---|
 | Buchungslink, E-Mail, LinkedIn, Hinweisleiste | `src/config.ts` |
-| Preise und Founding-Schalter (`foundingActive`, `foundingSpotsTotal`, `foundingSpotsLeft`) | `src/pricing.config.ts` (Tariftexte in den Sprachdateien unter `pricing`) |
+| Preise und Founding-Schalter (`foundingActive`, `foundingSpotsTotal`, `foundingSpotsLeft`, `showSpotsCounterFrom`) | `src/pricing.config.ts` (Tariftexte in den Sprachdateien unter `pricing`) |
 | **Alle Texte, Deutsch** | `src/locales/de.json` |
 | **Alle Texte, Englisch** | `src/locales/en.json` (gleiche Struktur wie de.json) |
 | URLs je Sprache, Anker-IDs der Sektionen | `src/i18n/routes.ts` |

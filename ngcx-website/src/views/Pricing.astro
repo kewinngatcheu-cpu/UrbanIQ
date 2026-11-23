@@ -7,7 +7,7 @@ import Base from '../layouts/Base.astro';
 import Button from '../components/Button.astro';
 import CtaBox from '../components/CtaBox.astro';
 import Icon from '../components/Icon.astro';
-import { pricing, foundingOn, tierOrder, highlightTier, maxSaving } from '../pricing.config';
+import { pricing, foundingOn, showSpotsCounter, tierOrder, highlightTier, maxSaving } from '../pricing.config';
 import { bookingLink } from '../config';
 import { getLang, useT, fill, eur, pageUrl, sections } from '../i18n';
 
@@ -17,6 +17,11 @@ const P = T.pricing;
 const booking = bookingLink(lang);
 const pad = (n: number) => String(n).padStart(2, '0');
 const spotsTaken = pricing.foundingSpotsTotal - pricing.foundingSpotsLeft;
+const spotsText = !showSpotsCounter
+  ? fill(P.banner.limited, { total: pricing.foundingSpotsTotal })
+  : pricing.foundingSpotsLeft === 1
+    ? P.banner.spotsOne
+    : fill(P.banner.spotsMany, { left: pricing.foundingSpotsLeft });
 const money = (n: number) => eur(n, lang);
 const setupLine = (n: number, old?: number) =>
   fill(P.setupLine, { amount: `<strong class="tabular">${money(n)}</strong>` }) +
@@ -52,10 +57,12 @@ const setupLine = (n: number, old?: number) =>
               </div>
             </div>
             <div class="spots">
-              <span class="bars" aria-hidden="true">
-                {Array.from({ length: pricing.foundingSpotsTotal }, (_, i) => <span class:list={['bar', { taken: i < spotsTaken }]} />)}
-              </span>
-              <p class="spots-text tabular">{fill(P.banner.spots, { left: pricing.foundingSpotsLeft, total: pricing.foundingSpotsTotal })}</p>
+              {showSpotsCounter && (
+                <span class="bars" aria-hidden="true">
+                  {Array.from({ length: pricing.foundingSpotsTotal }, (_, i) => <span class:list={['bar', { taken: i < spotsTaken }]} />)}
+                </span>
+              )}
+              <p class="spots-text tabular">{spotsText}</p>
             </div>
           </div>
         )}

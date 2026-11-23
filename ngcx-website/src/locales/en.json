@@ -332,7 +332,9 @@
     "banner": {
       "title": "NGCX Founding Partner Program",
       "text": "Our first five partners receive lasting preferential terms and help shape the system.",
-      "spots": "{left} of {total} spots available"
+      "limited": "Limited to {total} partners",
+      "spotsOne": "Only 1 spot left",
+      "spotsMany": "Only {left} spots left"
     },
     "badge": "Founding Partner",
     "perMonth": "/ month",

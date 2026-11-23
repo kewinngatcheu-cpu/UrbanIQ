@@ -9,6 +9,8 @@ export const pricing = {
   foundingActive: true,
   foundingSpotsTotal: 5,
   foundingSpotsLeft: 5, // gilt für beide Tarife zusammen
+  /** Ab dieser Zahl freier Plätze (und darunter) erscheinen Balken + „Nur noch X …“; darüber nur „Begrenzt auf 5 Partner“ */
+  showSpotsCounterFrom: 3,
 
   core: {
     regular: { setup: 790, monthly: 990 },
@@ -26,6 +28,9 @@ export const tierOrder: TierKey[] = ['core', 'growth'];
 export const highlightTier: TierKey = 'growth';
 
 export const foundingOn = pricing.foundingActive && pricing.foundingSpotsLeft > 0;
+
+/** Platzanzeige mit Balken erst, wenn nur noch wenige Plätze frei sind */
+export const showSpotsCounter = foundingOn && pricing.foundingSpotsLeft <= pricing.showSpotsCounterFrom;
 
 /** Größte Ersparnis über alle Tarife (für „Bis zu … Ersparnis“) */
 export const maxSaving = {
