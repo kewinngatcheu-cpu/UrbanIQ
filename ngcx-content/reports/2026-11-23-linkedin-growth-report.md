@@ -15,7 +15,21 @@
 
 ## 2. Performance-Rückblick
 
-Keine Daten. Es gibt noch keinen einzigen nachverfolgbaren LinkedIn-Beitrag in diesem System. Baseline, Mindestziel/Wachstumsziel/Stretch-Ziel (Abschnitt 11 des Master-Prompts) können erst nach den ersten realen Beiträgen berechnet werden — nicht erfinden.
+**Update 24.11.2026 (13 Std. nach Veröffentlichung von Alternative 1):** Erster echter Datenpunkt, von Kewin per Screenshot aus LinkedIn geliefert (kein Connector — manuell).
+
+| Post | Datum | Impressions | Reichweite (Mitglieder) | Reaktionen | Kommentare | Reposts | Profilaufrufe | Neue Follower | Engagement-Rate |
+|---|---|---|---|---|---|---|---|---|---|
+| Montagsfrage #1 – Alt. 1 (Empfehlungsabhängigkeit) | 23.11.2026 | 172 | 106 (48% im Netzwerk / 52% außerhalb) | 4 | 0 | 0 | 3 | 0 | 2,3 % |
+
+**Das ist jetzt die Baseline** (einziger Datenpunkt, keine Mittelwerte/Mediane sinnvoll berechenbar — dafür braucht es mehr Beiträge). Mindest-/Wachstums-/Stretch-Ziele (Abschnitt 11) werden ab dem 2.–3. Beitrag kalibriert.
+
+**Auffälligkeit:** 0 Kommentare trotz Frage im Text. Zwei naheliegende, aber unbewiesene Ursachen (Hypothesen, keine Tatsachen):
+1. Beitrag wurde als Fließtext mit 🔘-Symbolen gepostet, nicht über die native LinkedIn-„Umfrage erstellen"-Funktion → kein Ein-Klick-Vote-Mechanismus, der zusätzliche algorithmische Ausspielung auslöst.
+2. Keine dokumentierte Aktivität in der ersten Stunde (Vor-dem-Posten-Kommentare bzw. Beantworten eingehender Kommentare laut Tagesroutine, Abschnitt „Netzwerk & Routine").
+
+**Positiv:** 52 % Reichweite außerhalb des eigenen Netzwerks bei nur 1.114 Followern — algorithmische Streuung funktioniert grundsätzlich, auch ohne virale Zahlen.
+
+**Konkrete Änderung für die nächste Montagsfrage:** als native LinkedIn-Umfrage posten (nicht als Text-Nachbau), plus aktive erste Stunde (vorher kommentieren, danach sofort antworten).
 
 ## 3. Strategie des Tages
 
