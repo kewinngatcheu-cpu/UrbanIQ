@@ -1,0 +1,111 @@
+---
+// ENTWURF – vor Veröffentlichung rechtlich prüfen lassen (z. B. Anwalt oder Generator wie eRecht24 / IT-Recht Kanzlei)
+import Legal from '../layouts/Legal.astro';
+import Email from '../components/Email.astro';
+const toc = [
+  { id: 'verantwortlicher', label: 'Verantwortlicher' },
+  { id: 'ueberblick', label: 'Überblick: Was diese Website verarbeitet' },
+  { id: 'hosting', label: 'Hosting und Server-Logfiles' },
+  { id: 'kontakt', label: 'Kontakt per E-Mail' },
+  { id: 'termin', label: 'Externer Terminbuchungsdienst' },
+  { id: 'linkedin', label: 'Link zu LinkedIn' },
+  { id: 'schriften', label: 'Schriftarten' },
+  { id: 'check', label: 'Pipeline-Check und Rechner' },
+  { id: 'cookies', label: 'Cookies, Tracking und lokaler Speicher' },
+  { id: 'speicherdauer', label: 'Speicherdauer' },
+  { id: 'rechte', label: 'Ihre Rechte' },
+  { id: 'beschwerde', label: 'Beschwerderecht bei der Aufsichtsbehörde' },
+  { id: 'aenderungen', label: 'Änderungen dieser Datenschutzerklärung' },
+];
+---
+<Legal
+  page="privacy"
+  title="Datenschutzerklärung – NGCX"
+  description="Datenschutzerklärung von NGCX: keine Cookies, kein Tracking, lokal gehostete Schriften."
+  heading="Datenschutzerklärung"
+  toc={toc}
+>
+  <Fragment set:html="<!-- ENTWURF – vor Veröffentlichung rechtlich prüfen lassen (z. B. Anwalt oder Generator wie eRecht24 / IT-Recht Kanzlei) -->" />
+
+  <h2 id="verantwortlicher">1. Verantwortlicher</h2>
+  <p>Verantwortlich für die Datenverarbeitung auf dieser Website im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:</p>
+  <address>
+    <span class="ph">[VOLLER NAME]</span>, <span class="ph">[ZUSATZ, z. B. „NGCX“]</span><br />
+    <span class="ph">[STRASSE NR]</span>, <span class="ph">[PLZ ORT]</span>, Deutschland<br />
+    E-Mail: <Email /><br />
+    Telefon: <span class="ph">[TELEFON]</span>
+  </address>
+  <p>Ein Datenschutzbeauftragter ist nicht benannt, da hierzu keine gesetzliche Pflicht besteht.</p>
+
+  <h2 id="ueberblick">2. Überblick: Was diese Website verarbeitet</h2>
+  <p>Diese Website ist bewusst datensparsam gebaut:</p>
+  <ul>
+    <li>keine Cookies, keine Analyse- oder Tracking-Werkzeuge, keine Werbe-Pixel,</li>
+    <li>keine eingebetteten Inhalte Dritter (keine Videos, Karten, Social-Media-Plugins oder Kalender-Widgets),</li>
+    <li>Schriftarten werden vom eigenen Server geladen, nicht von Google oder anderen Anbietern,</li>
+    <li>der Pipeline-Check und der Rechner laufen vollständig in Ihrem Browser.</li>
+  </ul>
+  <p>Personenbezogene Daten werden nur verarbeitet, soweit dies für die technische Bereitstellung der Website erforderlich ist (Server-Logfiles) oder wenn Sie uns aktiv kontaktieren.</p>
+
+  <h2 id="hosting">3. Hosting und Server-Logfiles</h2>
+  <p>Diese Website wird bei <span class="ph">[HOSTING-ANBIETER, z. B. Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA (Cloudflare Pages)]</span> gehostet. Beim Aufruf der Website verarbeitet der Hosting-Anbieter automatisch Informationen, die Ihr Browser übermittelt, insbesondere:</p>
+  <ul>
+    <li>IP-Adresse,</li>
+    <li>Datum und Uhrzeit des Zugriffs,</li>
+    <li>aufgerufene Seite bzw. Datei und übertragene Datenmenge,</li>
+    <li>Referrer-URL (die zuvor besuchte Seite),</li>
+    <li>Browsertyp, Betriebssystem und gegebenenfalls Gerätetyp.</li>
+  </ul>
+  <p>Die Verarbeitung erfolgt, um die Website sicher und stabil auszuliefern und Angriffe abzuwehren. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; unser berechtigtes Interesse liegt in der sicheren und fehlerfreien Bereitstellung der Website. Mit dem Hosting-Anbieter besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO <span class="ph">[BESTÄTIGEN]</span>.</p>
+  <p>Dabei kann es zu einer Übermittlung personenbezogener Daten in die USA kommen. <span class="ph">[HOSTING-ANBIETER]</span> ist nach dem EU-US Data Privacy Framework zertifiziert <span class="ph">[BESTÄTIGEN]</span>; die Übermittlung stützt sich auf den Angemessenheitsbeschluss der EU-Kommission (Art. 45 DSGVO), ergänzend auf Standardvertragsklauseln (Art. 46 Abs. 2 lit. c DSGVO).</p>
+  <p>Logdaten werden vom Hosting-Anbieter nach <span class="ph">[SPEICHERDAUER LOGS, z. B. höchstens 30 Tagen]</span> gelöscht, sofern sie nicht zur Aufklärung eines Sicherheitsvorfalls länger benötigt werden.</p>
+
+  <h2 id="kontakt">4. Kontakt per E-Mail</h2>
+  <p>Wenn Sie uns per E-Mail kontaktieren, verarbeiten wir Ihre Angaben (z. B. Name, E-Mail-Adresse, Unternehmen und Inhalt der Nachricht), um Ihre Anfrage zu beantworten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage auf einen Vertrag oder vorvertragliche Maßnahmen zielt, im Übrigen Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Beantwortung von Anfragen).</p>
+  <p>Für den E-Mail-Verkehr nutzen wir <span class="ph">[E-MAIL-ANBIETER, z. B. Google Workspace, Google Cloud EMEA Ltd., Dublin, Irland]</span>. Mit dem Anbieter besteht ein Vertrag zur Auftragsverarbeitung <span class="ph">[BESTÄTIGEN]</span>. Eine Übermittlung in die USA ist möglich; sie stützt sich auf das EU-US Data Privacy Framework bzw. Standardvertragsklauseln <span class="ph">[BESTÄTIGEN]</span>.</p>
+
+  <h2 id="termin">5. Externer Terminbuchungsdienst</h2>
+  <p>Für die Vereinbarung eines Erstgesprächs verlinken wir auf den Terminbuchungsdienst Calendly (Calendly LLC, USA). Der Dienst ist nicht in diese Website eingebettet; beim Laden unserer Seiten werden keine Daten an den Anbieter übertragen.</p>
+  <p>Erst wenn Sie auf einen Buchungslink klicken, verlassen Sie unsere Website. Für die Verarbeitung Ihrer Daten durch den Anbieter (z. B. Name, E-Mail-Adresse, gewählter Termin) gelten dessen Datenschutzbestimmungen: <a href="https://calendly.com/legal/privacy-notice" target="_blank" rel="noopener noreferrer">calendly.com/legal/privacy-notice</a>. Die Terminbuchung dient der Anbahnung eines Vertrags (Art. 6 Abs. 1 lit. b DSGVO). <span class="ph">[Ggf. ergänzen: Auftragsverarbeitung mit dem Anbieter, Drittlandübermittlung]</span></p>
+
+  <h2 id="linkedin">6. Link zu LinkedIn</h2>
+  <p>Diese Website enthält einen einfachen Link zu einem LinkedIn-Profil. Es ist kein LinkedIn-Plugin eingebunden; beim Besuch unserer Website werden keine Daten an LinkedIn übertragen. Erst wenn Sie den Link anklicken, gelangen Sie zu LinkedIn (LinkedIn Ireland Unlimited Company, Wilton Place, Dublin 2, Irland). Dort gelten die Datenschutzbestimmungen von LinkedIn.</p>
+
+  <h2 id="schriften">7. Schriftarten</h2>
+  <p>Wir verwenden die Schriftart „Manrope“. Sie ist lokal auf unserem Server gespeichert und wird von dort geladen. Es besteht keine Verbindung zu Servern von Google oder anderen Schriftanbietern.</p>
+
+  <h2 id="check">8. Pipeline-Check und Rechner</h2>
+  <p>Der NGCX Pipeline-Check und der Rechner „Was kostet freie Kapazität?“ werden vollständig in Ihrem Browser berechnet. Ihre Antworten und eingestellten Werte werden weder gespeichert noch an uns oder Dritte übertragen. Wenn Sie die Seite schließen oder neu laden, sind die Eingaben verloren.</p>
+
+  <h2 id="cookies">9. Cookies, Tracking und lokaler Speicher</h2>
+  <p>Diese Website setzt keine Cookies und verwendet keine Analyse- oder Tracking-Dienste. Deshalb ist kein Cookie-Banner erforderlich.</p>
+  <p>Wenn Sie die Hinweisleiste oben auf der Seite schließen, wird ausschließlich im Sitzungsspeicher Ihres Browsers (sessionStorage) vermerkt, dass die Leiste ausgeblendet bleiben soll. Dieser Eintrag enthält keine personenbezogenen Daten, wird nicht an uns übertragen und beim Schließen des Browser-Tabs automatisch gelöscht. Er ist für die von Ihnen gewünschte Funktion unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG).</p>
+  <p>Wenn Sie über den Sprachwähler „DE | EN“ eine Sprache auswählen, wird diese Auswahl im lokalen Speicher Ihres Browsers (localStorage) unter dem Schlüssel „ngcx-lang“ abgelegt, damit die Website Sie beim nächsten Besuch in derselben Sprache anzeigt. Der Eintrag enthält nur das Sprachkürzel, keine personenbezogenen Daten, wird nicht an uns übertragen und bleibt bestehen, bis Sie ihn in Ihrem Browser löschen. Er ist für die von Ihnen gewünschte Funktion unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG).</p>
+  <p>Haben Sie noch keine Sprache gewählt, prüft die Website beim ersten Aufruf lokal in Ihrem Browser die dort eingestellte bevorzugte Sprache und zeigt gegebenenfalls die englische Fassung an. Diese Information wird weder gespeichert noch an uns übertragen.</p>
+
+  <h2 id="speicherdauer">10. Speicherdauer</h2>
+  <p>Wir speichern personenbezogene Daten nur so lange, wie es für den jeweiligen Zweck erforderlich ist. E-Mail-Anfragen löschen wir, sobald die Anfrage abschließend bearbeitet ist und keine gesetzlichen Aufbewahrungspflichten (z. B. handels- und steuerrechtlich, bis zu 6 bzw. 10 Jahre) entgegenstehen.</p>
+
+  <h2 id="rechte">11. Ihre Rechte</h2>
+  <p>Sie haben nach der DSGVO folgende Rechte:</p>
+  <ul>
+    <li>Auskunft über die zu Ihrer Person gespeicherten Daten (Art. 15 DSGVO),</li>
+    <li>Berichtigung unrichtiger Daten (Art. 16 DSGVO),</li>
+    <li>Löschung (Art. 17 DSGVO),</li>
+    <li>Einschränkung der Verarbeitung (Art. 18 DSGVO),</li>
+    <li>Datenübertragbarkeit (Art. 20 DSGVO),</li>
+    <li><strong>Widerspruch</strong> gegen Verarbeitungen, die auf Art. 6 Abs. 1 lit. f DSGVO beruhen, aus Gründen, die sich aus Ihrer besonderen Situation ergeben (Art. 21 DSGVO).</li>
+  </ul>
+  <p>Für die Ausübung Ihrer Rechte genügt eine formlose Nachricht an <Email />.</p>
+
+  <h2 id="beschwerde">12. Beschwerderecht bei der Aufsichtsbehörde</h2>
+  <p>Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren (Art. 77 DSGVO). Für uns zuständig ist:</p>
+  <address>
+    Berliner Beauftragte für Datenschutz und Informationsfreiheit<br />
+    Alt-Moabit 59–61, 10555 Berlin<br />
+    <span class="ph">[ZUSTÄNDIGKEIT PRÜFEN – richtet sich nach dem Sitz des Unternehmens]</span>
+  </address>
+
+  <h2 id="aenderungen">13. Änderungen dieser Datenschutzerklärung</h2>
+  <p>Wir passen diese Datenschutzerklärung an, wenn sich die Website oder die eingesetzte Technik ändert. Es gilt die jeweils hier veröffentlichte Fassung. Stand: <span class="ph">[DATUM]</span>.</p>
+</Legal>

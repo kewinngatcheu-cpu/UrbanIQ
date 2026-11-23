@@ -1,0 +1,17 @@
+{
+  "name": "ngcx-website",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Website von NGCX (ngcxintelligence.de) – Phase 1 Entwurf",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "shots": "node scripts/screenshots.mjs",
+    "og": "node scripts/make-og.mjs"
+  },
+  "dependencies": {
+    "astro": "^7.4.13"
+  }
+}

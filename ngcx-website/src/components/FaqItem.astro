@@ -1,0 +1,29 @@
+---
+interface Props { q: string; a: string; open?: boolean }
+const { q, a, open = false } = Astro.props;
+---
+<details class="faq" open={open}>
+  <summary><span>{q}</span><span class="faq-icon" aria-hidden="true"></span></summary>
+  <div class="faq-a"><p set:html={a} /></div>
+</details>
+<style>
+  .faq { border-bottom: 1px solid var(--line); }
+  .faq summary {
+    list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    gap: 24px; padding: 22px 2px; font-weight: 650; font-size: 18px; line-height: 1.4;
+    transition: color .15s;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary:hover { color: var(--accent2); }
+  .faq-icon { position: relative; width: 14px; height: 14px; flex-shrink: 0; }
+  .faq-icon::before, .faq-icon::after {
+    content: ''; position: absolute; left: 0; top: 6px; width: 14px; height: 2px; border-radius: 2px;
+    background: var(--accent2); transition: transform .25s var(--ease);
+  }
+  .faq-icon::after { transform: rotate(90deg); }
+  .faq[open] .faq-icon::after { transform: rotate(0); }
+  .faq-a { padding: 0 2px 24px; max-width: var(--textw); }
+  .faq-a p { color: var(--muted); }
+  .faq-a :global(a) { color: var(--accent2); font-weight: 600; text-decoration: none; }
+  .faq-a :global(a:hover) { text-decoration: underline; }
+</style>

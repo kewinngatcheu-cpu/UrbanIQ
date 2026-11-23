@@ -1,0 +1,59 @@
+---
+import Base from './Base.astro';
+import { useT, type PageKey } from '../i18n';
+interface Props {
+  title: string;
+  description: string;
+  heading: string;
+  toc?: { id: string; label: string }[];
+  stand?: string;
+  page: PageKey;
+}
+const { title, description, heading, toc, stand = '[DATUM]', page } = Astro.props;
+// Rechtstexte gibt es nur auf Deutsch (maßgebliche Fassung)
+const t = useT('de');
+---
+<Base title={title} description={description} page={page}>
+  <article class="legal container">
+    <header class="legal-head">
+      <span class="eyebrow">{t.legal.eyebrow}</span>
+      <h1>{heading}</h1>
+      <p class="draft" role="note" set:html={t.legal.draft} />
+      <p class="stand">{t.legal.stand} <span class="ph">{stand}</span></p>
+    </header>
+    {toc && (
+      <nav class="toc" aria-label="Inhaltsverzeichnis">
+        <h2>{t.legal.toc}</h2>
+        <ol>{toc.map((t) => <li><a href={`#${t.id}`}>{t.label}</a></li>)}</ol>
+      </nav>
+    )}
+    <div class="legal-body"><slot /></div>
+  </article>
+</Base>
+<style>
+  .legal { max-width: calc(var(--textw) + 2 * var(--gutter) + 80px); padding-top: 56px; padding-bottom: 96px; }
+  .legal-head h1 { font-size: clamp(32px, 2vw + 24px, 48px); margin-bottom: 20px; }
+  .draft {
+    border: 1px dashed rgba(255, 201, 77, .5); background: rgba(255, 201, 77, .07); color: #ffe2a6;
+    border-radius: 12px; padding: 14px 16px; font-size: 14.5px;
+  }
+  .draft strong { color: #ffd98a; }
+  .stand { margin-top: 14px; font-size: 14px; color: var(--muted); }
+  .toc { margin: 40px 0 8px; padding: 22px 24px; border: 1px solid var(--line); border-radius: var(--r-inner); background: var(--card); }
+  .toc h2 { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; font-weight: 600; }
+  .toc ol { padding-left: 22px; display: grid; gap: 6px; }
+  .toc li::marker { color: var(--accent2); font-variant-numeric: tabular-nums; }
+  .toc a { color: var(--text); text-decoration: none; font-size: 15.5px; }
+  .toc a:hover { color: var(--accent2); }
+  .legal-body { margin-top: 32px; }
+  .legal-body :global(h2) { font-size: 22px; margin: 48px 0 14px; scroll-margin-top: 96px; }
+  .legal-body :global(h3) { font-size: 18px; margin: 28px 0 10px; }
+  .legal-body :global(p), .legal-body :global(li) { color: var(--muted); font-size: 16px; line-height: 1.7; }
+  .legal-body :global(p + p) { margin-top: 12px; }
+  .legal-body :global(ul), .legal-body :global(ol) { padding-left: 22px; margin: 10px 0; display: grid; gap: 6px; }
+  .legal-body :global(strong) { color: var(--text); }
+  .legal-body :global(a) { color: var(--accent2); overflow-wrap: anywhere; }
+  .legal-body :global(address) { font-style: normal; color: var(--text); line-height: 1.7; }
+  .legal-body :global(.optional) { border-left: 2px solid var(--line); padding-left: 16px; margin: 16px 0; }
+  .legal-body :global(.optional-label) { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent2); }
+</style>

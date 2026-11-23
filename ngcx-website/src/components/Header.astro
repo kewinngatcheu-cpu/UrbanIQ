@@ -1,0 +1,123 @@
+---
+import Logo from './Logo.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import LangSwitch from './LangSwitch.astro';
+import { getLang, useT, pageUrl, sectionUrl, type PageKey } from '../i18n';
+import { bookingLink } from '../config';
+
+interface Props { page: PageKey }
+const { page } = Astro.props;
+const lang = getLang(Astro.url);
+const t = useT(lang);
+const booking = bookingLink(lang);
+const nav = [
+  { href: sectionUrl(lang, 'services'), label: t.nav.services },
+  { href: sectionUrl(lang, 'method'), label: t.nav.method },
+  { href: sectionUrl(lang, 'process'), label: t.nav.process },
+  { href: pageUrl('pricing', lang), label: t.nav.pricing, page: 'pricing' },
+  { href: pageUrl('check', lang), label: t.nav.check, badge: t.nav.checkBadge, page: 'check' },
+  { href: sectionUrl(lang, 'about'), label: t.nav.about },
+  { href: sectionUrl(lang, 'faq'), label: t.nav.faq },
+];
+---
+<header class="site-header" id="site-header">
+  <div class="container header-inner">
+    <a href={pageUrl('home', lang)} class="brand" aria-label={t.ui.homeAria}><Logo eager height={24} /></a>
+
+    <nav class="nav-desktop" aria-label={t.ui.mainNav}>
+      <ul>
+        {nav.map((n) => (
+          <li>
+            <a href={n.href} class:list={{ 'is-check': !!n.badge }} aria-current={n.page === page ? 'page' : undefined}>
+              {n.label}{n.badge && <span class="badge">{n.badge}</span>}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <LangSwitch page={page} class="lang-desktop" />
+      <Button href={booking.href} external={booking.external} size="small" class="header-cta">{t.ui.headerCta}</Button>
+      <button type="button" class="burger" id="burger" aria-expanded="false" aria-controls="mobile-menu" aria-label={t.ui.menuOpen} data-label-open={t.ui.menuOpen} data-label-close={t.ui.menuClose}>
+        <span class="burger-open"><Icon name="menu" /></span>
+        <span class="burger-close"><Icon name="close" /></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobile-menu" hidden>
+    <nav class="container" aria-label={t.ui.mobileNav}>
+      <LangSwitch page={page} class="lang-mobile" />
+      <ul>
+        {nav.map((n) => (
+          <li>
+            <a href={n.href} aria-current={n.page === page ? 'page' : undefined}>
+              {n.label}{n.badge && <span class="badge">{n.badge}</span>}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <Button href={booking.href} external={booking.external} block arrow>{t.ui.menuCta}</Button>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    border-bottom: 1px solid transparent;
+    transition: background .25s, border-color .25s;
+  }
+  .site-header.scrolled, .site-header.menu-open {
+    background: rgba(8, 11, 16, .82);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-bottom-color: rgba(31, 53, 80, .7);
+  }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 72px; }
+  .brand { display: inline-flex; align-items: center; padding: 6px 0; flex-shrink: 0; }
+  .nav-desktop { display: none; }
+  .nav-desktop ul { display: flex; gap: 2px; list-style: none; }
+  .nav-desktop a {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px;
+    color: var(--muted); text-decoration: none; font-size: 15px; font-weight: 500; transition: color .15s; white-space: nowrap;
+  }
+  .nav-desktop a:hover, .nav-desktop a[aria-current='page'] { color: var(--text); }
+  .nav-desktop a.is-check { color: var(--text); }
+  .badge {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid rgba(92, 200, 255, .4); border-radius: 999px; padding: 2px 7px; line-height: 1.3;
+  }
+  .header-actions { display: flex; align-items: center; gap: 8px; }
+  .header-actions :global(.header-cta) { display: none; }
+  .header-actions :global(.lang-desktop) { display: none; }
+  .burger {
+    display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px;
+    background: transparent; border: 1px solid var(--line); color: var(--text); cursor: pointer;
+  }
+  .burger span { display: grid; place-items: center; }
+  .burger .burger-close { display: none; }
+  .burger[aria-expanded='true'] .burger-open { display: none; }
+  .burger[aria-expanded='true'] .burger-close { display: grid; }
+
+  .mobile-menu { border-top: 1px solid var(--line); height: calc(100dvh - 72px); overflow-y: auto; }
+  .mobile-menu ul { list-style: none; padding: 4px 0 24px; }
+  .mobile-menu li a {
+    display: flex; align-items: center; justify-content: space-between; padding: 16px 0;
+    font-size: 20px; font-weight: 600; text-decoration: none; border-bottom: 1px solid rgba(31, 53, 80, .6);
+  }
+  .mobile-menu nav { padding-bottom: 40px; }
+  .mobile-menu :global(.lang-mobile) { margin: 12px 0 4px -6px; }
+  .mobile-menu :global(.lang-mobile a) { font-size: 16px; }
+
+  @media (min-width: 640px) {
+    .header-actions :global(.header-cta) { display: inline-flex; }
+  }
+  @media (min-width: 1180px) {
+    .nav-desktop { display: block; }
+    .header-actions :global(.lang-desktop) { display: inline-flex; }
+    .burger, .mobile-menu { display: none !important; }
+  }
+</style>

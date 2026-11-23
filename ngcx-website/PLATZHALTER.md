@@ -1,0 +1,59 @@
+# Platzhalter – was vor dem Livegang noch fehlt
+
+Alle Stellen sind auf der Website gelb gestrichelt markiert. Nichts davon wurde erfunden.
+
+## 1. Zentral in `src/config.ts`
+
+| Platzhalter | Wo | Hinweis |
+|---|---|---|
+| ~~`[BUCHUNGSLINK]`~~ ✅ | `BOOKING_URL` | https://calendly.com/kewin-ngcxintelligence/30min |
+| ~~`[E-MAIL]`~~ ✅ | `CONTACT_EMAIL` | kewin@ngcxintelligence.de |
+| ~~`[LINKEDIN_URL]`~~ ✅ | `LINKEDIN_URL` | https://www.linkedin.com/in/kewin-ngatcheu-455358284 |
+| ~~Preise~~ ✅ | `src/pricing.config.ts` | Pipeline Core / Growth, Founding-Programm |
+| `[FOTO]` | `FOUNDER.photo` | z. B. `/img/kewin.webp` (Datei nach `public/img/` legen, ca. 800 × 960 px) |
+
+## 2. Startseite – `src/locales/de.json` und `src/locales/en.json`
+
+| Platzhalter | Abschnitt |
+|---|---|
+| `[PLATZHALTER: …]` / `[PLACEHOLDER: …]` – Über-mich-Text, in beiden Sprachen | `about.paragraphs` |
+| H1-Formulierung bestätigen (DE und EN) | `hero.title` |
+
+## 3. Impressum – `src/pages/impressum.astro`
+
+- `[VOLLER NAME]`
+- `[ZUSATZ, z. B. „NGCX“ als Geschäftsbezeichnung]`
+- `[STRASSE NR]`, `[PLZ ORT]` – ladungsfähige Anschrift, kein Postfach (ggf. Geschäftsadress-Dienst)
+- `[TELEFON]` – zweiter schneller Kontaktweg
+- `[USTID]` – optionaler Block, nur falls vorhanden, sonst Block löschen
+- `[NAME]`, `[ADRESSE]` – Verantwortlich nach § 18 Abs. 2 MStV
+- `[DATUM]` – Stand
+
+## 4. Datenschutz – `src/pages/datenschutz.astro`
+
+- `[VOLLER NAME]`, `[ZUSATZ]`, `[STRASSE NR]`, `[PLZ ORT]`, `[TELEFON]` (wie Impressum)
+- `[HOSTING-ANBIETER]` – voraussichtlich Cloudflare Pages
+- `[SPEICHERDAUER LOGS]`
+- `[E-MAIL-ANBIETER]` – voraussichtlich Google Workspace
+- ✅ Buchungstool: Calendly eingetragen (Drittlandübermittlung/AVV noch rechtlich prüfen)
+- `[BESTÄTIGEN]` (4×) – AVV und DPF-Zertifizierung von Hosting- und E-Mail-Anbieter prüfen
+- `[ZUSTÄNDIGKEIT PRÜFEN]` – Aufsichtsbehörde richtet sich nach dem Sitz (eingetragen: Berlin)
+- `[DATUM]` – Stand
+
+## 5. AGB – `src/pages/agb.astro`
+
+- `[VOLLER NAME]`, `[STRASSE NR]`, `[PLZ ORT]`
+- `[ANGEBOTSBINDUNG]`
+- `[ABRECHNUNG SETUP]`, `[ABRECHNUNG BETREUUNG]`
+- `[ZAHLUNGSZIEL]`
+- `[§ 19 UStG JA/NEIN]` – optionaler Block Kleinunternehmerregelung
+- ✅ Mindestlaufzeit 3 Monate eingetragen; offen: `[KÜNDIGUNGSFRIST]`
+- `[DAUER UND BEDINGUNGEN DER FOUNDING-KONDITIONEN PRÜFEN]` (§ 4)
+- `[DAUER]` – Nachwirkung der Vertraulichkeit
+- `[GERICHTSSTAND]`
+- `[DATUM]` – Stand
+
+## 6. Vor dem Livegang außerdem
+
+- Alle Rechtstexte rechtlich prüfen lassen (Anwalt oder Generator wie eRecht24 / IT-Recht Kanzlei).
+- Kontrast der Primär-Buttons entscheiden (siehe README, Abschnitt „Barrierefreiheit“).

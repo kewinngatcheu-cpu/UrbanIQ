@@ -1,0 +1,135 @@
+---
+// ENTWURF – vor Veröffentlichung rechtlich prüfen lassen (z. B. Anwalt oder Generator wie eRecht24 / IT-Recht Kanzlei)
+import Legal from '../layouts/Legal.astro';
+const toc = [
+  { id: 'p1', label: '§ 1 Geltungsbereich' },
+  { id: 'p2', label: '§ 2 Vertragsgegenstand' },
+  { id: 'p3', label: '§ 3 Kein geschuldeter Erfolg' },
+  { id: 'p4', label: '§ 4 Tarife: Pipeline Core und Pipeline Growth' },
+  { id: 'p5', label: '§ 5 Vertragsschluss' },
+  { id: 'p6', label: '§ 6 Mitwirkungspflichten des Kunden' },
+  { id: 'p7', label: '§ 7 Rechtskonforme Ansprache' },
+  { id: 'p8', label: '§ 8 Vergütung und Zahlung' },
+  { id: 'p9', label: '§ 9 Laufzeit und Kündigung' },
+  { id: 'p10', label: '§ 10 Vertraulichkeit' },
+  { id: 'p11', label: '§ 11 Datenschutz und Auftragsverarbeitung' },
+  { id: 'p12', label: '§ 12 Nutzungsrechte' },
+  { id: 'p13', label: '§ 13 Haftung' },
+  { id: 'p14', label: '§ 14 Schlussbestimmungen' },
+];
+---
+<Legal
+  page="terms"
+  title="AGB – NGCX"
+  description="Allgemeine Geschäftsbedingungen von NGCX für Unternehmer (B2B)."
+  heading="Allgemeine Geschäftsbedingungen"
+  toc={toc}
+>
+  <Fragment set:html="<!-- ENTWURF – vor Veröffentlichung rechtlich prüfen lassen (z. B. Anwalt oder Generator wie eRecht24 / IT-Recht Kanzlei) -->" />
+  <p>Allgemeine Geschäftsbedingungen von <span class="ph">[VOLLER NAME]</span>, handelnd unter „NGCX“, <span class="ph">[STRASSE NR]</span>, <span class="ph">[PLZ ORT]</span> (nachfolgend „NGCX“).</p>
+
+  <h2 id="p1">§ 1 Geltungsbereich</h2>
+  <ol>
+    <li>Diese AGB gelten für alle Verträge zwischen NGCX und ihren Kunden über die in § 2 beschriebenen Leistungen.</li>
+    <li>Das Angebot richtet sich ausschließlich an Unternehmer im Sinne von § 14 BGB, juristische Personen des öffentlichen Rechts und öffentlich-rechtliche Sondervermögen. Verträge mit Verbrauchern im Sinne von § 13 BGB werden nicht geschlossen.</li>
+    <li>Abweichende, entgegenstehende oder ergänzende Geschäftsbedingungen des Kunden werden nur Vertragsbestandteil, wenn NGCX ihrer Geltung ausdrücklich schriftlich zustimmt.</li>
+    <li>Individuelle Vereinbarungen, insbesondere im Angebot, haben Vorrang vor diesen AGB.</li>
+  </ol>
+
+  <h2 id="p2">§ 2 Vertragsgegenstand</h2>
+  <ol>
+    <li>NGCX unterstützt den Kunden bei der Gewinnung von Neukunden im B2B-Bereich („NGCX Sales“, „NGCX Pipeline System“). Dazu können insbesondere gehören: Schärfung des Ideal Customer Profile, Recherche von Zielunternehmen und Entscheidern, Vertriebsstrategie, Erstellung von Leadlisten, Kommunikationskonzepte und Ansprachen, CRM- und Pipeline-Management, Qualifizierung von Kontakten, Koordination von Erstgesprächen und Reporting.</li>
+    <li>Der konkrete Leistungsumfang ergibt sich aus dem jeweiligen individuellen Angebot.</li>
+    <li>Die Verträge sind Dienstverträge im Sinne der §§ 611 ff. BGB. Ein Werkvertrag wird nicht geschlossen.</li>
+    <li>NGCX erbringt die Leistungen selbstständig und weisungsfrei. NGCX darf zur Leistungserbringung qualifizierte Dritte einsetzen, bleibt dem Kunden gegenüber aber verantwortlich.</li>
+  </ol>
+
+  <h2 id="p3">§ 3 Kein geschuldeter Erfolg</h2>
+  <ol>
+    <li>NGCX schuldet die vereinbarten Leistungen, nicht einen bestimmten wirtschaftlichen Erfolg. Insbesondere übernimmt NGCX keine Garantie für eine bestimmte Anzahl von Gesprächen, Aufträgen, Abschlüssen oder Umsätzen.</li>
+    <li>Im Angebot vereinbarte Kennzahlen und Zielwerte dienen der Steuerung und transparenten Bewertung der Zusammenarbeit. Sie sind keine Beschaffenheits- oder Erfolgsgarantie, soweit nicht ausdrücklich schriftlich etwas anderes vereinbart ist.</li>
+  </ol>
+
+  <h2 id="p4">§ 4 Tarife: Pipeline Core und Pipeline Growth</h2>
+  <ol>
+    <li>NGCX bietet die Tarife <strong>NGCX Pipeline Core</strong> und <strong>NGCX Pipeline Growth</strong> an. Beide bestehen aus einem einmaligen <strong>Setup</strong>, in dem das Akquise-System des Kunden aufgebaut wird, und einer laufenden <strong>monatlichen Betreuung</strong>.</li>
+    <li>Leistungsumfang, Liefermengen und Preise ergeben sich aus dem individuellen Angebot sowie der zum Zeitpunkt des Vertragsschlusses auf der Website veröffentlichten Preisübersicht.</li>
+    <li>Konditionen aus dem „NGCX Founding Partner Program“ gelten nur, wenn sie im Angebot ausdrücklich vereinbart sind. <span class="ph">[DAUER UND BEDINGUNGEN DER FOUNDING-KONDITIONEN PRÜFEN, z. B. 12 Monate garantiert, Gegenleistung Referenz und Feedback]</span></li>
+  </ol>
+
+  <h2 id="p5">§ 5 Vertragsschluss</h2>
+  <ol>
+    <li>Darstellungen auf der Website sind kein bindendes Angebot. Ein Vertrag kommt durch Annahme eines individuellen Angebots von NGCX in Textform (z. B. per E-Mail) oder durch Unterzeichnung zustande.</li>
+    <li>Angebote von NGCX sind <span class="ph">[ANGEBOTSBINDUNG, z. B. 14 Tage]</span> gültig, soweit nicht anders angegeben.</li>
+  </ol>
+
+  <h2 id="p6">§ 6 Mitwirkungspflichten des Kunden</h2>
+  <ol>
+    <li>Der Kunde stellt NGCX rechtzeitig alle Informationen zur Verfügung, die für die Leistung erforderlich sind, insbesondere zu Leistungsangebot, Zielkunden, Positionierung und bestehenden Kundenbeziehungen.</li>
+    <li>Der Kunde prüft und gibt Ansprachen, Botschaften und Zielgruppen vor ihrem Einsatz in angemessener Frist frei.</li>
+    <li>Der Kunde gibt zeitnah Feedback zu vereinbarten Erstgesprächen und informiert NGCX über deren Ergebnis, soweit dies für Steuerung und Reporting erforderlich ist.</li>
+    <li>Der Kunde benennt eine Ansprechperson, die Entscheidungen treffen oder kurzfristig herbeiführen kann.</li>
+    <li>Verzögerungen oder Mehraufwand, die durch fehlende Mitwirkung entstehen, gehen nicht zulasten von NGCX. Vereinbarte Zeiträume verlängern sich entsprechend.</li>
+  </ol>
+
+  <h2 id="p7">§ 7 Rechtskonforme Ansprache</h2>
+  <ol>
+    <li>Kontaktaufnahmen erfolgen unter Beachtung des Gesetzes gegen den unlauteren Wettbewerb (UWG), insbesondere § 7 UWG, und der DSGVO.</li>
+    <li>Ansprachen werden vor ihrem Einsatz vom Kunden freigegeben. Der Kunde ist für die inhaltliche Richtigkeit der Angaben zu seinem Unternehmen und seinen Leistungen verantwortlich.</li>
+    <li>Erfolgt eine Ansprache im Namen des Kunden, stellt der Kunde sicher, dass er hierzu berechtigt ist und die Ansprache mit seinen eigenen Richtlinien vereinbar ist.</li>
+  </ol>
+
+  <h2 id="p8">§ 8 Vergütung und Zahlung</h2>
+  <ol>
+    <li>Die Vergütung ergibt sich aus dem individuellen Angebot. Alle Preise verstehen sich zuzüglich der gesetzlichen Umsatzsteuer, soweit diese anfällt.</li>
+    <li>Das Setup wird <span class="ph">[ABRECHNUNG SETUP, z. B. bei Beauftragung]</span> abgerechnet. Die monatliche Betreuung wird <span class="ph">[ABRECHNUNG BETREUUNG, z. B. monatlich im Voraus]</span> abgerechnet.</li>
+    <li>Rechnungen sind innerhalb von <span class="ph">[ZAHLUNGSZIEL, z. B. 14 Tagen]</span> nach Rechnungsdatum ohne Abzug zahlbar. Rechnungen werden elektronisch übermittelt.</li>
+    <li>Bei Zahlungsverzug gelten die gesetzlichen Regelungen (§§ 286, 288 BGB).</li>
+  </ol>
+  <div class="optional">
+    <p class="optional-label">Optional – nur bei Kleinunternehmerregelung</p>
+    <p>Gemäß § 19 UStG wird keine Umsatzsteuer berechnet. <span class="ph">[§ 19 UStG JA/NEIN]</span></p>
+  </div>
+
+  <h2 id="p9">§ 9 Laufzeit und Kündigung</h2>
+  <ol>
+    <li>Die monatliche Betreuung hat eine Mindestlaufzeit von 3 Monaten. Danach ist sie monatlich kündbar, mit einer Frist von <span class="ph">[KÜNDIGUNGSFRIST, z. B. zum Monatsende]</span>.</li>
+    <li>Das Recht zur außerordentlichen Kündigung aus wichtigem Grund bleibt unberührt.</li>
+    <li>Kündigungen bedürfen der Textform.</li>
+  </ol>
+
+  <h2 id="p10">§ 10 Vertraulichkeit</h2>
+  <ol>
+    <li>Beide Parteien behandeln alle vertraulichen Informationen der anderen Partei, die ihnen im Rahmen der Zusammenarbeit bekannt werden, vertraulich und nutzen sie nur zur Vertragsdurchführung.</li>
+    <li>Dies gilt nicht für Informationen, die öffentlich bekannt sind, rechtmäßig von Dritten erlangt wurden oder aufgrund gesetzlicher Pflichten offengelegt werden müssen.</li>
+    <li>Die Verpflichtung gilt über das Vertragsende hinaus für <span class="ph">[DAUER, z. B. drei Jahre]</span>.</li>
+  </ol>
+
+  <h2 id="p11">§ 11 Datenschutz und Auftragsverarbeitung</h2>
+  <ol>
+    <li>Beide Parteien beachten die geltenden Datenschutzvorschriften, insbesondere die DSGVO und das BDSG.</li>
+    <li>Soweit NGCX personenbezogene Daten im Auftrag des Kunden verarbeitet (z. B. Kontaktdaten aus dem CRM des Kunden), schließen die Parteien vor Beginn der Verarbeitung einen Vertrag zur Auftragsverarbeitung (AVV) nach Art. 28 DSGVO.</li>
+  </ol>
+
+  <h2 id="p12">§ 12 Nutzungsrechte</h2>
+  <ol>
+    <li>An den für den Kunden erstellten Unterlagen (z. B. Zielkundenprofil, Leadlisten, Ansprachen, Reportings) erhält der Kunde mit vollständiger Zahlung ein einfaches, zeitlich und räumlich unbeschränktes Nutzungsrecht für eigene Zwecke.</li>
+    <li>Allgemeine Methoden, Vorlagen, Prozesse und Know-how von NGCX, insbesondere das NGCX Industry Growth System, verbleiben bei NGCX und dürfen von NGCX weiter genutzt werden.</li>
+  </ol>
+
+  <h2 id="p13">§ 13 Haftung</h2>
+  <ol>
+    <li>NGCX haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit, bei Verletzung von Leben, Körper oder Gesundheit sowie nach dem Produkthaftungsgesetz.</li>
+    <li>Bei leicht fahrlässiger Verletzung wesentlicher Vertragspflichten (Kardinalpflichten) ist die Haftung auf den vertragstypischen, vorhersehbaren Schaden begrenzt. Kardinalpflichten sind Pflichten, deren Erfüllung die ordnungsgemäße Durchführung des Vertrags erst ermöglicht und auf deren Einhaltung der Kunde regelmäßig vertrauen darf.</li>
+    <li>Im Übrigen ist die Haftung für leichte Fahrlässigkeit ausgeschlossen.</li>
+    <li>Die vorstehenden Beschränkungen gelten auch zugunsten der Erfüllungsgehilfen von NGCX.</li>
+  </ol>
+
+  <h2 id="p14">§ 14 Schlussbestimmungen</h2>
+  <ol>
+    <li>Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts.</li>
+    <li>Ausschließlicher Gerichtsstand für alle Streitigkeiten aus diesem Vertrag ist, soweit gesetzlich zulässig, <span class="ph">[GERICHTSSTAND, z. B. Berlin]</span>.</li>
+    <li>Änderungen und Ergänzungen bedürfen der Textform.</li>
+    <li>Sollte eine Bestimmung dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt. An die Stelle der unwirksamen Bestimmung tritt die gesetzliche Regelung.</li>
+  </ol>
+</Legal>

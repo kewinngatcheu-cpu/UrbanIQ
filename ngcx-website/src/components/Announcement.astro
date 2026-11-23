@@ -1,0 +1,29 @@
+---
+import { SHOW_ANNOUNCEMENT } from '../config';
+import { getLang, useT, pageUrl } from '../i18n';
+import Icon from './Icon.astro';
+const lang = getLang(Astro.url);
+const t = useT(lang);
+---
+{SHOW_ANNOUNCEMENT && (
+  <div class="announce" id="announce" role="region" aria-label={t.ui.announceAria}>
+    <div class="container announce-inner">
+      <a href={pageUrl('check', lang)} class="announce-link"><span set:html={t.announcement.text} /> <span aria-hidden="true">→</span></a>
+      <button type="button" class="announce-close" aria-label={t.ui.announceClose}><Icon name="close" size={16} /></button>
+    </div>
+  </div>
+)}
+<style>
+  .announce { background: #0a1626; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .announce.is-hidden { display: none; }
+  .announce-inner { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 42px; position: relative; padding-right: 52px; }
+  .announce-link { color: var(--muted); text-decoration: none; padding: 9px 0; line-height: 1.45; text-align: center; }
+  .announce-link :global(strong) { color: var(--accent2); font-weight: 650; }
+  .announce-link:hover { color: var(--text); }
+  .announce-close {
+    position: absolute; right: calc(var(--gutter) - 8px); top: 50%; transform: translateY(-50%);
+    display: grid; place-items: center; width: 44px; height: 44px; border-radius: 8px;
+    background: transparent; border: 0; color: var(--muted); cursor: pointer;
+  }
+  .announce-close:hover { color: var(--text); background: var(--card2); }
+</style>

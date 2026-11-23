@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import Button from '../components/Button.astro';
+import { useT, pageUrl } from '../i18n';
+// Eine gemeinsame 404-Seite für beide Sprachen: Deutsch zuerst, darunter Englisch
+const de = useT('de');
+const en = useT('en');
+---
+<Base title={de.meta.notFound.title} description={de.meta.notFound.description} page="notFound" sticky={false}>
+  <section class="nf grid-bg">
+    <div class="container">
+      <span class="eyebrow">{de.notFound.eyebrow}</span>
+      <h1 set:html={de.notFound.title} />
+      <p class="lead">{de.notFound.lead}</p>
+      <div class="actions">
+        <Button href={pageUrl('check', 'de')} arrow>{de.notFound.check}</Button>
+        <Button href={pageUrl('home', 'de')} variant="ghost">{de.notFound.home}</Button>
+      </div>
+      <div class="nf-en" lang="en">
+        <p class="nf-en-title" set:html={en.notFound.title} />
+        <p class="muted">{en.notFound.lead}</p>
+        <div class="actions">
+          <Button href={pageUrl('check', 'en')} size="small" arrow>{en.notFound.check}</Button>
+          <Button href={pageUrl('home', 'en')} size="small" variant="ghost">{en.notFound.home}</Button>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .nf { padding: 120px 0 140px; text-align: center; }
+  .nf h1 { margin-bottom: 18px; }
+  .nf .lead { margin: 0 auto 32px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .nf-en { margin: 56px auto 0; padding-top: 32px; border-top: 1px solid var(--line); max-width: 560px; }
+  .nf-en-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .nf-en-title :global(em) { color: var(--accent2); font-style: normal; }
+  .nf-en .muted { margin-bottom: 20px; }
+</style>

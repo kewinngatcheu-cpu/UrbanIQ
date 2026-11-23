@@ -1,0 +1,45 @@
+---
+// ENTWURF – vor Veröffentlichung rechtlich prüfen lassen (z. B. Anwalt oder Generator wie eRecht24 / IT-Recht Kanzlei)
+import Legal from '../layouts/Legal.astro';
+import Email from '../components/Email.astro';
+---
+<Legal page="imprint" title="Impressum – NGCX" description="Impressum von NGCX (ngcxintelligence.de)." heading="Impressum">
+  <Fragment set:html="<!-- ENTWURF – vor Veröffentlichung rechtlich prüfen lassen (z. B. Anwalt oder Generator wie eRecht24 / IT-Recht Kanzlei) -->" />
+  <h2>Angaben gemäß § 5 DDG</h2>
+  <address>
+    <span class="ph">[VOLLER NAME]</span><br />
+    <span class="ph">[ZUSATZ, z. B. „NGCX“ als Geschäftsbezeichnung]</span><br />
+    <span class="ph">[STRASSE NR]</span><br />
+    <span class="ph">[PLZ ORT]</span><br />
+    Deutschland
+  </address>
+  <p><em>Hinweis: ladungsfähige Anschrift, kein Postfach.</em></p>
+
+  <h2>Kontakt</h2>
+  <p>
+    E-Mail: <Email /><br />
+    Telefon: <span class="ph">[TELEFON]</span>
+  </p>
+
+  <div class="optional">
+    <p class="optional-label">Optional – nur falls vorhanden</p>
+    <h2>Umsatzsteuer-Identifikationsnummer</h2>
+    <p>Umsatzsteuer-Identifikationsnummer gemäß § 27a Umsatzsteuergesetz: <span class="ph">[USTID]</span></p>
+  </div>
+
+  <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+  <address><span class="ph">[NAME]</span><br /><span class="ph">[ADRESSE]</span></address>
+
+  <h2>Verbraucherstreitbeilegung</h2>
+  <p>Unser Angebot richtet sich ausschließlich an Unternehmer im Sinne von § 14 BGB. Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+  <!-- Hinweis: Die EU-Online-Streitbeilegungsplattform (OS-Plattform) wurde zum 20.07.2025 eingestellt; ein Link darauf ist nicht mehr erforderlich. Bitte bei der rechtlichen Prüfung bestätigen lassen. -->
+
+  <h2>Haftung für Inhalte</h2>
+  <p>Wir erstellen die Inhalte dieser Website mit Sorgfalt. Für die Richtigkeit, Vollständigkeit und Aktualität übernehmen wir jedoch keine Gewähr. Als Diensteanbieter sind wir für eigene Inhalte nach den allgemeinen Gesetzen verantwortlich. Wir sind nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen. Sobald uns eine Rechtsverletzung bekannt wird, entfernen wir die betreffenden Inhalte umgehend.</p>
+
+  <h2>Haftung für Links</h2>
+  <p>Diese Website enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Für diese Inhalte ist der jeweilige Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren keine Rechtsverstöße erkennbar. Bei Bekanntwerden von Rechtsverletzungen entfernen wir derartige Links umgehend.</p>
+
+  <h2>Urheberrecht</h2>
+  <p>Die Inhalte und Werke auf dieser Website, insbesondere Texte, Grafiken und das NGCX-Logo, unterliegen dem deutschen Urheberrecht. Vervielfältigung, Bearbeitung und Verbreitung außerhalb der Grenzen des Urheberrechts bedürfen der schriftlichen Zustimmung. Die Schriftart Manrope steht unter der SIL Open Font License 1.1.</p>
+</Legal>

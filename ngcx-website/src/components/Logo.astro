@@ -1,0 +1,25 @@
+---
+import { getLang, useT } from '../i18n';
+/** NGCX-Wortmarke aus dem Original-Logo (nur skaliert). mix-blend-mode: lighten blendet den dunklen Hintergrund aus. */
+interface Props { variant?: 'wordmark' | 'lockup'; height?: number; class?: string; eager?: boolean }
+const { variant = 'wordmark', height = 26, class: cls = '', eager = false } = Astro.props;
+const ratio = variant === 'wordmark' ? 990 / 215 : 1000 / 405;
+const width = Math.round(height * ratio);
+const base = variant === 'wordmark' ? '/img/ngcx-wordmark' : '/img/ngcx-lockup';
+const sizes = variant === 'wordmark' ? [240, 480] : [400, 800];
+const t = useT(getLang(Astro.url));
+---
+<img
+  class:list={['logo', cls]}
+  src={`${base}-${sizes[1]}.webp`}
+  srcset={`${base}-${sizes[0]}.webp ${sizes[0]}w, ${base}-${sizes[1]}.webp ${sizes[1]}w`}
+  sizes={`${width}px`}
+  width={width}
+  height={height}
+  alt={variant === 'wordmark' ? t.ui.logoWordmark : t.ui.logoLockup}
+  loading={eager ? 'eager' : 'lazy'}
+  decoding="async"
+/>
+<style>
+  .logo { mix-blend-mode: lighten; height: auto; }
+</style>

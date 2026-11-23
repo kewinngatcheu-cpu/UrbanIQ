@@ -1,0 +1,22 @@
+---
+/** Mobile Sticky-Leiste unten – erscheint erst nach dem Hero. */
+import { getLang, useT, pageUrl } from '../i18n';
+const lang = getLang(Astro.url);
+const t = useT(lang);
+---
+<div class="sticky-cta" id="sticky-cta" aria-hidden="true">
+  <a href={pageUrl('check', lang)} class="btn block" tabindex="-1">{t.ui.sticky} <span class="arrow" aria-hidden="true">→</span></a>
+</div>
+<style>
+  .sticky-cta {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
+    background: rgba(8, 11, 16, .86);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+    transform: translateY(110%); transition: transform .3s var(--ease);
+  }
+  .sticky-cta.show { transform: none; }
+  .sticky-cta .btn { padding: 14px 20px; }
+  @media (min-width: 768px) { .sticky-cta { display: none; } }
+</style>
