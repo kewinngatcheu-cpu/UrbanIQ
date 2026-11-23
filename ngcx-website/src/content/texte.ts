@@ -186,36 +186,9 @@ export const methode = {
 export const ablauf = {
   eyebrow: 'Einstieg & Zusammenarbeit',
   title: 'Klein anfangen. <em>Belegen.</em> Dann ausbauen.',
-  lead: 'Wir starten nicht mit einem langen Vertrag, sondern mit einem klar umrissenen Pilot. Erst wenn die Ergebnisse stimmen, geht es weiter.',
-  offers: [
-    {
-      tag: 'Einstieg',
-      title: 'NGCX Pipeline Sprint',
-      text: 'Der Pilot, um NGCX unter realen Bedingungen kennenzulernen.',
-      points: [
-        'Klar definierter Umfang und Zeitraum',
-        'Erfolgskriterien werden vorab gemeinsam festgelegt',
-        'Messbare Zwischenergebnisse statt Bauchgefühl',
-        'Am Ende eine ehrliche Bewertung, ob und wie es weitergeht',
-      ],
-      priceKey: 'sprint' as const,
-    },
-    {
-      tag: 'Laufend',
-      title: 'NGCX Pipeline Management',
-      text: t(
-        'Die laufende, monatliche Betreuung eures Neukundengeschäfts.',
-        'Die laufende, monatliche Betreuung Ihres Neukundengeschäfts.',
-      ),
-      points: [
-        'Kontinuierliche Recherche, Ansprache und Qualifizierung',
-        'Gepflegte Pipeline mit klaren Phasen',
-        'Koordination von Erstgesprächen',
-        'Monatliches Reporting mit nachvollziehbaren Kennzahlen',
-      ],
-      priceKey: 'management' as const,
-    },
-  ],
+  lead: 'Ein Setup, das Ihr Akquise-System aufbaut, und eine monatliche Betreuung, die es am Laufen hält. 3 Monate Mindestlaufzeit, danach monatlich kündbar.',
+  // Tarife, Preise und Leistungen kommen aus src/pricing.config.ts
+  pricesLink: 'Alle Leistungen, Preise und Konditionen',
   stepsTitle: 'So beginnt die Zusammenarbeit',
   steps: [
     {
@@ -226,12 +199,13 @@ export const ablauf = {
       ),
     },
     {
-      title: 'Pipeline Sprint',
-      text: 'Der Pilot mit klarem Umfang und vorab vereinbarten Kriterien.',
+      title: 'Setup in 2–3 Wochen',
+      text: 'Onboarding-Interview, Profitabilitäts-ICP, 50–100 Zielaccounts sowie Ansprache und Pipeline.',
+      href: '/preise#setup',
     },
     {
-      title: 'Laufende Partnerschaft',
-      text: 'Wenn die Ergebnisse überzeugen: monatliche Betreuung mit festem Reporting.',
+      title: 'Monatliche Betreuung',
+      text: 'Pipeline Core oder Pipeline Growth. 3 Monate Mindestlaufzeit, danach monatlich kündbar.',
     },
   ],
 };
@@ -246,7 +220,7 @@ export const warum = {
     },
     {
       title: 'Proof-First',
-      text: 'Erst zeigen, dass es funktioniert, dann skalieren. Deshalb beginnt jede Zusammenarbeit mit einem Pilot.',
+      text: 'Erst zeigen, dass es funktioniert, dann skalieren. Deshalb beginnt jede Zusammenarbeit mit einem klar umrissenen Setup und festen Liefermengen.',
     },
     {
       title: 'Transparenz',
@@ -318,7 +292,7 @@ export const faq = {
     },
     {
       q: 'Was kostet die Zusammenarbeit?',
-      a: 'Der Umfang richtet sich nach Ihren Zielen und Ihrer Ausgangslage. Nach einem kostenlosen Erstgespräch erhalten Sie ein individuelles Angebot.',
+      a: 'Die Preise sind transparent: Pipeline Core und Pipeline Growth bestehen jeweils aus einem einmaligen Setup und einer monatlichen Betreuung. Alle Beträge und Konditionen finden Sie auf der <a href="/preise">Preisseite</a>. Welcher Tarif passt, klären wir im kostenlosen Erstgespräch.',
     },
     {
       q: 'Gibt es eine Garantie auf Neukunden?',
@@ -370,6 +344,7 @@ export const nav = [
   { href: '/#leistung', label: 'Leistung' },
   { href: '/#methode', label: 'Methode' },
   { href: '/#ablauf', label: 'Ablauf' },
+  { href: '/preise', label: 'Preise' },
   { href: '/pipeline-check', label: 'Pipeline-Check', badge: 'kostenlos' },
   { href: '/#ueber', label: 'Über NGCX' },
   { href: '/#faq', label: 'FAQ' },

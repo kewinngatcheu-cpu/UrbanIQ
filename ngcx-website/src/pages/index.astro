@@ -10,7 +10,8 @@ import Calculator from '../components/Calculator.astro';
 import PipelineVisual from '../components/PipelineVisual.astro';
 import Icon from '../components/Icon.astro';
 import Email from '../components/Email.astro';
-import { bookingLink, SHOW_PRICES, PRICES, FOUNDER, LINKEDIN_URL, isPlaceholder } from '../config';
+import { bookingLink, FOUNDER, LINKEDIN_URL, isPlaceholder } from '../config';
+import { pricing, foundingOn, eur } from '../pricing.config';
 import * as T from '../content/texte';
 
 const booking = bookingLink();
@@ -101,17 +102,27 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <!-- ABLAUF -->
   <Section id="ablauf" eyebrow={T.ablauf.eyebrow} title={T.ablauf.title} lead={T.ablauf.lead}>
     <div class="grid-2">
-      {T.ablauf.offers.map((o) => (
-        <Card class="reveal offer">
-          <span class="offer-tag">{o.tag}</span>
-          <h3>{o.title}</h3>
-          <p class="muted">{o.text}</p>
-          <ul class="checks">
-            {o.points.map((p) => <li><Icon name="check" size={18} /><span>{p}</span></li>)}
-          </ul>
-          {SHOW_PRICES && <p class="price tabular">{PRICES[o.priceKey]}</p>}
-        </Card>
-      ))}
+      {pricing.tiers.map((t) => {
+        const fp = foundingOn && t.founding;
+        return (
+          <Card class:list={['reveal offer', { 'offer-alt': !t.highlight }]}>
+            <div class="offer-head">
+              <h3>{t.name}</h3>
+              {fp && <span class="offer-tag">{pricing.foundingBanner.badge}</span>}
+            </div>
+            <p class="muted">{t.description}</p>
+            <p class="offer-price">
+              <span class="tabular">{eur(fp ? t.founding!.month : t.regular.month)}</span> / Monat
+              {fp && <s class="tabular">{eur(t.regular.month)}</s>}
+            </p>
+            <p class="offer-setup">zzgl. einmalig <strong class="tabular">{eur(fp ? t.founding!.setup : t.regular.setup)}</strong> Setup</p>
+            <ul class="checks">
+              {t.features.slice(0, 3).map((p) => <li><Icon name="check" size={18} /><span>{p}</span></li>)}
+            </ul>
+            <a class="text-link offer-link" href="/preise">{T.ablauf.pricesLink} →</a>
+          </Card>
+        );
+      })}
     </div>
 
     <h3 class="flow-title reveal">{T.ablauf.stepsTitle}</h3>
@@ -121,6 +132,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           <span class="flow-num tabular">{i + 1}</span>
           <h4>{s.title}</h4>
           <p class="muted">{s.text}</p>
+          {s.href && <a class="text-link flow-link" href={s.href}>Was im Setup steckt →</a>}
         </li>
       ))}
     </ol>
@@ -302,11 +314,25 @@ const pad = (n: number) => String(n).padStart(2, '0');
     align-self: flex-start; font-size: 12px; font-weight: 650; letter-spacing: .14em; text-transform: uppercase;
     color: var(--accent2); border: 1px solid rgba(92, 200, 255, .35); border-radius: 999px; padding: 4px 12px; margin-bottom: 18px;
   }
-  .offer h3 { font-size: 24px; margin-bottom: 8px; }
+  .offer h3 { font-size: 24px; }
+  .offer-alt { background: var(--card2); }
+  .offer-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .offer-head .offer-tag { margin-bottom: 0; }
+  .offer-price { margin-top: 20px; font-size: 16px; color: var(--muted); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .offer-price > span { font-size: 34px; font-weight: 800; color: var(--text); letter-spacing: -.02em; line-height: 1; }
+  .offer-price s { color: var(--muted); opacity: .7; }
+  .offer-setup { color: var(--muted); font-size: 15px; margin-top: 6px; }
+  .offer-setup strong { color: var(--text); }
+  .offer-link, .flow-link {
+    display: inline-flex; align-items: center; min-height: 44px; border-bottom: 0;
+    text-decoration: underline; text-decoration-color: rgba(92, 200, 255, .35); text-underline-offset: 5px;
+  }
+  .offer-link:hover, .flow-link:hover { text-decoration-color: var(--accent2); }
+  .offer-link { align-self: flex-start; margin-top: 16px; }
+  .flow-link { margin-top: 4px; font-size: 15px; }
   .checks { list-style: none; margin-top: 22px; display: grid; gap: 12px; }
   .checks li { display: flex; gap: 12px; align-items: flex-start; font-size: 16px; }
   .checks :global(.icon) { color: var(--accent2); flex-shrink: 0; margin-top: 4px; }
-  .price { margin-top: auto; padding-top: 24px; font-size: 20px; font-weight: 700; color: var(--text); }
   .flow-title { margin: 72px 0 28px; }
   .flow { list-style: none; display: grid; gap: 16px; counter-reset: f; }
   .flow li { position: relative; padding: 24px; border: 1px solid var(--line); border-radius: var(--r-inner); background: rgba(13, 27, 46, .45); }

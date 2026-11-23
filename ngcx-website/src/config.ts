@@ -20,14 +20,7 @@ export const CONTACT_EMAIL = 'kewin@ngcxintelligence.de';
 /** LinkedIn-Profil von Kewin. Solange "#", ist der Link ohne Ziel. [LINKEDIN_URL] */
 export const LINKEDIN_URL: string = 'https://www.linkedin.com/in/kewin-ngatcheu-455358284';
 
-/**
- * Preisanzeige. Auf `true` setzen, um Preise bei Sprint und Management einzublenden.
- */
-export const SHOW_PRICES: boolean = false;
-export const PRICES = {
-  sprint: 'ab [PREIS_SPRINT] €',
-  management: 'ab [PREIS_MANAGEMENT] € / Monat',
-};
+/** Preise, Tarife und Founding-Partner-Programm: siehe src/pricing.config.ts */
 
 /**
  * Ansprache auf der gesamten Website: 'ihr' oder 'sie'.

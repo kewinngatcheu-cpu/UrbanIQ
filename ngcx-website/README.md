@@ -18,7 +18,8 @@ Produktions-Build: `npm run build` (Ausgabe in `dist/`), Vorschau des Builds: `n
 
 | Was | Datei |
 |---|---|
-| Buchungslink, E-Mail, LinkedIn, Preise an/aus, Ansprache ihr/Sie, Hinweisleiste | `src/config.ts` |
+| Buchungslink, E-Mail, LinkedIn, Ansprache ihr/Sie, Hinweisleiste | `src/config.ts` |
+| Preise, Tarife, Founding-Partner-Programm (`foundingActive`, `foundingSpotsLeft`) | `src/pricing.config.ts` |
 | Alle Texte der Startseite (je ihr- und Sie-Variante) | `src/content/texte.ts` |
 | Farben, Schrift, Abstände (Design-Tokens) | `src/styles/tokens.css` |
 | Pipeline-Check | `src/pages/pipeline-check.astro` (Original: `assets/pipeline-check.html`) |
@@ -26,7 +27,7 @@ Produktions-Build: `npm run build` (Ausgabe in `dist/`), Vorschau des Builds: `n
 | Security-Header (Cloudflare Pages) | `public/_headers` |
 | OG-Bild neu erzeugen | `scripts/og-image.html` bearbeiten, dann `npm run og` |
 
-- **Preise aktivieren:** in `src/config.ts` `SHOW_PRICES = true` und `PRICES` ausfüllen.
+- **Preise ändern:** in `src/pricing.config.ts`. Founding-Programm beenden: `foundingActive = false` oder `foundingSpotsLeft = 0` (Umschalter, Banner, Badge, Streichpreise und Benefits verschwinden automatisch). Freie Plätze anpassen: `foundingSpotsLeft`.
 - **Ansprache:** aktuell „Sie“ (`ANSPRACHE` in `src/config.ts`). Der Pipeline-Check ist fest auf „Sie“ formuliert.
 
 ## Struktur

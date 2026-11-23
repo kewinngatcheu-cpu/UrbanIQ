@@ -9,8 +9,7 @@ Alle Stellen sind auf der Website gelb gestrichelt markiert. Nichts davon wurde 
 | ~~`[BUCHUNGSLINK]`~~ ✅ | `BOOKING_URL` | https://calendly.com/kewin-ngcxintelligence/30min |
 | ~~`[E-MAIL]`~~ ✅ | `CONTACT_EMAIL` | kewin@ngcxintelligence.de |
 | ~~`[LINKEDIN_URL]`~~ ✅ | `LINKEDIN_URL` | https://www.linkedin.com/in/kewin-ngatcheu-455358284 |
-| `[PREIS_SPRINT]`, `[PREIS_MANAGEMENT]` | `PRICES` | nur relevant, wenn `SHOW_PRICES = true` |
-| Preise anzeigen? | `SHOW_PRICES` | aktuell `false` |
+| ~~Preise~~ ✅ | `src/pricing.config.ts` | Pipeline Core / Growth, Founding-Programm |
 | Ansprache | `ANSPRACHE` | `'ihr'` (Standard) oder `'sie'` |
 | `[FOTO]` | `FOUNDER.photo` | z. B. `/img/kewin.webp` (Datei nach `public/img/` legen, ca. 800 × 960 px) |
 
@@ -46,10 +45,11 @@ Alle Stellen sind auf der Website gelb gestrichelt markiert. Nichts davon wurde 
 
 - `[VOLLER NAME]`, `[STRASSE NR]`, `[PLZ ORT]`
 - `[ANGEBOTSBINDUNG]`
-- `[ABRECHNUNG SPRINT]`, `[ABRECHNUNG MANAGEMENT]`
+- `[ABRECHNUNG SETUP]`, `[ABRECHNUNG BETREUUNG]`
 - `[ZAHLUNGSZIEL]`
 - `[§ 19 UStG JA/NEIN]` – optionaler Block Kleinunternehmerregelung
-- `[LAUFZEIT SPRINT]`, `[MINDESTLAUFZEIT]`, `[VERLÄNGERUNG]`, `[KÜNDIGUNGSFRIST]`
+- ✅ Mindestlaufzeit 3 Monate eingetragen; offen: `[KÜNDIGUNGSFRIST]`
+- `[DAUER UND BEDINGUNGEN DER FOUNDING-KONDITIONEN PRÜFEN]` (§ 4)
 - `[DAUER]` – Nachwirkung der Vertraulichkeit
 - `[GERICHTSSTAND]`
 - `[DATUM]` – Stand

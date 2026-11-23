@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { SITE_URL } from '../config';
 
-const pages = ['/', '/pipeline-check', '/impressum', '/datenschutz', '/agb'];
+const pages = ['/', '/preise', '/pipeline-check', '/impressum', '/datenschutz', '/agb'];
 
 export const GET: APIRoute = () => {
   const urls = pages
