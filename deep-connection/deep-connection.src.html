@@ -1,0 +1,722 @@
+<title>The Deep Connection</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Jost:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: one narrow editorial column (max 640px), magazine-style report, sticky module progress bar. */
+:root {
+  --cream: #f8f4ee;
+  --paper: #fffdf9;
+  --champagne: #ecdfc8;
+  --beige: #d9c8ad;
+  --taupe: #9a8b7c;
+  --ink: #2b2826;
+  --ink-soft: #6b625a;
+  --gold: #b08d57;
+  --gold-deep: #8a6a3b;
+  --line: #e7dccb;
+  --good: #5f7a52;
+  --warn: #b07a2a;
+  --bad: #a04a3c;
+  --display: "Bodoni Moda", "Didot", Georgia, serif;
+  --sans: "Jost", "Avenir Next", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--cream); color: var(--ink); font: 300 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 120px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; letter-spacing: -0.01em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.6rem, 11vw, 4.4rem); line-height: .95; }
+h2 { font-size: clamp(1.9rem, 7vw, 2.7rem); line-height: 1.05; }
+h3 { font-size: 1.45rem; line-height: 1.2; }
+em, .it { font-style: italic; }
+p { margin: 0; }
+.eyebrow { font: 500 .68rem/1.4 var(--sans); letter-spacing: .28em; text-transform: uppercase; color: var(--gold-deep); }
+.muted { color: var(--ink-soft); }
+.small { font-size: .86rem; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.stack-lg { display: flex; flex-direction: column; gap: 40px; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.btn { appearance: none; border: 0; cursor: pointer; border-radius: 999px; padding: 16px 26px; font: 500 .72rem/1 var(--sans); letter-spacing: .24em; text-transform: uppercase; background: var(--ink); color: var(--paper); transition: transform .2s, background .2s; }
+.btn:hover { background: #000; }
+.btn:active { transform: scale(.98); }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+.btn.gold { background: var(--gold); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--beige); }
+.btn.link { background: none; color: var(--ink-soft); padding: 10px 4px; letter-spacing: .18em; }
+.btn:focus-visible, .opt:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--champagne); outline-offset: 2px; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 22px; padding: 22px; }
+.card.dark { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.card.dark .muted { color: #cbbfb2; }
+.card.dark .eyebrow { color: var(--champagne); }
+.hr { height: 1px; background: var(--line); border: 0; margin: 0; }
+/* Hero */
+.hero { position: relative; margin-top: 8px; }
+.hero-photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 30%; border-radius: 28px; display: block; max-width: 100%; }
+.hero-tag { position: absolute; left: 16px; bottom: 16px; right: 16px; color: #fff; text-shadow: 0 2px 18px rgba(0,0,0,.35); }
+.strip { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+.strip img { height: 150px; width: auto; border-radius: 14px; scroll-snap-align: start; flex: 0 0 auto; }
+.facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; }
+.facts b { display: block; font: 400 2rem/1 var(--display); }
+.facts span { font-size: .66rem; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-soft); }
+/* Module list */
+.mod { display: grid; grid-template-columns: 84px 1fr; gap: 16px; align-items: center; text-align: left; width: 100%; cursor: pointer; font: inherit; color: inherit; }
+.mod img { width: 84px; height: 104px; object-fit: cover; border-radius: 14px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px; font: 500 .62rem/1.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; background: var(--champagne); color: var(--gold-deep); }
+.pill.done { background: #e3e8dc; color: var(--good); }
+.pill.wait { background: #f3e6cf; color: var(--warn); }
+/* Question */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--cream); padding: 12px 0; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--cream); }
+.track { height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: 10px; }
+.track i { display: block; height: 100%; background: var(--gold); transition: width .5s cubic-bezier(.22,1,.36,1); }
+.qnum { font: italic 400 3.2rem/1 var(--display); color: var(--beige); }
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt { display: flex; gap: 14px; align-items: center; text-align: left; width: 100%; padding: 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--paper); font: 400 1rem/1.35 var(--sans); color: var(--ink); cursor: pointer; transition: border-color .2s, background .2s; }
+.opt .dot { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--beige); flex: 0 0 auto; display: grid; place-items: center; font-size: .7rem; color: transparent; }
+.opt[aria-checked="true"] { border-color: var(--ink); background: #fbf6ee; }
+.opt[aria-checked="true"] .dot { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+textarea, input[type=number], input[type=text] { width: 100%; font: 400 1rem/1.5 var(--sans); color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+textarea { min-height: 140px; resize: vertical; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: rgba(248,244,238,.96); border-top: 1px solid var(--line); padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.nav .in { max-width: 640px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.err { color: var(--bad); font-size: .9rem; }
+/* Report */
+.score { font: 400 4.6rem/1 var(--display); font-variant-numeric: tabular-nums; }
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.meter { height: 4px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: linear-gradient(90deg, var(--beige), var(--gold)); }
+.cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: .92rem; }
+.cmp div { min-width: 0; }
+.cmp .who { font: 500 .6rem/1.2 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--taupe); margin-bottom: 4px; }
+.ok { color: var(--good); }
+.no { color: var(--bad); }
+.tbl { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .9rem; }
+.tbl td, .tbl th { padding: 8px 4px; border-bottom: 1px solid var(--line); text-align: right; }
+.tbl td:first-child, .tbl th:first-child { text-align: left; }
+.scroll-x { overflow-x: auto; }
+.flag { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
+.quote { font: italic 400 1.35rem/1.35 var(--display); }
+.fade { animation: fade .7s cubic-bezier(.22,1,.36,1) both; }
+@keyframes fade { from { opacity: .001; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .fade { animation: none; } .track i { transition: none; } }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+label.f { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: var(--ink-soft); }
+@media (max-width: 420px) { .facts b { font-size: 1.6rem; } .grid2 { grid-template-columns: 1fr; } }
+</style>
+<div class="wrap" id="app"><p class="muted" style="padding-top:40vh;text-align:center">The Deep Connection wird geladen …</p></div>
+<script>
+"use strict";
+const PH = %%PHOTOS%%;
+
+/* ───────────────────────── QUESTIONS ───────────────────────── */
+const M1 = [
+  ["A","The Inner World","What makes me feel loved?","Was gibt mir persönlich am stärksten das Gefühl, geliebt zu werden?",["Worte der Wertschätzung","Körperliche Nähe und Zärtlichkeit","Gemeinsame Zeit und Aufmerksamkeit","Kleine Gesten und Überraschungen","Unterstützung und Verlässlichkeit","Eine Kombination aus mehreren Dingen"]],
+  ["A","The Inner World","When life gets hard","Wie reagiere ich normalerweise, wenn ich innerlich gestresst bin?",["Ich ziehe mich zurück","Ich möchte reden","Ich werde still","Ich versuche alles selbst zu lösen","Ich brauche Nähe und Unterstützung","Ich lenke mich zunächst ab"]],
+  ["A","The Inner World","What hurts me most?","Was könnte mich emotional am stärksten verletzen?",["Unehrlichkeit","Fehlende Wertschätzung","Respektlosigkeit","Das Gefühl, nicht wichtig zu sein","Gebrochenes Vertrauen","Das Gefühl, nicht verstanden zu werden"]],
+  ["A","The Inner World","My biggest inner need","Was brauche ich in einer Beziehung am meisten?",["Vertrauen","Emotionale Sicherheit","Aufmerksamkeit","Freiheit und Selbstständigkeit","Ehrliche Kommunikation","Gemeinsame Ziele"]],
+  ["B","The Way I Think","My biggest fear about the future","Welcher Gedanke beschäftigt mich am meisten?",["Meine Erwartungen nicht zu erfüllen","Beruflich nicht voranzukommen","Finanzielle Unsicherheit","Menschen zu enttäuschen","Chancen im Leben zu verpassen","Menschen zu verlieren, die mir wichtig sind"]],
+  ["B","The Way I Think","My deepest ambition","Was möchte ich im Leben unbedingt erreichen?",["Finanzielle Freiheit","Eine glückliche Familie","Beruflichen Erfolg","Selbstständigkeit und Unabhängigkeit","Die Welt entdecken","Ein erfülltes und ausgeglichenes Leben"]],
+  ["B","The Way I Think","What I rarely show","Was fällt mir am schwersten, anderen Menschen zu zeigen?",["Unsicherheiten","Ängste","Verletzlichkeit","Enttäuschung","Wie sehr ich jemanden brauche","Wenn mich etwas innerlich beschäftigt"]],
+  ["B","The Way I Think","My decision-making","Wie treffe ich wichtige Entscheidungen?",["Rational und anhand von Fakten","Nach meinem Bauchgefühl","Nach langem Überlegen","Durch Gespräche mit vertrauten Menschen","Spontan","Durch eine Mischung aus Verstand und Gefühl"]],
+  ["C","Our Relationship","When we disagree","Was wünsche ich mir bei einem Konflikt am meisten?",["Direkt darüber sprechen","Erst einmal Abstand und Ruhe","Dass meine Perspektive verstanden wird","Körperliche Nähe trotz Meinungsverschiedenheit","Eine konkrete gemeinsame Lösung","Ernst genommen werden"]],
+  ["C","Our Relationship","What makes me feel appreciated?","Welche kleine Handlung würde mich besonders glücklich machen?",["Eine unerwartete Nachricht","Ein geplanter gemeinsamer Abend","Eine kleine Überraschung","Dass du dich an Details erinnerst","Unterstützung im Alltag","Bewusste gemeinsame Zeit"]],
+  ["C","Our Relationship","What do I value most about us?","Was schätze ich an unserer Beziehung besonders?",["Gemeinsames Lachen","Gegenseitige Unterstützung","Emotionale und körperliche Nähe","Gemeinsame Zukunftsvorstellungen","Authentizität","Gemeinsames Wachstum"]],
+  ["C","Our Relationship","What should we improve?","Was würde ich mir wünschen, dass wir als Paar noch besser machen?",["Kommunikation","Konfliktverhalten","Aufmerksamkeit","Gegenseitiges Verständnis","Individuelle Freiräume","Gemeinsame Zukunftsplanung"]],
+  ["C","Our Relationship","My love in action","Wie zeige ich meinem Partner normalerweise meine Liebe?",["Worte","Körperliche Nähe","Unterstützung","Gemeinsame Erlebnisse","Kleine Aufmerksamkeiten","Zukunftsplanung"]],
+  ["D","Dreams & Future","Our future together","Was ist mir für unsere gemeinsame Zukunft besonders wichtig?",["Eine gemeinsame Wohnung oder ein Haus","Finanzielle Stabilität","Reisen und gemeinsame Erlebnisse","Eine langfristig stabile Beziehung","Eine eigene Familie, wenn die Zeit gekommen ist","Gegenseitige Unterstützung bei unseren Karrieren"]],
+  ["D","Dreams & Future","My dream life","Wie stelle ich mir mein Leben in zehn Jahren vor?",["Beruflich erfolgreich und finanziell unabhängig","Glücklich mit eigener Familie und Zuhause","Mit viel Freiheit und Reisen","Ausgewogen zwischen Karriere und Privatleben","Mit einem eigenen Unternehmen","Eine Mischung aus mehreren Vorstellungen"]],
+  ["D","Dreams & Future","What I never want to lose","Was möchte ich niemals verlieren?",["Meine Persönlichkeit","Meine Familie","Meine Freiheit","Meine Ambitionen","Meine Werte","Meine Lebensfreude"]],
+  ["D","Dreams & Future","My perfect comfort","Was hilft mir nach einem wirklich schlechten Tag am meisten?",["Eine Umarmung","Zuhören, ohne direkt Lösungen vorzuschlagen","Ein ehrliches Gespräch","Etwas gemeinsam unternehmen","Zeit für mich","Kleine liebevolle Gesten"]],
+  ["D","Dreams & Future","What do I need more of?","Was wünsche ich mir aktuell persönlich am meisten?",["Ruhe","Erfolg","Abenteuer","Sicherheit","Zeit für mich","Gemeinsame Erlebnisse"]],
+  ["D","Dreams & Future","My most important value","Welcher Wert ist mir besonders wichtig?",["Loyalität","Ehrlichkeit","Respekt","Vertrauen","Empathie","Zuverlässigkeit"]],
+  ["D","Dreams & Future","The one thing I want you to understand","Was sollte mein Partner unbedingt über mich verstehen?",null],
+].map((x, i) => ({ id: "q" + (i + 1), cat: x[0], catName: x[1], title: x[2], q: x[3], opts: x[4] }));
+const EMOTIONAL = ["q1","q2","q3","q4","q7","q9","q10","q17"];
+
+const M2 = [
+  "Gibt es etwas, das dich manchmal beschäftigt, über das du aber nur selten sprichst?",
+  "Wann fühlst du dich von mir besonders verstanden – und wann vielleicht weniger?",
+  "Welche Unsicherheit würdest du gerne überwinden?",
+  "Welche Erfahrung hat dich als Mensch besonders geprägt?",
+  "Was bedeutet für dich eine gesunde und langfristige Beziehung?",
+  "Gibt es etwas, das du dir von mir häufiger wünschen würdest, aber nicht immer aussprichst?",
+  "Wann fühlst du dich am meisten wie du selbst?",
+  "Was möchtest du unbedingt erreichen, bevor du dich im Leben angekommen fühlst?",
+  "Was kann ich tun, damit du dich auch in schwierigen Zeiten sicher und verstanden fühlst?",
+  "Welche gemeinsame Erinnerung möchtest du niemals vergessen?",
+].map((q, i) => ({ id: "d" + (i + 1), title: "Deep Talk " + (i + 1), q, opts: null }));
+
+const M3 = [
+  ["A","Our Life Vision","Where do I see us in five years?","Wo sehe ich uns in fünf Jahren?",["Zusammenlebend in einer gemeinsamen Wohnung","Bereits verheiratet","Beruflich etabliert und finanziell stabil","Noch im Aufbau unserer beruflichen und persönlichen Ziele","Mit vielen gemeinsamen Reisen","Eine Kombination aus mehreren dieser Vorstellungen"],"Wie sieht ein ganz normaler Tag von uns in fünf Jahren aus?"],
+  ["A","Our Life Vision","What does success mean to me?","Was bedeutet persönlicher Erfolg für mich?",["Viel Geld und finanzielle Freiheit","Eine glückliche und stabile Familie","Berufliche Anerkennung","Selbstständigkeit und Unabhängigkeit","Ein ausgeglichenes Leben","Die Freiheit, mein Leben selbst zu gestalten"],"Woran würdet ihr merken, dass ihr „es geschafft“ habt?"],
+  ["A","Our Life Vision","What lifestyle do I want?","Welchen Lebensstil wünsche ich mir langfristig?",["Modernes Leben in einer Großstadt","Ruhiges Leben in einer schönen Wohngegend","Gehobener Lebensstil mit Reisen und schönen Erlebnissen","Ein familienorientiertes Leben","Ein internationaler Lebensstil","Eine Kombination"],"Wie viel Großstadt, wie viel Ruhe brauchen wir wirklich?"],
+  ["A","Our Life Vision","What matters more to me?","Was hätte langfristig für mich Priorität?",["Karriere und persönliche Entwicklung","Beziehung und Familie","Finanzielle Sicherheit","Freiheit und persönliche Erlebnisse","Eine ausgewogene Kombination"],"Was würdet ihr tun, wenn Karriere und Beziehung kollidieren?"],
+  ["B","Career & Independence","How important is career growth?","Wie wichtig ist es mir, dass wir beide unsere beruflichen Ziele verfolgen?",["Extrem wichtig","Sehr wichtig, aber mit ausreichend gemeinsamer Zeit","Wichtig, solange die Beziehung nicht darunter leidet","Berufliche Ziele dürfen zeitweise unterschiedliche Prioritäten haben"],"Wie viel gemeinsame Zeit pro Woche ist für euch nicht verhandelbar?"],
+  ["B","Career & Independence","How should we support each other?","Wie stelle ich mir gegenseitige Unterstützung vor?",["Wir motivieren uns aktiv und setzen gemeinsame Ziele","Wir unterstützen uns emotional","Wir helfen uns auch praktisch im Alltag","Wir respektieren unsere unterschiedlichen Wege","Alles davon"],"Welche Unterstützung hat dir zuletzt am meisten geholfen?"],
+  ["B","Career & Independence","How much independence do I need?","Wie wichtig ist mir persönliche Selbstständigkeit innerhalb einer Beziehung?",["Sehr wichtig","Wichtig, aber mit viel gemeinsamer Zeit","Eine ausgewogene Balance","Ich verbringe am liebsten möglichst viel Zeit gemeinsam"],"Wie viel Zeit für Freunde und eigene Hobbys braucht jeder von euch?"],
+  ["C","Marriage & Family","What does marriage mean to me?","Welche Bedeutung hat eine spätere Ehe für mich?",["Ein wichtiges persönliches Lebensziel","Eine schöne Möglichkeit, wenn die Beziehung dafür bereit ist","Nicht unbedingt notwendig","Ich möchte zunächst andere Lebensziele erreichen"],"Was bedeutet Ehe für euch – und was müsste vorher stimmen?"],
+  ["C","Marriage & Family","When do I imagine starting a family?","Wann könnte ich mir vorstellen, Kinder zu bekommen?",["Vor dem 25. Lebensjahr","Zwischen 25 und 30","Zwischen 30 und 35","Erst später","Ich bin mir noch nicht sicher","Ich möchte zunächst keine Kinder"],"Was müsste in eurem Leben stehen, bevor Kinder ein Thema werden?"],
+  ["C","Marriage & Family","What kind of family life do I want?","Wie stelle ich mir unser zukünftiges Familienleben vor?",["Klassisch und familienorientiert","Modern und gleichberechtigt","Mit starker beruflicher Entwicklung beider Partner","Mit viel gemeinsamer Zeit und Flexibilität","Eine Mischung"],"Was möchtet ihr aus euren eigenen Familien übernehmen – und was anders machen?"],
+  ["D","Our Shared Future","Where would I like to live?","Wo möchte ich langfristig leben?",["Berlin","Eine andere deutsche Großstadt","Eine kleinere Stadt mit hoher Lebensqualität","Im Ausland","Ich bin offen für unterschiedliche Möglichkeiten"],"Würdet ihr für den Job oder das Studium des anderen umziehen?"],
+  ["D","Our Shared Future","What would I like us to experience?","Welche drei Dinge möchte ich unbedingt gemeinsam erleben? (genau drei)",["Weltreise","Gemeinsame Wohnung","Hochzeit","Beruflichen Erfolg aufbauen","Ein eigenes Unternehmen","Ein schönes Zuhause","Familiengründung","Finanzielle Unabhängigkeit"],"Welches dieser Erlebnisse soll als Erstes kommen?",3],
+  ["D","Our Shared Future","How should we handle money as a couple?","Wie stelle ich mir unsere Finanzen langfristig vor?",["Gemeinsames Konto und gemeinsames Budget","Getrennte Konten und ein gemeinsames Haushaltskonto","Vollständig getrennte Finanzen mit Kostenaufteilung","Eine flexible Kombination"],"Wie transparent wollen wir mit Geld umgehen – Einkommen, Schulden, Sparziele?"],
+  ["D","Our Shared Future","What would make me feel secure about our future?","Was gibt mir am meisten Sicherheit?",["Finanzielle Stabilität","Klare gemeinsame Ziele","Vertrauen und Loyalität","Berufliche Perspektiven","Eine stabile Beziehung","Eine realistische gemeinsame Planung"],"Was gibt dir in unsicheren Phasen Halt?"],
+  ["D","Our Shared Future","Our biggest shared dream","Was ist mein größter Wunsch für unsere gemeinsame Zukunft?",null,""],
+].map((x, i) => ({ id: "f" + (i + 1), cat: x[0], catName: x[1], title: x[2], q: x[3], opts: x[4], talk: x[5], multi: x[6] || 0 }));
+
+const M4 = [
+  ["A","The Idea of Living Together","How do I feel about moving in together?","Wie stehe ich grundsätzlich zur Idee, mit meinem Partner zusammenzuziehen?",["Ich kann mir das schon in naher Zukunft vorstellen","Ich möchte es innerhalb der nächsten ein bis zwei Jahre angehen","Ich finde die Idee schön, möchte aber erst mehr Stabilität aufbauen","Ich möchte zunächst mein Studium bzw. meine berufliche Entwicklung voranbringen","Ich bin noch unsicher"],"Wann wäre für euch beide ein guter Zeitpunkt für einen gemeinsamen Haushalt?"],
+  ["A","The Idea of Living Together","When would be the right moment?","Wann wäre für mich ein guter Zeitpunkt?",["Sobald wir beide eine passende finanzielle Grundlage haben","Wenn mindestens einer von uns beruflich stabiler ist","Nach einer bestimmten Phase unseres Studiums","Wenn wir beide emotional und organisatorisch bereit sind","Ich möchte mir noch keine feste Zeit setzen"],"Welche beruflichen oder akademischen Ziele möchtet ihr vorher erreichen?"],
+  ["A","The Idea of Living Together","What excites me most about living together?","Was würde mich am meisten am Zusammenleben freuen?",["Jeden Tag gemeinsam aufwachen","Einen eigenen gemeinsamen Rückzugsort haben","Gemeinsam kochen und essen","Den Alltag miteinander teilen","Eine gemeinsame Zukunft aufbauen","Mehr spontane gemeinsame Erlebnisse"],"Was freut euch am meisten – und was davon könnt ihr schon jetzt öfter erleben?"],
+  ["A","The Idea of Living Together","What worries me most?","Was würde mir am Zusammenziehen am ehesten Sorgen machen?",["Finanzielle Verpflichtungen","Weniger persönliche Freiheit","Konflikte im Alltag","Zu wenig Zeit für eigene Ziele","Verantwortung für einen Haushalt","Die Angst, dass der Alltag die Beziehung verändert","Eigentlich habe ich keine größeren Sorgen"],"Was würde dir die größte Sorge beim Zusammenziehen nehmen?"],
+  ["B","Money & Financial Reality","How should we split the rent?","Wie sollten wir die monatliche Miete aufteilen?",["50/50","Anteilig nach unserem jeweiligen Nettoeinkommen","Nach einer individuell vereinbarten fairen Aufteilung","Je nach persönlicher finanzieller Situation flexibel"],"Welche Mietaufteilung fühlt sich für euch beide fair an?"],
+  ["B","Money & Financial Reality","What should we have saved before moving in?","Wie viel gemeinsames finanzielles Polster sollten wir idealerweise vor dem Einzug haben?",["Mindestens eine Monatsmiete","Zwei bis drei Monatsmieten","Drei bis sechs Monatsausgaben","Einen größeren Notgroschen zusätzlich zu den Einrichtungskosten","Ich möchte zunächst gemeinsam kalkulieren"],"Wie viel Geld möchtet ihr vor einem gemeinsamen Einzug gespart haben?"],
+  ["B","Money & Financial Reality","What financial responsibilities should we share?","Welche Kosten sollten gemeinsam getragen werden? (mehrere möglich)",["Miete und Nebenkosten","Lebensmittel und Haushaltsbedarf","Internet und gemeinsame Verträge","Möbel und Einrichtung","Gemeinsame Freizeitaktivitäten","Möglichst alle Haushaltskosten, aber mit klarer Vereinbarung"],"Welche Kosten bleiben bewusst bei jedem selbst?",-1],
+  ["B","Money & Financial Reality","What if one of us earned significantly less?","Wie sollte die Kostenverteilung aussehen, wenn eine Person deutlich weniger verdient?",["Wir teilen weiterhin alles 50/50","Wir teilen nach Einkommensverhältnis","Die besser verdienende Person übernimmt vorübergehend mehr","Wir vereinbaren eine individuelle Lösung","Wir würden die Situation gemeinsam neu bewerten"],"Wie geht ihr damit um, wenn sich eure Einkommen stark unterscheiden?"],
+  ["C","Daily Life & Responsibility","How should household responsibilities be divided?","Wie sollten wir den Haushalt organisieren?",["Jeder übernimmt feste Aufgaben","Wir teilen alles möglichst gleichmäßig","Wer mehr Zeit hat, übernimmt vorübergehend mehr","Wir wechseln Aufgaben regelmäßig","Wir organisieren uns flexibel"],"Welche Haushaltsaufgaben macht jeder von euch gern – und welche gar nicht?"],
+  ["C","Daily Life & Responsibility","What would be my biggest everyday need?","Was brauche ich im gemeinsamen Alltag besonders?",["Ordnung und Sauberkeit","Ruhe und Rückzugsmöglichkeiten","Gemeinsame Mahlzeiten","Eine feste Tagesstruktur","Spontane gemeinsame Zeit","Genügend Freiraum für eigene Interessen"],"Was braucht jeder von euch, um sich zu Hause wohlzufühlen?"],
+  ["C","Daily Life & Responsibility","How much personal space do I need?","Wie wichtig ist mir ein eigener persönlicher Bereich in der Wohnung?",["Sehr wichtig, ich brauche einen eigenen Rückzugsort","Ein kleiner persönlicher Bereich reicht","Gemeinsame Räume sind mir wichtiger","Ich brauche eine ausgewogene Kombination"],"Wie viel persönlichen Freiraum braucht ihr – auch in einer kleinen Wohnung?"],
+  ["C","Daily Life & Responsibility","How should we handle conflicts at home?","Was sollten wir tun, wenn wir im gemeinsamen Alltag aneinandergeraten?",["Direkt darüber sprechen","Erst abkühlen und später reden","Eine feste gemeinsame Konfliktregel vereinbaren","Uns gegenseitig Raum geben","Möglichst zeitnah eine Lösung finden"],"Welche gemeinsame Regel für Streit wollt ihr euch geben?"],
+  ["D","Realistic Readiness","Are we financially ready?","Wie schätze ich unsere finanzielle Situation für einen gemeinsamen Haushalt ein?",["Wir könnten es bereits realistisch planen","Mit etwas mehr Einkommen wäre es gut machbar","Wir brauchen zunächst mehr Rücklagen","Wir sollten erst unsere berufliche Situation stabilisieren","Ich kann das aktuell noch nicht einschätzen"],"Welche Mietbelastung wäre für euch beide angenehm?"],
+  ["D","Realistic Readiness","What should I achieve individually first?","Was sollte ich persönlich erreichen, bevor wir zusammenziehen?",["Ein stabiles Einkommen","Eine bestimmte Phase des Studiums abschließen","Eigene Rücklagen aufbauen","Beruflich mehr Sicherheit gewinnen","Persönlich selbstständiger werden","Ich sehe keinen bestimmten Meilenstein als Voraussetzung"],"Welche persönlichen Meilensteine wollt ihr vorher erreichen – und wie unterstützt ihr euch dabei?"],
+  ["D","Realistic Readiness","What would make our first apartment feel like home?","Was wäre mir bei unserer ersten gemeinsamen Wohnung besonders wichtig?",["Eine schöne moderne Einrichtung","Eine gute Lage und Verkehrsanbindung","Genügend Platz für beide","Ein gemütliches Wohnzimmer","Eine schöne Küche","Ein eigenes Arbeits- oder Lernzimmer","Ein Balkon oder Außenbereich"],"Wie sieht eure erste gemeinsame Wohnung aus?"],
+  ["D","Realistic Readiness","Our first apartment","Beschreibe in eigenen Worten, wie du dir unsere erste gemeinsame Wohnung vorstellst.",null,""],
+].map((x, i) => ({ id: "w" + (i + 1), cat: x[0], catName: x[1], title: x[2], q: x[3], opts: x[4], talk: x[5], multi: x[6] || 0 }));
+
+const MODULES = {
+  m1: { n: "01", name: "The Connection Test", sub: "Wie gut kennt ihr euch wirklich?", photo: 1, q: M1 },
+  m2: { n: "02", name: "The Deep Talk", sub: "Beyond the surface – kein Wettbewerb.", photo: 2, q: M2 },
+  m3: { n: "03", name: "Our Future Together", sub: "Are we dreaming of the same future?", photo: 3, q: M3 },
+  m4: { n: "04", name: "The Moving-In Test", sub: "Are we ready to live together?", photo: 8, q: M4 },
+};
+const NAMES = ["Joanna", "Kewin"];
+const FIN_FIELDS = [["income","Monatliches Nettoeinkommen"],["rent","Erwartete Warmmiete (gesamt)"],["power","Strom (gesamt)"],["internet","Internet (gesamt)"],["food","Lebensmittel (gesamt)"],["mobility","Mobilität (deine)"],["insurance","Versicherungen & Verträge (deine)"],["other","Sonstige Fixkosten (deine)"],["savings","Monatliche Sparrate (deine)"]];
+const EXAMPLE_FIN = { A: { income: 1200, rent: 750, power: 45, internet: 30, food: 300, mobility: 60, insurance: 40, other: 50, savings: 100 }, B: { income: 800, rent: 750, power: 45, internet: 30, food: 300, mobility: 50, insurance: 30, other: 40, savings: 50 } };
+
+/* ───────────────────────── helpers ───────────────────────── */
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const $ = (sel) => document.querySelector(sel);
+const eur = (n) => new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(Math.round(n)) + " €";
+const pct = (n) => Math.round(n) + " %";
+const other = (n) => (n === "Joanna" ? "Kewin" : "Joanna");
+const answered = (q, v) => (q.opts ? (q.multi ? Array.isArray(v) && (q.multi > 0 ? v.length === q.multi : v.length > 0) : typeof v === "number") : typeof v === "string" && v.trim().length > 0);
+const optText = (q, v) => (v == null ? "—" : Array.isArray(v) ? v.map((i) => q.opts[i]).join(", ") : q.opts ? q.opts[v] : v);
+const same = (q, a, b) => {
+  if (a == null || b == null) return 0;
+  if (Array.isArray(a)) { const s = new Set(a); const inter = b.filter((x) => s.has(x)).length; return inter / new Set([...a, ...b]).size; }
+  return a === b ? 1 : 0;
+};
+
+/* ───────────────────────── state ───────────────────────── */
+const S = {
+  db: null, me: null, owner: false, status: {}, mine: null, shared: {}, view: "home", mod: null, phase: null, step: 0,
+  err: null, fin: null, saveTimer: null, saving: "", demo: false, confirm: null,
+};
+function myStatus() { return S.status[S.me] || {}; }
+function partnerStatus() { const n = S.mine?.name; return Object.values(S.status).find((s) => s.name && s.name !== n) || {}; }
+function byName(name) { return Object.values(S.status).find((s) => s.name === name) || {}; }
+
+/* ───────────────────────── data layer ───────────────────────── */
+function progressOf(m) {
+  const d = S.mine || {};
+  const p = {};
+  p.m1s = M1.filter((q) => answered(q, d.m1s?.[q.id])).length;
+  p.m1g = M1.filter((q) => q.opts && answered(q, d.m1g?.[q.id])).length;
+  p.m2 = M2.filter((q) => answered(q, d.m2?.[q.id])).length;
+  p.m3 = M3.filter((q) => answered(q, d.m3?.[q.id])).length;
+  p.m4 = M4.filter((q) => answered(q, d.m4?.[q.id])).length;
+  return m ? p[m] : p;
+}
+function scheduleSave() {
+  if (S.demo || !S.db) return;
+  clearTimeout(S.saveTimer);
+  S.saving = "Speichert …"; paintSave();
+  S.saveTimer = setTimeout(saveNow, 700);
+}
+async function saveNow() {
+  if (S.demo || !S.db) return;
+  try {
+    await S.db.doc("answers/" + S.me).set(S.mine);
+    await S.db.doc("status/" + S.me).set({ name: S.mine.name, done: S.mine.done || {}, prog: progressOf(), stars: S.mine.stars || [] });
+    S.saving = "✓ Gespeichert";
+  } catch (e) { S.saving = "Nicht gespeichert – Verbindung prüfen"; }
+  paintSave();
+}
+function paintSave() { const el = $("#save"); if (el) el.textContent = S.saving; }
+
+/* The owner's view publishes a module's answers to shared/<module> once BOTH have finished it. */
+async function syncShared(force) {
+  if (!S.db || !S.owner) return;
+  const people = Object.entries(S.status).filter(([, s]) => s.name);
+  if (people.length < 2) return;
+  for (const m of ["m1", "m2", "m3", "m4"]) {
+    const bothDone = people.every(([, s]) => s.done?.[m]);
+    if (!bothDone || (S.shared[m] && !force)) continue;
+    const data = {};
+    for (const [id, s] of people) {
+      const snap = await S.db.doc("answers/" + id).get().catch(() => null);
+      const a = snap?.exists ? snap.data() : {};
+      data[s.name] = m === "m1" ? { self: a.m1s || {}, guess: a.m1g || {} } : m === "m4" ? { a: a.m4 || {}, fin: a.fin || null } : { a: a[m] || {} };
+    }
+    await S.db.doc("shared/" + m).set({ data, at: new Date().toISOString() }).catch(() => {});
+  }
+}
+
+async function boot() {
+  const c = window.claude;
+  const fail = () => { S.view = "nodb"; render(); };
+  if (!c?.use) return fail();
+  const timer = setTimeout(() => { if (!S.db) fail(); }, 12000);
+  try {
+    const [db, user] = await Promise.all([c.use("db"), c.use("user")]);
+    if (!db || !user) return fail();
+    const id = await user.id();
+    if (!id) return fail();
+    S.owner = (await user.isOwner()) ?? false;
+    const snap = await db.doc("answers/" + id).get().catch(() => null);
+    S.mine = snap?.exists ? snap.data() : { name: null, m1s: {}, m1g: {}, m2: {}, m3: {}, m4: {}, fin: null, done: {}, stars: [] };
+    S.db = db; S.me = id;
+    clearTimeout(timer);
+    db.collection("status").onSnapshot((q) => { const m = {}; q.docs.forEach((d) => (m[d.id] = d.data())); S.status = m; if (S.view === "home" || S.view === "admin" || S.view === "result") render(); syncShared(); });
+    ["m1","m2","m3","m4"].forEach((m) => db.doc("shared/" + m).onSnapshot((d) => { S.shared[m] = d.exists ? d.data().data : null; if (S.view === "home" || S.view === "result" || S.view === "report") render(); }));
+    S.view = "home"; render();
+  } catch (e) { fail(); }
+}
+
+/* ───────────────────────── rendering ───────────────────────── */
+function render() {
+  const app = $("#app");
+  const v = S.view;
+  app.innerHTML = v === "nodb" ? viewNoDb() : v === "who" || (!S.mine?.name && !S.demo && v === "home") ? viewWho() : v === "home" ? viewHome() : v === "intro" ? viewIntro() : v === "q" ? viewQuestion() : v === "review" ? viewReview() : v === "fin" ? viewFinInput() : v === "result" ? viewResult() : v === "report" ? viewReport() : v === "calc" ? viewCalc() : v === "admin" ? viewAdmin() : "";
+  wire();
+}
+function go(view, extra) { Object.assign(S, extra || {}, { view, err: null }); render(); window.scrollTo({ top: 0 }); }
+
+function heroBlock() {
+  return `<section class="hero fade"><img class="hero-photo" src="${PH[0]}" alt="Joanna und Kewin"><div class="hero-tag"><p class="eyebrow" style="color:#f3e7d3">Joanna × Kewin</p></div></section>`;
+}
+function viewNoDb() {
+  return `<div class="stack-lg">${heroBlock()}<div class="stack"><p class="eyebrow">The Deep Connection Experience</p><h1>Two hearts.<br><em>Two perspectives.</em></h1>
+  <p class="muted">Bitte öffnet diesen Link in claude.ai und meldet euch an – nur so bleiben eure Antworten getrennt und sicher gespeichert.</p>
+  <button class="btn ghost" data-act="demo">Mit Beispieldaten ansehen</button></div></div>`;
+}
+function viewWho() {
+  const taken = new Set(Object.entries(S.status).filter(([id]) => id !== S.me).map(([, s]) => s.name));
+  return `<div class="stack-lg">${heroBlock()}
+  <div class="stack fade"><p class="eyebrow">The Deep Connection Experience</p><h1>Joanna <em>×</em> Kewin</h1>
+  <p class="quote">“How well do you know the person you love – and the future you want to build together?”</p></div>
+  <div class="stack"><p class="eyebrow">Wer bist du?</p><div class="grid2">${NAMES.map((n) => `<button class="opt" data-act="pick" data-name="${n}" ${taken.has(n) ? "disabled" : ""} style="justify-content:center;font:400 1.6rem var(--display);${taken.has(n) ? "opacity:.35" : ""}">${n}</button>`).join("")}</div>
+  <p class="small muted">Einmal gewählt, ist dein Name mit deinem Claude-Konto verknüpft.</p></div></div>`;
+}
+function modState(m) {
+  const me = S.demo ? { done: { m1: true, m2: true, m3: true, m4: true } } : myStatus();
+  if (S.shared[m]) return ["Reveal ready", "done"];
+  if (me.done?.[m]) return ["Waiting for " + other(S.mine.name), "wait"];
+  const p = progressOf();
+  const n = m === "m1" ? p.m1s + p.m1g : p[m];
+  return [n ? "In progress" : "Start", ""];
+}
+function viewHome() {
+  const name = S.mine.name;
+  const allShared = ["m1","m2","m3","m4"].every((m) => S.shared[m]);
+  return `<div class="stack-lg">
+  ${heroBlock()}
+  <div class="stack fade"><p class="eyebrow">The Deep Connection Experience</p>
+  <h1>Joanna <em>×</em> Kewin</h1>
+  <p class="quote">“How well do you know the person you love – and the future you want to build together?”</p>
+  <p class="muted">Hi ${esc(name)}. Two hearts. Two perspectives. One future to discover.</p></div>
+  <div class="facts card"><div><b>4</b><span>Experiences</span></div><div><b>70</b><span>Questions</span></div><div><b>2</b><span>Perspectives</span></div><div><b>1</b><span>Journey</span></div></div>
+  <div class="stack">
+  ${Object.entries(MODULES).map(([k, m]) => { const [label, cls] = modState(k); return `<button class="card mod" data-act="open" data-mod="${k}"><img src="${PH[m.photo]}" alt=""><span class="stack" style="gap:6px"><span class="eyebrow">Module ${m.n}</span><span style="font:400 1.35rem/1.15 var(--display)">${m.name}</span><span class="small muted">${m.sub}</span><span><span class="pill ${cls}">${esc(label)}</span></span></span></button>`; }).join("")}
+  </div>
+  <div class="card stack"><p class="eyebrow">Financial reality check</p><h3>Was würde ein gemeinsamer Haushalt kosten?</h3><p class="small muted">Spielt Miet- und Einkommensszenarien durch – zuerst mit fiktiven Beispieldaten.</p><div><button class="btn ghost" data-act="calc">Finanzrechner öffnen</button></div></div>
+  <div class="card dark stack"><p class="eyebrow">The Deep Connection Report</p><h3>${allShared ? "Your report is ready." : "Unlocks when all four experiences are complete."}</h3>
+  <p class="small muted">${allShared ? "Euer Magazin: Scores, Zukunft, Zusammenziehen, Gesprächsthemen und eure Roadmap." : "Jedes Modul wird einzeln freigeschaltet, sobald ihr beide fertig seid."}</p>
+  <div><button class="btn gold" data-act="report" ${["m1","m3","m4"].some((m) => S.shared[m]) ? "" : "disabled"}>Open the report</button></div></div>
+  <div class="strip" aria-label="Eure Fotos">${PH.slice(1).map((p) => `<img src="${p}" alt="Joanna und Kewin">`).join("")}</div>
+  ${S.owner ? `<button class="btn link" data-act="admin">Admin · Fortschritt & Reset</button>` : ""}
+  ${S.demo ? `<p class="small muted">Demo mit erfundenen Beispieldaten – nichts wird gespeichert.</p>` : ""}
+  <p class="small muted">Kein psychologischer Test und keine Beurteilung eurer Beziehung – eine Einladung zu ehrlichen Gesprächen.</p>
+  </div>`;
+}
+function viewIntro() {
+  const m = MODULES[S.mod];
+  const me = myStatus();
+  const partner = other(S.mine.name);
+  const intro = {
+    m1: `Zuerst beantwortest du 20 Fragen über <em>dich selbst</em>. Danach versuchst du vorherzusagen, wie ${partner} geantwortet hat. Die Antworten bleiben verborgen, bis ihr beide fertig seid.`,
+    m2: `Zehn offene Fragen. Kein Wettbewerb, keine Punkte. Schreib ehrlich und in deinen Worten – ${partner} sieht deine Antworten erst, wenn ihr beide fertig seid.`,
+    m3: `15 Fragen zu eurer Zukunft. Jeder antwortet unabhängig – danach seht ihr, wo eure Vorstellungen übereinstimmen und wo ihr reden solltet. Es gibt kein Richtig oder Falsch.`,
+    m4: `15 Fragen zum Zusammenleben plus deine privaten Finanzangaben. Das Ergebnis entscheidet nichts für euch – es zeigt, welche Voraussetzungen noch offen sind.`,
+  }[S.mod];
+  const locked = me.done?.[S.mod] && !S.demo;
+  return `<div class="stack-lg fade"><img class="hero-photo" style="aspect-ratio:16/11" src="${PH[m.photo]}" alt="">
+  <div class="stack"><p class="eyebrow">Module ${m.n}</p><h1>${m.name}</h1><p class="quote">${m.sub}</p><p class="muted">${intro}</p></div>
+  ${locked ? `<div class="card stack"><span class="pill wait">Abgeschlossen</span><p>Deine Antworten sind gesperrt. ${S.shared[S.mod] ? "" : `Sobald ${partner} fertig ist, wird die Auswertung freigeschaltet${S.owner ? "" : " (beim nächsten Öffnen durch Kewin)"}.`}</p>${S.shared[S.mod] ? `<div><button class="btn" data-act="result">See the reveal</button></div>` : ""}</div>`
+    : `<div class="row"><button class="btn" data-act="start">${progressOf(S.mod === "m1" ? "m1s" : S.mod) ? "Continue" : "Begin"}</button><button class="btn link" data-act="home">← Übersicht</button></div>`}
+  </div>`;
+}
+function currentList() {
+  if (S.mod === "m1") return S.phase === "guess" ? M1.filter((q) => q.opts) : M1;
+  return MODULES[S.mod].q;
+}
+function store() { if (S.mod === "m1") return S.phase === "guess" ? (S.mine.m1g ||= {}) : (S.mine.m1s ||= {}); return (S.mine[S.mod] ||= {}); }
+function viewQuestion() {
+  const list = currentList();
+  const q = list[S.step];
+  const val = store()[q.id];
+  const partner = other(S.mine.name);
+  const prompt = S.mod === "m1" && S.phase === "guess" ? `Was würde <strong>${esc(partner)}</strong> antworten?` : S.mod === "m1" ? "Über dich" : "";
+  const qText = q.q;
+  const phaseLabel = S.mod === "m1" ? (S.phase === "guess" ? "Phase 2 · How well do you know " + esc(partner) + "?" : "Phase 1 · Know yourself") : MODULES[S.mod].name;
+  const body = q.opts
+    ? `${q.multi ? `<p class="small muted">${q.multi > 0 ? `Genau ${q.multi} auswählen` : "Mehrere möglich"} · ${(Array.isArray(val) ? val.length : 0)} gewählt</p>` : ""}<div class="opts" role="${q.multi ? "group" : "radiogroup"}">${q.opts.map((o, i) => { const on = q.multi ? Array.isArray(val) && val.includes(i) : val === i; return `<button class="opt" role="${q.multi ? "checkbox" : "radio"}" aria-checked="${on}" data-act="opt" data-i="${i}"><span class="dot">✓</span><span>${esc(o)}</span></button>`; }).join("")}</div>`
+    : `<label class="small muted" for="free">Deine Antwort (privat bis zur gemeinsamen Auswertung)</label><textarea id="free" maxlength="1200" placeholder="Schreib, was dir wirklich durch den Kopf geht …">${esc(val || "")}</textarea>`;
+  return `<div class="bar"><div class="row" style="justify-content:space-between"><span class="eyebrow">${phaseLabel}</span><span class="small muted" id="save">${esc(S.saving)}</span></div><div class="track"><i style="width:${((S.step + (answered(q, val) ? 1 : 0)) / list.length) * 100}%"></i></div></div>
+  <div class="stack fade" style="margin-top:20px">
+  <div class="row" style="align-items:baseline"><span class="qnum">${String(S.step + 1).padStart(2, "0")}</span>${q.catName ? `<span class="eyebrow">${esc(q.catName)}</span>` : ""}</div>
+  ${prompt ? `<p class="small" style="color:var(--gold-deep)">${prompt}</p>` : ""}
+  <h2>${esc(q.title)}</h2><p class="muted">${esc(qText)}</p>
+  ${body}
+  ${S.err ? `<p class="err" role="alert">${esc(S.err)}</p>` : ""}
+  ${S.mod === "m2" && val ? `<button class="btn link" data-act="star" style="align-self:flex-start">${(S.mine.stars || []).includes(q.id) ? "★ Als wichtig markiert" : "☆ Als besonders wichtig markieren"}</button>` : ""}
+  </div>
+  <nav class="nav"><div class="in"><button class="btn link" data-act="prev">← Zurück</button><span class="small muted">${S.step + 1} / ${list.length}</span><button class="btn" data-act="next">${S.step === list.length - 1 ? "Prüfen" : "Weiter"}</button></div></nav>`;
+}
+function viewReview() {
+  const list = currentList();
+  const st = store();
+  const missing = list.filter((q) => !answered(q, st[q.id]));
+  const lastPhase = S.mod !== "m1" || S.phase === "guess";
+  return `<div class="stack-lg fade"><div class="stack"><p class="eyebrow">${MODULES[S.mod].name} · ${S.mod === "m1" ? (S.phase === "guess" ? "Phase 2" : "Phase 1") : "Review"}</p><h2>Your answers, <em>in your words.</em></h2>
+  <p class="muted">${lastPhase ? "Nach dem Abschicken sind deine Antworten gesperrt." : "Als Nächstes schätzt du die Antworten von " + esc(other(S.mine.name)) + "."}</p></div>
+  <div class="stack">${list.map((q, i) => `<button class="opt" data-act="jump" data-i="${i}" style="flex-direction:column;align-items:flex-start;gap:4px"><span class="eyebrow">${String(i + 1).padStart(2, "0")} · ${esc(q.title)}</span><span class="small ${answered(q, st[q.id]) ? "muted" : "err"}">${answered(q, st[q.id]) ? esc(String(optText(q, st[q.id])).slice(0, 140)) : "Noch offen – antippen"}</span></button>`).join("")}</div>
+  ${S.mod === "m4" ? `<div class="card stack"><p class="eyebrow">Deine privaten Finanzangaben</p><p class="small muted">${S.mine.fin ? "Gespeichert ✓ – fließen in die gemeinsame Rechnung ein." : "Optional, aber hilfreich für den Reality Check."}</p><div><button class="btn ghost" data-act="finin">${S.mine.fin ? "Angaben ändern" : "Angaben eintragen"}</button></div></div>` : ""}
+  ${S.confirm ? `<div class="card dark stack"><h3>Ready to send your perspective?</h3><p class="small muted">Danach kannst du nichts mehr ändern.</p><div class="row"><button class="btn gold" data-act="submit">Endgültig abschicken</button><button class="btn link" style="color:#cbbfb2" data-act="unconfirm">Nochmal prüfen</button></div></div>` : ""}
+  </div>
+  <nav class="nav"><div class="in"><button class="btn link" data-act="back-q">← Zurück</button><span class="small muted">${list.length - missing.length}/${list.length}</span>
+  ${missing.length ? `<button class="btn" data-act="jump" data-i="${list.indexOf(missing[0])}">Fehlende Fragen</button>` : lastPhase ? `<button class="btn" data-act="confirm">Abschicken</button>` : `<button class="btn" data-act="phase2">Weiter zu Phase 2</button>`}</div></nav>`;
+}
+function viewFinInput() {
+  const f = S.mine.fin || {};
+  return `<div class="stack-lg fade"><div class="stack"><p class="eyebrow">Financial reality check · privat</p><h2>Your numbers.</h2>
+  <p class="muted">Monatliche Werte in Euro. Haushaltswerte (Miete, Strom, Internet, Lebensmittel) als Gesamtsumme für die Wohnung schätzen – persönliche Werte nur für dich. Sichtbar wird nur die gemeinsame Rechnung, wenn ihr beide Modul 04 abgeschlossen habt.</p></div>
+  <div class="stack">${FIN_FIELDS.map(([k, l]) => `<label class="f" for="fin-${k}">${l}<input type="number" inputmode="decimal" min="0" step="10" id="fin-${k}" data-fin="${k}" value="${f[k] ?? ""}" placeholder="0"></label>`).join("")}</div>
+  <div class="row"><button class="btn" data-act="finsave">Speichern</button><button class="btn link" data-act="back-review">Abbrechen</button></div></div>`;
+}
+
+/* ───────────────────────── analysis ───────────────────────── */
+function knowScore(guessOf, selfOf, filter) {
+  const qs = M1.filter((q) => q.opts && (!filter || filter(q)));
+  const hit = qs.filter((q) => guessOf[q.id] != null && guessOf[q.id] === selfOf[q.id]).length;
+  return { hit, total: qs.length, pct: qs.length ? (hit / qs.length) * 100 : 0 };
+}
+function agreement(list, a, b, filter) {
+  const qs = list.filter((q) => q.opts && (!filter || filter(q)));
+  if (!qs.length) return 0;
+  return (qs.reduce((s, q) => s + same(q, a[q.id], b[q.id]), 0) / qs.length) * 100;
+}
+const READY = { 0: 4, 1: 3, 2: 2, 3: 1, 4: 1 }; // w1
+const FIN_READY = { 0: 4, 1: 3, 2: 2, 3: 1, 4: 1 }; // w13
+function movingProfile(a, b) {
+  const ra = READY[a.w1] ?? 2, rb = READY[b.w1] ?? 2;
+  const fa = FIN_READY[a.w13] ?? 2, fb = FIN_READY[b.w13] ?? 2;
+  const agree = agreement(M4, a, b);
+  let key;
+  if (Math.abs(ra - rb) >= 2) key = "timelines";
+  else if (ra <= 1.5 && rb <= 1.5) key = "independence";
+  else if (ra >= 3 && rb >= 3 && fa >= 3 && fb >= 3 && agree >= 50) key = "vision";
+  else key = "planners";
+  const P = {
+    vision: ["The Shared Vision", "Ihr habt bereits sehr ähnliche Vorstellungen vom Zusammenleben.", "Zusammenziehen wäre grundsätzlich vorstellbar."],
+    planners: ["The Practical Planners", "Ihr könnt euch das Zusammenziehen vorstellen, möchtet aber zunächst finanzielle und organisatorische Voraussetzungen schaffen.", "Zusammenziehen wäre nach bestimmten Voraussetzungen sinnvoll."],
+    timelines: ["The Different Timelines", "Ihr könnt euch eine gemeinsame Wohnung vorstellen, habt aber unterschiedliche zeitliche Erwartungen.", "Eure Vorstellungen unterscheiden sich zeitlich noch deutlich – sprecht über ein gemeinsames Tempo."],
+    independence: ["The Growing Independence", "Ihr möchtet eure persönliche und berufliche Entwicklung zunächst stärker festigen.", "Gebt euch zunächst noch Zeit."],
+  };
+  return { key, title: P[key][0], text: P[key][1], verdict: P[key][2], ra, rb, fa, fb, agree };
+}
+function roadmap(key) {
+  return {
+    vision: [["Next 3 Months", "Wunschlage, Budgetrahmen und Mietaufteilung schriftlich festhalten."], ["Next 6 Months", "Rücklagen-Ziel erreichen, erste Besichtigungen, Einrichtungsliste."], ["Next 12 Months", "Einzug planen – mit klaren Regeln für Haushalt, Geld und Freiraum."]],
+    planners: [["Next 6 Months", "Persönliche Ziele verfolgen und euch gegenseitig unterstützen; gemeinsamen Sparplan starten."], ["Next 12 Months", "Finanzielle Planung und Vorstellungen konkretisieren – Rechner mit echten Zahlen neu ausfüllen."], ["Next 18–24 Months", "Wohnungsbudget, Rücklagen und Voraussetzungen neu bewerten."]],
+    timelines: [["Next Month", "Offen über Tempo und Gründe sprechen – ohne Druck, ohne Deadline."], ["Next 6 Months", "Gemeinsame Kriterien festlegen, ab wann ihr bereit seid."], ["Next 12–18 Months", "Kriterien gemeinsam überprüfen und den nächsten Schritt neu entscheiden."]],
+    independence: [["Next 6 Months", "Studium, Arbeit und eigene Ziele in den Mittelpunkt stellen – bewusst gemeinsame Zeit planen."], ["Next 12 Months", "Eigene Rücklagen aufbauen und Selbstständigkeit stärken."], ["Next 24 Months", "Das Thema Zusammenziehen mit neuen Voraussetzungen frisch besprechen."]],
+  }[key];
+}
+function finCalc(A, B, rentOverride, incomeFactor = 1) {
+  const avg = (k) => ((Number(A[k]) || 0) + (Number(B[k]) || 0)) / 2;
+  const incA = (Number(A.income) || 0) * incomeFactor, incB = (Number(B.income) || 0) * incomeFactor;
+  const income = incA + incB;
+  const rent = rentOverride ?? avg("rent");
+  const shared = rent + avg("power") + avg("internet") + avg("food");
+  const pers = (P) => (Number(P.mobility) || 0) + (Number(P.insurance) || 0) + (Number(P.other) || 0);
+  const persA = pers(A), persB = pers(B);
+  const savA = Number(A.savings) || 0, savB = Number(B.savings) || 0;
+  const fixed = shared + persA + persB;
+  const shareA = income ? incA / income : 0.5;
+  const split = {
+    equal: [shared / 2, shared / 2],
+    prop: [shared * shareA, shared * (1 - shareA)],
+  };
+  const left = income - fixed;
+  const startCapital = rent * 0.8 * 3 + 2500 + 500; // Kaution ≈ 3 Kaltmieten (Kaltmiete ≈ 80 % warm) + Einrichtung + Umzug (Annahmen)
+  const reserve = fixed * 3;
+  return { incA, incB, income, rent, shared, persA, persB, savA, savB, fixed, housingShare: income ? (rent / income) * 100 : 0, left, savingsPotential: Math.max(0, left), split, startCapital, reserve,
+    leftA: incA - split.prop[0] - persA, leftB: incB - split.prop[1] - persB, leftAeq: incA - split.equal[0] - persA, leftBeq: incB - split.equal[1] - persB };
+}
+function ampel(share) { return share <= 30 ? ["var(--good)", "Entspannt (≤ 30 % des Einkommens)"] : share <= 40 ? ["var(--warn)", "Machbar, aber spürbar (30–40 %)"] : ["var(--bad)", "Zu hoch (> 40 %) – Reserve fehlt"]; }
+
+function finBlock(A, B, labelA, labelB, interactive) {
+  const base = finCalc(A, B);
+  const scen = [["Conservative", 0.25], ["Balanced", 0.33], ["Comfortable", 0.4]].map(([n, f]) => [n, finCalc(A, B, Math.round(base.income * f))]);
+  const [col, txt] = ampel(base.housingShare);
+  return `<div class="stack">
+  <div class="scroll-x"><table class="tbl"><tr><th></th><th>Betrag</th></tr>
+  <tr><td>Gemeinsames Nettoeinkommen</td><td>${eur(base.income)}</td></tr>
+  <tr><td>Warmmiete</td><td>${eur(base.rent)}</td></tr>
+  <tr><td>Gemeinsame Haushaltskosten (inkl. Miete)</td><td>${eur(base.shared)}</td></tr>
+  <tr><td>Persönliche Fixkosten beider</td><td>${eur(base.persA + base.persB)}</td></tr>
+  <tr><td><strong>Gesamte Fixkosten</strong></td><td><strong>${eur(base.fixed)}</strong></td></tr>
+  <tr><td>Anteil Wohnkosten am Einkommen</td><td><span class="flag" style="background:${col}"></span>${pct(base.housingShare)}</td></tr>
+  <tr><td>Verfügbar nach Fixkosten</td><td>${eur(base.left)}</td></tr>
+  <tr><td>Geplante Sparraten</td><td>${eur(base.savA + base.savB)}</td></tr>
+  <tr><td>Rest nach Sparen</td><td class="${base.left - base.savA - base.savB < 0 ? "no" : ""}">${eur(base.left - base.savA - base.savB)}</td></tr>
+  <tr><td>Benötigtes Startkapital*</td><td>${eur(base.startCapital)}</td></tr>
+  <tr><td>Empfohlene Rücklage (3 Monate Fixkosten)</td><td>${eur(base.reserve)}</td></tr></table></div>
+  <p class="small muted"><span class="flag" style="background:${col}"></span>${txt}. *Annahmen: Kaution ≈ 3 Kaltmieten (Kaltmiete ≈ 80 % der Warmmiete), 2.500 € Einrichtung, 500 € Umzug.</p>
+  <div class="scroll-x"><table class="tbl"><tr><th>Individuelle Belastung</th><th>${esc(labelA)}</th><th>${esc(labelB)}</th></tr>
+  <tr><td>Anteil Haushalt 50/50</td><td>${eur(base.split.equal[0])}</td><td>${eur(base.split.equal[1])}</td></tr>
+  <tr><td>→ bleibt danach</td><td class="${base.leftAeq < 0 ? "no" : ""}">${eur(base.leftAeq)}</td><td class="${base.leftBeq < 0 ? "no" : ""}">${eur(base.leftBeq)}</td></tr>
+  <tr><td>Anteil nach Einkommen</td><td>${eur(base.split.prop[0])}</td><td>${eur(base.split.prop[1])}</td></tr>
+  <tr><td>→ bleibt danach</td><td class="${base.leftA < 0 ? "no" : ""}">${eur(base.leftA)}</td><td class="${base.leftB < 0 ? "no" : ""}">${eur(base.leftB)}</td></tr></table></div>
+  <p class="eyebrow" style="margin-top:12px">Szenarien · Warmmiete als Anteil am gemeinsamen Einkommen</p>
+  <div class="scroll-x"><table class="tbl"><tr><th></th>${scen.map(([n]) => `<th>${n}</th>`).join("")}</tr>
+  <tr><td>Warmmiete</td>${scen.map(([, r]) => `<td>${eur(r.rent)}</td>`).join("")}</tr>
+  <tr><td>Wohnkostenanteil</td>${scen.map(([, r]) => `<td>${pct(r.housingShare)}</td>`).join("")}</tr>
+  <tr><td>Verfügbar</td>${scen.map(([, r]) => `<td>${eur(r.left)}</td>`).join("")}</tr>
+  <tr><td>Startkapital</td>${scen.map(([, r]) => `<td>${eur(r.startCapital)}</td>`).join("")}</tr></table></div>
+  ${interactive ? `<div class="card stack"><p class="eyebrow">Was wäre, wenn …</p>
+  <label class="f" for="wi-rent">Warmmiete: <strong id="wi-rent-v">${eur(base.rent)}</strong><input type="range" id="wi-rent" min="400" max="1600" step="25" value="${Math.round(base.rent)}"></label>
+  <label class="f" for="wi-inc">Einkommen beider: <strong id="wi-inc-v">± 0 %</strong><input type="range" id="wi-inc" min="-30" max="50" step="5" value="0"></label>
+  <p id="wi-out" class="small"></p></div>` : ""}
+  <p class="small muted">Orientierung, keine Freigabe: Der Rechner entscheidet nicht, ob ihr zusammenziehen solltet.</p></div>`;
+}
+
+function shared1() { return S.shared.m1; }
+function viewResult() {
+  const m = S.mod, d = S.shared[m], me = S.mine.name, pa = other(me);
+  if (!d || !d[me] || !d[pa]) return `<p class="muted">Noch nicht freigeschaltet.</p><button class="btn link" data-act="home">← Übersicht</button>`;
+  let html = `<div class="stack-lg fade"><img class="hero-photo" style="aspect-ratio:16/11" src="${PH[MODULES[m].photo]}" alt=""><div class="stack"><p class="eyebrow">Module ${MODULES[m].n} · The Reveal</p><h1>${MODULES[m].name}</h1></div>`;
+  if (m === "m1") {
+    const kj = knowScore(d.Kewin.guess, d.Joanna.self), jk = knowScore(d.Joanna.guess, d.Kewin.self);
+    const winner = kj.hit === jk.hit ? "Unentschieden – ihr kennt euch gleich gut." : (kj.hit > jk.hit ? "Kewin" : "Joanna") + " kennt den anderen ein bisschen besser.";
+    html += `<div class="duo"><div class="card"><p class="eyebrow">Kewin kennt Joanna</p><p class="score">${kj.hit}<span style="font-size:1.4rem">/${kj.total}</span></p></div><div class="card"><p class="eyebrow">Joanna kennt Kewin</p><p class="score">${jk.hit}<span style="font-size:1.4rem">/${jk.total}</span></p></div></div><p class="quote">${winner}</p>
+    <div class="stack">${M1.map((q, i) => q.opts ? `<div class="card stack"><p class="eyebrow">${String(i + 1).padStart(2, "0")} · ${esc(q.title)}</p>
+      <div class="cmp"><div><p class="who">Joanna über sich</p>${esc(optText(q, d.Joanna.self[q.id]))}<p class="small ${d.Kewin.guess[q.id] === d.Joanna.self[q.id] ? "ok" : "no"}">Kewin tippte: ${esc(optText(q, d.Kewin.guess[q.id]))} ${d.Kewin.guess[q.id] === d.Joanna.self[q.id] ? "✓" : "✗"}</p></div>
+      <div><p class="who">Kewin über sich</p>${esc(optText(q, d.Kewin.self[q.id]))}<p class="small ${d.Joanna.guess[q.id] === d.Kewin.self[q.id] ? "ok" : "no"}">Joanna tippte: ${esc(optText(q, d.Joanna.guess[q.id]))} ${d.Joanna.guess[q.id] === d.Kewin.self[q.id] ? "✓" : "✗"}</p></div></div></div>`
+      : `<div class="card dark stack"><p class="eyebrow">20 · The one thing I want you to understand</p><div class="stack"><div><p class="who" style="color:#cbbfb2">Joanna</p><p class="quote">${esc(d.Joanna.self[q.id] || "—")}</p></div><div><p class="who" style="color:#cbbfb2">Kewin</p><p class="quote">${esc(d.Kewin.self[q.id] || "—")}</p></div></div></div>`).join("")}</div>`;
+  } else if (m === "m2") {
+    html += `<p class="muted">Kein Score. Lest einander, nehmt euch Zeit – und sprecht über die Fragen, die euch berühren. ★ = von einem von euch als besonders wichtig markiert.</p>
+    <div class="stack">${M2.map((q, i) => { const starred = Object.values(S.status).some((s) => (s.stars || []).includes(q.id)); return `<details class="card" ${starred ? "open" : ""}><summary style="cursor:pointer;list-style:none"><p class="eyebrow">${starred ? "★ " : ""}Deep Talk ${i + 1}</p><h3 style="margin-top:6px">${esc(q.q)}</h3></summary>
+      <div class="stack" style="margin-top:14px"><div><p class="who">Meine Antwort</p><p>${esc(d[me].a[q.id] || "—")}</p></div><hr class="hr"><div><p class="who">${esc(pa)}</p><p>${esc(d[pa].a[q.id] || "—")}</p></div>
+      <p class="small" style="color:var(--gold-deep)">Gemeinsam darüber sprechen: Was hat dich an der Antwort von ${esc(pa)} überrascht – und was möchtest du dazu fragen?</p></div></details>`; }).join("")}</div>`;
+  } else {
+    const list = m === "m3" ? M3 : M4;
+    const a = d.Joanna.a, b = d.Kewin.a;
+    const cats = [...new Set(list.map((q) => q.catName))];
+    html += `<div class="card stack"><p class="eyebrow">Übereinstimmung</p><p class="score">${Math.round(agreement(list, a, b))}<span style="font-size:1.4rem"> %</span></p>
+      ${cats.map((c) => { const v = agreement(list, a, b, (q) => q.catName === c); return `<div><div class="row" style="justify-content:space-between"><span class="small">${esc(c)}</span><span class="small">${Math.round(v)} %</span></div><div class="meter"><i style="width:${v}%"></i></div></div>`; }).join("")}</div>
+      <div class="stack">${list.map((q, i) => { const s = q.opts ? same(q, a[q.id], b[q.id]) : null; return `<div class="card stack"><p class="eyebrow">${String(i + 1).padStart(2, "0")} · ${esc(q.title)} ${s === null ? "" : s >= 1 ? '<span class="ok">· gleich</span>' : s > 0 ? '<span style="color:var(--warn)">· teilweise</span>' : '<span class="no">· unterschiedlich</span>'}</p>
+        <div class="cmp"><div><p class="who">Joanna</p>${esc(optText(q, a[q.id]))}</div><div><p class="who">Kewin</p>${esc(optText(q, b[q.id]))}</div></div>
+        ${s !== null && s < 1 && q.talk ? `<p class="small" style="color:var(--gold-deep)">Gesprächsimpuls: ${esc(q.talk)}</p>` : ""}</div>`; }).join("")}</div>`;
+    if (m === "m4") {
+      const p = movingProfile(a, b);
+      html += `<div class="card dark stack"><p class="eyebrow">Your moving-in profile</p><h2>${p.title}</h2><p class="muted">${p.text}</p><p>${p.verdict}</p></div>`;
+      if (d.Joanna.fin && d.Kewin.fin) html += `<div class="card stack"><p class="eyebrow">Financial reality check · eure Angaben</p>${finBlock(d.Joanna.fin, d.Kewin.fin, "Joanna", "Kewin", false)}</div>`;
+      else html += `<p class="small muted">Für den gemeinsamen Finanz-Check fehlen noch Angaben von mindestens einer Person.</p>`;
+    }
+  }
+  html += `<button class="btn link" data-act="home">← Übersicht</button></div>`;
+  return html;
+}
+function viewReport() {
+  const d1 = S.shared.m1, d3 = S.shared.m3, d4 = S.shared.m4;
+  const sec = (n, t, inner) => `<section class="stack fade"><p class="eyebrow">Section ${n}</p><h2>${t}</h2>${inner}</section><hr class="hr">`;
+  let out = `<div class="stack-lg"><section class="hero"><img class="hero-photo" src="${PH[4]}" alt="Joanna und Kewin" style="aspect-ratio:3/4"><div class="hero-tag"><p class="eyebrow" style="color:#f3e7d3">The Deep Connection Report</p><h1 style="color:#fff;font-size:clamp(2.2rem,10vw,3.6rem)">Joanna <em>×</em> Kewin</h1></div></section>
+  <p class="quote">“Knowing each other is the beginning. Understanding each other is the journey.”</p>`;
+  if (d1) {
+    const kj = knowScore(d1.Kewin.guess, d1.Joanna.self), jk = knowScore(d1.Joanna.guess, d1.Kewin.self);
+    const cats = [["A", "The Inner World"], ["B", "The Way I Think"], ["C", "Our Relationship"], ["D", "Dreams & Future"]];
+    const matchSelf = M1.filter((q) => q.opts && d1.Joanna.self[q.id] === d1.Kewin.self[q.id]).map((q) => q.title);
+    const surprises = M1.filter((q) => q.opts && d1.Kewin.guess[q.id] !== d1.Joanna.self[q.id] && d1.Joanna.guess[q.id] !== d1.Kewin.self[q.id]).map((q) => q.title);
+    out += sec("01", "How well we know each other", `<div class="duo"><div class="card"><p class="eyebrow">Joannas Score</p><p class="score">${Math.round(jk.pct)}%</p><p class="small muted">${jk.hit}/${jk.total} über Kewin richtig</p></div><div class="card"><p class="eyebrow">Kewins Score</p><p class="score">${Math.round(kj.pct)}%</p><p class="small muted">${kj.hit}/${kj.total} über Joanna richtig</p></div></div>
+      <div class="stack">${cats.map(([c, n]) => { const x = knowScore(d1.Kewin.guess, d1.Joanna.self, (q) => q.cat === c), y = knowScore(d1.Joanna.guess, d1.Kewin.self, (q) => q.cat === c); const v = (x.pct + y.pct) / 2; return `<div><div class="row" style="justify-content:space-between"><span class="small">${n}</span><span class="small">Joanna ${Math.round(y.pct)} % · Kewin ${Math.round(x.pct)} %</span></div><div class="meter"><i style="width:${v}%"></i></div></div>`; }).join("")}</div>
+      <div class="card stack"><p class="eyebrow">Größte Gemeinsamkeiten</p><p>${matchSelf.length ? esc(matchSelf.slice(0, 5).join(" · ")) : "Ihr habt euch selbst überall unterschiedlich beschrieben – spannend!"}</p><p class="eyebrow">Größte Überraschungen</p><p>${surprises.length ? esc(surprises.slice(0, 5).join(" · ")) : "Keine – ihr habt euch gegenseitig erstaunlich gut eingeschätzt."}</p></div>`);
+    const ej = knowScore(d1.Joanna.guess, d1.Kewin.self, (q) => EMOTIONAL.includes(q.id)), ek = knowScore(d1.Kewin.guess, d1.Joanna.self, (q) => EMOTIONAL.includes(q.id));
+    out += sec("02", "Our emotional understanding", `<p class="muted">Wie gut ihr Bedürfnisse, Stress, Verletzlichkeit und Trost des anderen eingeschätzt habt (8 Fragen). Keine Diagnose – ein Spiegel.</p><div class="duo"><div class="card"><p class="eyebrow">Joanna → Kewin</p><p class="score">${ej.hit}/${ej.total}</p></div><div class="card"><p class="eyebrow">Kewin → Joanna</p><p class="score">${ek.hit}/${ek.total}</p></div></div>`);
+  }
+  if (d3) {
+    const a = d3.Joanna.a, b = d3.Kewin.a;
+    const topics = [["Karriere", ["f5", "f6", "f7"]], ["Lebensstil", ["f3", "f4"]], ["Finanzielle Ziele", ["f2", "f13"]], ["Heirat", ["f8"]], ["Familienplanung", ["f9", "f10"]], ["Wohnort", ["f11"]], ["Gemeinsame Erlebnisse", ["f12"]]];
+    out += sec("03", "Our shared future", `<div class="stack">${topics.map(([n, ids]) => { const v = agreement(M3, a, b, (q) => ids.includes(q.id)); return `<div><div class="row" style="justify-content:space-between"><span class="small">${n}</span><span class="small">${Math.round(v)} %</span></div><div class="meter"><i style="width:${v}%"></i></div></div>`; }).join("")}</div>
+      <div class="card stack"><p class="eyebrow">Euer größter gemeinsamer Wunsch</p><div><p class="who">Joanna</p><p class="quote">${esc(a.f15 || "—")}</p></div><div><p class="who">Kewin</p><p class="quote">${esc(b.f15 || "—")}</p></div></div>`);
+  }
+  if (d4) {
+    const a = d4.Joanna.a, b = d4.Kewin.a, p = movingProfile(a, b);
+    const rows = [["Haltung zum Zusammenziehen", "w1"], ["Zeitvorstellung", "w2"], ["Mietaufteilung", "w5"], ["Finanzielles Polster", "w6"], ["Haushalt", "w9"], ["Freiraum", "w11"], ["Was zuerst erreicht werden soll", "w14"]];
+    out += sec("04", "Are we ready to move in?", `<div class="card dark stack"><p class="eyebrow">Your profile</p><h2>${p.title}</h2><p class="muted">${p.text}</p><p>${p.verdict}</p></div>
+      <div class="stack">${rows.map(([n, id]) => { const q = M4.find((x) => x.id === id); return `<div class="card stack"><p class="eyebrow">${n} ${same(q, a[id], b[id]) === 1 ? '<span class="ok">· gleich</span>' : '<span style="color:var(--warn)">· offen</span>'}</p><div class="cmp"><div><p class="who">Joanna</p>${esc(optText(q, a[id]))}</div><div><p class="who">Kewin</p>${esc(optText(q, b[id]))}</div></div></div>`; }).join("")}</div>
+      ${d4.Joanna.fin && d4.Kewin.fin ? `<div class="card stack"><p class="eyebrow">Financial reality check</p>${finBlock(d4.Joanna.fin, d4.Kewin.fin, "Joanna", "Kewin", false)}</div>` : ""}
+      <p class="small muted">Diese Profile beschreiben eure Antworten – sie bewerten nicht eure Beziehung.</p>`);
+    const diffs = [...(d3 ? M3.filter((q) => q.opts && q.talk && same(q, d3.Joanna.a[q.id], d3.Kewin.a[q.id]) < 1) : []), ...M4.filter((q) => q.opts && q.talk && same(q, a[q.id], b[q.id]) < 1)].map((q) => q.talk);
+    const defaults = ["Wie viel Geld möchten wir vor einem gemeinsamen Einzug sparen?", "Welche Mietbelastung wäre für uns beide angenehm?", "Wie viel persönlichen Freiraum brauchen wir?", "Wann wäre ein guter Zeitpunkt für einen gemeinsamen Haushalt?", "Welche beruflichen oder akademischen Ziele möchten wir vorher erreichen?"];
+    const topics = [...new Set([...diffs, ...defaults])].slice(0, 5);
+    out += sec("05", "Our next conversations", `<ol class="stack" style="padding-left:20px;margin:0">${topics.map((t) => `<li class="quote" style="font-size:1.15rem">${esc(t)}</li>`).join("")}</ol>`);
+    out += sec("06", "Our next chapter", `<div class="stack">${roadmap(p.key).map(([t, x]) => `<div class="card"><p class="eyebrow">${t}</p><p>${esc(x)}</p></div>`).join("")}</div><p class="small muted">Ein unverbindliches Beispiel, abgeleitet aus euren Antworten.</p>`);
+  }
+  out += `<p class="quote" style="text-align:center">“Building a future together doesn’t mean having everything figured out. It means learning how to build it together.”</p>
+  <p class="eyebrow" style="text-align:center">Beyond the little things. Beyond the surface. Beyond today.</p>
+  <button class="btn link" data-act="home">← Übersicht</button></div>`;
+  return out;
+}
+function viewCalc() {
+  const A = S.calcA || EXAMPLE_FIN.A, B = S.calcB || EXAMPLE_FIN.B;
+  return `<div class="stack-lg fade"><div class="stack"><p class="eyebrow">Financial reality check</p><h2>What would our home cost?</h2>
+  <p class="muted"><strong>Fiktive Beispieldaten</strong> – keine Aussage über eure tatsächliche Situation. Ändert die Werte frei; hier wird nichts gespeichert. Eure echten Angaben macht jeder privat in Modul 04.</p></div>
+  <div class="grid2">${["A", "B"].map((p) => `<div class="card stack"><p class="eyebrow">Person ${p}</p>${FIN_FIELDS.map(([k, l]) => `<label class="f" for="c${p}-${k}">${l}<input type="number" inputmode="decimal" min="0" step="10" id="c${p}-${k}" data-calc="${p}" data-k="${k}" value="${(p === "A" ? A : B)[k]}"></label>`).join("")}</div>`).join("")}</div>
+  <div id="calc-out">${finBlock(A, B, "Person A", "Person B", true)}</div>
+  <button class="btn link" data-act="home">← Übersicht</button></div>`;
+}
+function viewAdmin() {
+  const people = Object.values(S.status).filter((s) => s.name);
+  return `<div class="stack-lg fade"><div class="stack"><p class="eyebrow">Admin · nur für dich sichtbar</p><h2>Control room</h2>
+  <p class="small muted">Zugang: Jeder nutzt sein eigenes Claude-Konto als privaten Zugang. Teile den Link über das Teilen-Menü (mit Bearbeiten-Rechten), damit Joanna speichern kann.</p></div>
+  <div class="card stack"><p class="eyebrow">Fortschritt</p><div class="scroll-x"><table class="tbl"><tr><th></th><th>M1 Ich</th><th>M1 Tipp</th><th>M2</th><th>M3</th><th>M4</th></tr>
+  ${people.map((s) => `<tr><td>${esc(s.name)}</td><td>${s.prog?.m1s ?? 0}/20</td><td>${s.prog?.m1g ?? 0}/19${s.done?.m1 ? " ✓" : ""}</td><td>${s.prog?.m2 ?? 0}/10${s.done?.m2 ? " ✓" : ""}</td><td>${s.prog?.m3 ?? 0}/15${s.done?.m3 ? " ✓" : ""}</td><td>${s.prog?.m4 ?? 0}/16${s.done?.m4 ? " ✓" : ""}</td></tr>`).join("") || `<tr><td colspan="6">Noch niemand angemeldet.</td></tr>`}</table></div>
+  <p class="small muted">Freigeschaltet: ${["m1","m2","m3","m4"].filter((m) => S.shared[m]).map((m) => MODULES[m].n).join(", ") || "noch nichts"}</p></div>
+  <div class="row"><button class="btn" data-act="sync">Ergebnisse freischalten / aktualisieren</button></div>
+  <p class="small muted">Ergebnisse werden automatisch freigeschaltet, sobald beide ein Modul abgeschlossen haben und diese Seite bei dir offen ist.</p>
+  <div class="card stack"><p class="eyebrow">Neues Spiel</p><p class="small muted">Löscht alle Antworten, Namen und Ergebnisse unwiderruflich.</p>
+  ${S.confirm === "reset" ? `<div class="row"><button class="btn" style="background:var(--bad)" data-act="reset">Ja, alles löschen</button><button class="btn link" data-act="unconfirm">Abbrechen</button></div>` : `<div><button class="btn ghost" data-act="ask-reset">Alles zurücksetzen</button></div>`}</div>
+  <button class="btn link" data-act="home">← Übersicht</button></div>`;
+}
+
+/* ───────────────────────── interactions ───────────────────────── */
+function wire() {
+  document.querySelectorAll("[data-act]").forEach((el) => el.addEventListener("click", () => act(el.dataset.act, el)));
+  const ta = $("#free");
+  if (ta) ta.addEventListener("input", () => { store()[currentList()[S.step].id] = ta.value; scheduleSave(); });
+  document.querySelectorAll("[data-calc]").forEach((inp) => inp.addEventListener("input", () => {
+    const p = inp.dataset.calc;
+    const obj = (p === "A" ? (S.calcA ||= { ...EXAMPLE_FIN.A }) : (S.calcB ||= { ...EXAMPLE_FIN.B }));
+    obj[inp.dataset.k] = Number(inp.value) || 0;
+    $("#calc-out").innerHTML = finBlock(S.calcA || EXAMPLE_FIN.A, S.calcB || EXAMPLE_FIN.B, "Person A", "Person B", true);
+    wireWhatIf();
+  }));
+  wireWhatIf();
+}
+function wireWhatIf() {
+  const r = $("#wi-rent"), i = $("#wi-inc");
+  if (!r) return;
+  const upd = () => {
+    const A = S.calcA || EXAMPLE_FIN.A, B = S.calcB || EXAMPLE_FIN.B;
+    const f = 1 + Number(i.value) / 100;
+    const x = finCalc(A, B, Number(r.value), f);
+    const [col, txt] = ampel(x.housingShare);
+    $("#wi-rent-v").textContent = eur(Number(r.value));
+    $("#wi-inc-v").textContent = (Number(i.value) > 0 ? "+" : "±") + i.value + " %";
+    $("#wi-out").innerHTML = `<span class="flag" style="background:${col}"></span>Wohnkosten ${pct(x.housingShare)} · verfügbar ${eur(x.left)} · nach Sparraten ${eur(x.left - x.savA - x.savB)} · ${esc(txt)}`;
+  };
+  r.addEventListener("input", upd); i.addEventListener("input", upd); upd();
+}
+async function act(a, el) {
+  const list = S.view === "q" || S.view === "review" ? currentList() : null;
+  switch (a) {
+    case "demo": return startDemo();
+    case "pick": {
+      S.mine.name = el.dataset.name;
+      if (!S.demo) await saveNow();
+      return go("home");
+    }
+    case "home": return go("home", { confirm: null });
+    case "calc": return go("calc");
+    case "admin": return go("admin", { confirm: null });
+    case "report": return go("report");
+    case "open": { const m = el.dataset.mod; return go(S.shared[m] && (myStatus().done?.[m] || S.demo) ? "result" : "intro", { mod: m }); }
+    case "result": return go("result");
+    case "start": {
+      const phase = S.mod === "m1" ? (M1.every((q) => answered(q, S.mine.m1s?.[q.id])) ? "guess" : "self") : null;
+      S.phase = phase;
+      const l = currentList(); const st = store();
+      const first = l.findIndex((q) => !answered(q, st[q.id]));
+      return go(first < 0 ? "review" : "q", { step: Math.max(0, first) });
+    }
+    case "opt": {
+      const q = list[S.step], i = Number(el.dataset.i), st = store();
+      if (q.multi) { const cur = Array.isArray(st[q.id]) ? st[q.id] : []; st[q.id] = cur.includes(i) ? cur.filter((x) => x !== i) : q.multi > 0 && cur.length >= q.multi ? cur : [...cur, i]; }
+      else st[q.id] = i;
+      scheduleSave(); render(); return;
+    }
+    case "star": { const id = list[S.step].id; const s = new Set(S.mine.stars || []); s.has(id) ? s.delete(id) : s.add(id); S.mine.stars = [...s]; scheduleSave(); render(); return; }
+    case "next": {
+      const q = list[S.step];
+      if (!answered(q, store()[q.id])) { S.err = q.multi > 0 ? `Bitte genau ${q.multi} auswählen.` : "Bitte beantworte die Frage, um weiterzugehen."; return render(); }
+      return S.step === list.length - 1 ? go("review", { confirm: null }) : go("q", { step: S.step + 1 });
+    }
+    case "prev": return S.step === 0 ? (S.mod === "m1" && S.phase === "guess" ? go("review", { phase: "self" }) : go("intro")) : go("q", { step: S.step - 1 });
+    case "jump": return go("q", { step: Number(el.dataset.i) });
+    case "back-q": return go("q", { step: list.length - 1 });
+    case "phase2": { S.phase = "guess"; const l = currentList(); const first = l.findIndex((q) => !answered(q, S.mine.m1g?.[q.id])); return go(first < 0 ? "review" : "q", { step: Math.max(0, first) }); }
+    case "confirm": return go("review", { confirm: true });
+    case "unconfirm": S.confirm = null; return render();
+    case "submit": {
+      if (S.mod === "m1" && !M1.every((q) => answered(q, S.mine.m1s?.[q.id]))) return go("review", { phase: "self" });
+      S.mine.done = { ...(S.mine.done || {}), [S.mod]: true };
+      if (S.demo) { demoShare(S.mod); return go("result"); }
+      await saveNow(); syncShared();
+      return go("intro", { confirm: null });
+    }
+    case "finin": return go("fin");
+    case "back-review": return go("review");
+    case "finsave": {
+      const f = {}; document.querySelectorAll("[data-fin]").forEach((i) => (f[i.dataset.fin] = Number(i.value) || 0));
+      S.mine.fin = f; scheduleSave(); return go("review");
+    }
+    case "sync": await syncShared(true); return render();
+    case "ask-reset": S.confirm = "reset"; return render();
+    case "reset": {
+      try {
+        for (const col of ["answers", "status", "shared"]) { const q = await S.db.collection(col).get(); for (const d of q.docs) await S.db.doc(col + "/" + d.id).delete(); }
+      } catch (e) {}
+      S.mine = { name: null, m1s: {}, m1g: {}, m2: {}, m3: {}, m4: {}, fin: null, done: {}, stars: [] }; S.shared = {};
+      return go("who", { confirm: null });
+    }
+  }
+}
+
+/* ───────────────────────── demo (example data only) ───────────────────────── */
+function demoAnswers(seed) {
+  const r = (i, n) => (i * 7 + seed * 3) % n;
+  const self = {}, guess = {}, m2 = {}, m3 = {}, m4 = {};
+  M1.forEach((q, i) => { if (q.opts) { self[q.id] = r(i, q.opts.length); guess[q.id] = (i % 3 === 0 ? r(i + 1, q.opts.length) : r(i, q.opts.length + seed) % q.opts.length); } else self[q.id] = seed ? "Dass ich oft mehr fühle, als ich zeige. (Beispiel)" : "Dass ich Zeit brauche, um mich zu öffnen. (Beispiel)"; });
+  M2.forEach((q) => (m2[q.id] = "Beispielantwort – in der echten Experience steht hier eure eigene Antwort."));
+  M3.forEach((q, i) => (m3[q.id] = q.opts ? (q.multi ? [0, 1 + seed, 3 + seed].slice(0, 3) : (i % 2 ? r(i, q.opts.length) : 0)) : "Ein Zuhause voller Lachen. (Beispiel)"));
+  M4.forEach((q, i) => (m4[q.id] = q.opts ? (q.multi ? [0, 1, 2 + seed] : (i % 3 ? r(i, q.opts.length) : seed)) : "Hell, gemütlich, mit Balkon. (Beispiel)"));
+  return { self, guess, m2, m3, m4 };
+}
+function demoShare(m) {
+  const J = demoAnswers(0), K = demoAnswers(1);
+  // Example guesses: right about two thirds of the time.
+  M1.forEach((q, i) => { if (!q.opts) return; const n = q.opts.length; J.guess[q.id] = i % 3 === 0 ? (K.self[q.id] + 1) % n : K.self[q.id]; K.guess[q.id] = i % 4 === 1 ? (J.self[q.id] + 2) % n : J.self[q.id]; });
+  const data = { m1: { Joanna: { self: J.self, guess: J.guess }, Kewin: { self: K.self, guess: K.guess } }, m2: { Joanna: { a: J.m2 }, Kewin: { a: K.m2 } }, m3: { Joanna: { a: J.m3 }, Kewin: { a: K.m3 } }, m4: { Joanna: { a: J.m4, fin: EXAMPLE_FIN.A }, Kewin: { a: K.m4, fin: EXAMPLE_FIN.B } } };
+  if (m) S.shared[m] = data[m]; else S.shared = data;
+}
+function startDemo() {
+  S.demo = true; S.owner = false;
+  S.mine = { name: "Kewin", m1s: {}, m1g: {}, m2: {}, m3: {}, m4: {}, fin: null, done: { m1: true, m2: true, m3: true, m4: true }, stars: [] };
+  demoShare(); go("home");
+}
+
+boot();
+</script>
