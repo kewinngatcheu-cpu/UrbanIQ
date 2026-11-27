@@ -1,31 +1,80 @@
 /**
- * Claude-Artifact version of OUR SUMMER ESCAPE 2027.
- * One shareable link. Identity = the viewer's Claude account, storage = the
- * artifact database:
- *   responses/<userId>  own answers   – readable by the person (and technically the owner), writable only by the person
- *   status/<userId>     {name, submitted} – visible to both, contains no answers
- *   shared/result       aggregated couple result – written by the owner's view once both submitted
+ * Claude-Artifact version of OUR SUMMER ESCAPE 2027 – works WITHOUT login.
+ * Everything stays on the person's own phone (localStorage). After submitting,
+ * each person gets a "perspective code" (compressed + obfuscated answers) to send
+ * to the partner. Pasting the partner's code unlocks the shared reveal locally.
+ * The page never displays the partner's answers – only the aggregated result.
  */
 import { createRoot } from "react-dom/client";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { Survey } from "@/components/survey/survey";
 import { Reveal } from "@/components/results/reveal";
 import { ProfileView } from "@/components/results/profile-view";
-import { computeCouple, computeIndividual, type CoupleView } from "@/lib/engine/results";
-import { sanitizeAnswers, type Answers } from "@/lib/survey/answers";
+import { computeCouple, computeIndividual } from "@/lib/engine/results";
+import { missingQuestions, sanitizeAnswers, type Answers } from "@/lib/survey/answers";
 import { PERSONAS } from "@/lib/demo";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-type Db = any;
 type Name = "Joanna" | "Kewin";
-interface Status { name: Name; submitted: boolean }
+interface State {
+  name?: Name;
+  answers: Answers;
+  submitted: boolean;
+  partner?: Answers;
+}
 
+const KEY = "se-artifact-v1";
 const NAMES: Name[] = ["Joanna", "Kewin"];
+const other = (n: Name): Name => (n === "Joanna" ? "Kewin" : "Joanna");
+
+function load(): State {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) ?? "null");
+    if (s) return { ...s, answers: sanitizeAnswers(s.answers), partner: s.partner ? sanitizeAnswers(s.partner) : undefined };
+  } catch {}
+  return { answers: {}, submitted: false };
+}
+function store(s: State) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(s));
+  } catch {}
+}
+
+/* ── perspective code: JSON → deflate → xor → base64url ── */
+const MASK = new TextEncoder().encode("our-summer-escape-2027-j-x-k");
+const xor = (b: Uint8Array) => b.map((v, i) => v ^ MASK[i % MASK.length]);
+const b64 = (b: Uint8Array) => btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const unb64 = (s: string) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+async function pipe(data: Uint8Array, t: CompressionStream | DecompressionStream) {
+  const stream = new Blob([data as BlobPart]).stream().pipeThrough(t as unknown as ReadableWritablePair<Uint8Array, Uint8Array>);
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function encode(name: Name, answers: Answers): Promise<string> {
+  const raw = new TextEncoder().encode(JSON.stringify({ n: name, a: answers }));
+  try {
+    return "SE2." + b64(xor(await pipe(raw, new CompressionStream("deflate-raw"))));
+  } catch {
+    return "SE1." + b64(xor(raw));
+  }
+}
+async function decode(code: string): Promise<{ n: Name; a: Answers } | null> {
+  try {
+    const c = code.trim().replace(/\s+/g, "");
+    const [v, body] = [c.slice(0, 4), c.slice(4)];
+    let bytes = xor(unb64(body));
+    if (v === "SE2.") bytes = await pipe(bytes, new DecompressionStream("deflate-raw"));
+    else if (v !== "SE1.") return null;
+    const j = JSON.parse(new TextDecoder().decode(bytes));
+    if (!NAMES.includes(j.n)) return null;
+    const a = sanitizeAnswers(j.a);
+    return missingQuestions(a).length ? null : { n: j.n, a };
+  } catch {
+    return null;
+  }
+}
 
 function Shell({ children }: { children: React.ReactNode }) {
   return <main className="mx-auto flex min-h-[80vh] max-w-xl flex-col justify-center px-5 py-16">{children}</main>;
 }
-
 function Brand() {
   return (
     <div className="mb-10">
@@ -37,237 +86,192 @@ function Brand() {
     </div>
   );
 }
-
-function Btn(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button
-      {...props}
-      className={`rounded-full bg-sea-deep px-7 py-4 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-ivory transition hover:bg-sea disabled:opacity-40 ${props.className ?? ""}`}
-    />
-  );
-}
+const btn = "rounded-full bg-sea-deep px-7 py-4 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-ivory transition hover:bg-sea disabled:opacity-40";
+const back = (go: () => void) => (
+  <div className="mx-auto max-w-5xl px-5 pb-16">
+    <button className={btn} onClick={go}>
+      ← Zurück
+    </button>
+  </div>
+);
 
 function App() {
-  const [phase, setPhase] = useState<"loading" | "nodb" | "ready">("loading");
-  const [db, setDb] = useState<Db>(null);
-  const [me, setMe] = useState<string>("");
-  const [owner, setOwner] = useState(false);
-  const [statuses, setStatuses] = useState<Record<string, Status>>({});
-  const [mine, setMine] = useState<{ name?: Name; answers: Answers; submitted: boolean } | null>(null);
-  const [result, setResult] = useState<CoupleView | null>(null);
+  const [s, setS] = useState<State>(load);
   const [view, setView] = useState<"hub" | "survey" | "profile" | "reveal" | "demo">("hub");
-  const [busy, setBusy] = useState(false);
-
-  // Connect to the artifact runtime.
-  useEffect(() => {
-    let done = false;
-    const timer = setTimeout(() => !done && setPhase("nodb"), 12_000);
-    (async () => {
-      const c = (window as any).claude;
-      if (!c?.use) return setPhase("nodb");
-      const [d, u] = await Promise.all([c.use("db"), c.use("user")]);
-      if (!d || !u) return setPhase("nodb");
-      const id = await u.id();
-      if (!id) return setPhase("nodb");
-      setOwner((await u.isOwner()) ?? false);
-      const own = await d.doc(`responses/${id}`).get().catch(() => null);
-      const data = own?.exists ? own.data() : null;
-      setMine({ name: data?.name, answers: sanitizeAnswers(data?.answers ?? {}), submitted: !!data?.submitted });
-      setDb(d);
-      setMe(id);
-      done = true;
-      clearTimeout(timer);
-      setPhase("ready");
-    })().catch(() => setPhase("nodb"));
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Live status + result.
-  useEffect(() => {
-    if (!db) return;
-    const u1 = db.collection("status").onSnapshot((s: any) => {
-      const m: Record<string, Status> = {};
-      for (const d of s.docs) m[d.id] = d.data() as Status;
-      setStatuses(m);
-    });
-    const u2 = db.doc("shared/result").onSnapshot((s: any) => setResult(s.exists ? (s.data().view as CoupleView) : null));
-    return () => {
-      u1?.();
-      u2?.();
-    };
-  }, [db]);
-
-  const both = Object.values(statuses).filter((s) => s.submitted);
-  const sharedReady = both.length >= 2;
-
-  // The owner's view computes the aggregated result once both have submitted.
-  const computeShared = useCallback(async () => {
-    if (!db || !owner || !sharedReady || result) return;
-    const snap = await db.collection("responses").get().catch(() => null);
-    if (!snap) return;
-    const byName: Record<string, Answers> = {};
-    for (const d of snap.docs) {
-      const x = d.data();
-      if (x?.submitted && x?.name) byName[x.name] = sanitizeAnswers(x.answers);
-    }
-    if (!byName.Joanna || !byName.Kewin) return;
-    const v = computeCouple(byName.Joanna, byName.Kewin);
-    await db.doc("shared/result").set({ view: JSON.parse(JSON.stringify(v)), at: new Date().toISOString() });
-  }, [db, owner, sharedReady, result]);
-  useEffect(() => {
-    computeShared();
-  }, [computeShared]);
-
-  if (phase === "loading")
-    return (
-      <Shell>
-        <Brand />
-        <p className="text-sm text-ink-soft">Wird geladen …</p>
-      </Shell>
-    );
-
-  if (view === "demo")
-    return <Reveal view={computeCouple(PERSONAS.romanticLuxury.answers, PERSONAS.livelyExplorer.answers)} demoLabel="Romantik trifft Lebendigkeit" />;
-
-  if (phase === "nodb" || !mine)
-    return (
-      <Shell>
-        <Brand />
-        <p className="text-sm leading-relaxed text-ink-soft">
-          Bitte öffne diesen Link in claude.ai und melde dich an – nur so kann deine Umfrage privat gespeichert werden.
-        </p>
-        <button className="mt-8 text-left text-xs uppercase tracking-[0.2em] text-sea underline" onClick={() => setView("demo")}>
-          Demo mit Beispieldaten ansehen →
-        </button>
-      </Shell>
-    );
-
-  const saveDoc = async (answers: Answers, submitted: boolean) => {
-    await db.doc(`responses/${me}`).set({ name: mine.name, answers, submitted, at: new Date().toISOString() });
-    await db.doc(`status/${me}`).set({ name: mine.name, submitted });
-    return true;
+  const [code, setCode] = useState<string>("");
+  const [copied, setCopied] = useState(false);
+  const [input, setInput] = useState("");
+  const [err, setErr] = useState<string | null>(null);
+  const update = (n: State) => {
+    setS(n);
+    store(n);
+  };
+  const go = (v: typeof view) => {
+    setView(v);
+    window.scrollTo({ top: 0 });
   };
 
-  // 1 · Who are you?
-  if (!mine.name) {
-    const taken = new Set(Object.entries(statuses).filter(([id]) => id !== me).map(([, s]) => s.name));
+  if (view === "demo")
+    return (
+      <div>
+        <Reveal view={computeCouple(PERSONAS.romanticLuxury.answers, PERSONAS.livelyExplorer.answers)} demoLabel="Romantik trifft Lebendigkeit" />
+        {back(() => go("hub"))}
+      </div>
+    );
+
+  if (!s.name)
     return (
       <Shell>
         <Brand />
         <p className="eyebrow text-sand-deep">Wer bist du?</p>
         <div className="mt-5 grid grid-cols-2 gap-3">
           {NAMES.map((n) => (
-            <button
-              key={n}
-              disabled={busy || taken.has(n)}
-              onClick={async () => {
-                setBusy(true);
-                await db.doc(`responses/${me}`).set({ name: n, answers: {}, submitted: false });
-                await db.doc(`status/${me}`).set({ name: n, submitted: false });
-                setMine({ ...mine, name: n });
-                setBusy(false);
-              }}
-              className="rounded-[1.4rem] border border-line bg-white/70 px-4 py-8 font-display text-3xl transition hover:border-sea disabled:opacity-30"
-            >
+            <button key={n} onClick={() => update({ ...s, name: n })} className="rounded-[1.4rem] border border-line bg-white/70 px-4 py-8 font-display text-3xl transition hover:border-sea">
               {n}
             </button>
           ))}
         </div>
-        <p className="mt-6 text-xs text-ink-soft">Deine Antworten bleiben privat. Die gemeinsame Auswertung zeigt nur zusammengefasste Ergebnisse.</p>
+        <p className="mt-6 text-xs leading-relaxed text-ink-soft">
+          Keine Anmeldung nötig. Deine Antworten bleiben auf deinem Handy. Zum Schluss schickt ihr euch gegenseitig einen Code – die Seite zeigt daraus nur das gemeinsame Ergebnis, nie die Antworten des anderen.
+        </p>
+        <button className="mt-10 text-left text-[0.68rem] uppercase tracking-[0.2em] text-ink-soft underline" onClick={() => go("demo")}>
+          Demo mit Beispieldaten
+        </button>
       </Shell>
+    );
+
+  const name = s.name;
+  const partner = other(name);
+
+  if (view === "survey" && !s.submitted)
+    return (
+      <main>
+      <Survey
+        mode="live"
+        name={name}
+        initial={s.answers}
+        persist={{
+          saveDraft: async (a) => {
+            update({ ...s, answers: a });
+            return true;
+          },
+          submit: async (a) => {
+            update({ ...s, answers: a, submitted: true });
+            return true;
+          },
+        }}
+        onSubmitted={(a) => {
+          update({ ...s, answers: a, submitted: true });
+          go("hub");
+        }}
+      />
+      </main>
+    );
+
+  if (view === "profile" && s.submitted)
+    return (
+      <div>
+        <ProfileView view={computeIndividual(s.answers)} name={name} backHref="#" />
+        {back(() => go("hub"))}
+      </div>
+    );
+
+  if (view === "reveal" && s.submitted && s.partner) {
+    const v = name === "Joanna" ? computeCouple(s.answers, s.partner) : computeCouple(s.partner, s.answers);
+    return (
+      <div>
+        <Reveal view={v} />
+        {back(() => go("hub"))}
+      </div>
     );
   }
 
-  if (view === "survey" && !mine.submitted)
-    return (
-      <Survey
-        mode="live"
-        name={mine.name}
-        initial={mine.answers}
-        persist={{ saveDraft: (a) => saveDoc(a, false), submit: (a) => saveDoc(a, true) }}
-        onSubmitted={(a) => {
-          setMine({ ...mine, answers: a, submitted: true });
-          setView("hub");
-          window.scrollTo({ top: 0 });
-        }}
-      />
-    );
+  const makeCode = async () => {
+    const c = await encode(name, s.answers);
+    setCode(c);
+    return c;
+  };
+  const copy = async () => {
+    const c = code || (await makeCode());
+    try {
+      await navigator.clipboard.writeText(c);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      (document.getElementById("se-code") as HTMLTextAreaElement | null)?.select();
+    }
+  };
+  const addPartner = async () => {
+    setErr(null);
+    const d = await decode(input);
+    if (!d) return setErr("Dieser Code ist ungültig oder unvollständig. Bitte den ganzen Code kopieren und einfügen.");
+    if (d.n === name) return setErr(`Das ist dein eigener Code. Füge den Code von ${partner} ein.`);
+    update({ ...s, partner: d.a });
+    setInput("");
+  };
 
-  if (view === "profile" && mine.submitted)
-    return (
-      <div>
-        <ProfileView view={computeIndividual(mine.answers)} name={mine.name} backHref="#" />
-        <div className="mx-auto max-w-5xl px-5 pb-16">
-          <Btn onClick={() => setView("hub")}>← Zurück</Btn>
-        </div>
-      </div>
-    );
-
-  if (view === "reveal" && result)
-    return (
-      <div>
-        <Reveal view={result} />
-        <div className="mx-auto max-w-5xl px-5 pb-16">
-          <Btn onClick={() => setView("hub")}>← Zurück</Btn>
-        </div>
-      </div>
-    );
-
-  // Hub
   return (
     <Shell>
       <Brand />
-      {!mine.submitted ? (
+      {!s.submitted ? (
         <div>
-          <p className="eyebrow text-sand-deep">Hi {mine.name}</p>
-          <h2 className="mt-3 font-display text-3xl font-light">
-            {Object.keys(mine.answers).length ? "Pick up where you left off." : "Two perspectives. Yours comes first."}
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-ink-soft">15 Fragen · ca. 7 Minuten · bis zum Abschicken jederzeit änderbar. Alles wird automatisch gespeichert.</p>
-          <Btn className="mt-8" onClick={() => { setView("survey"); window.scrollTo({ top: 0 }); }}>
-            {Object.keys(mine.answers).length ? "Continue survey" : "Start the survey"}
-          </Btn>
+          <p className="eyebrow text-sand-deep">Hi {name}</p>
+          <h2 className="mt-3 font-display text-3xl font-light">{Object.keys(s.answers).length ? "Pick up where you left off." : "Two perspectives. Yours comes first."}</h2>
+          <p className="mt-3 text-sm leading-relaxed text-ink-soft">15 Fragen · ca. 7 Minuten · bis zum Abschicken jederzeit änderbar. Wird automatisch auf deinem Handy gespeichert.</p>
+          <button className={`${btn} mt-8`} onClick={() => go("survey")}>
+            {Object.keys(s.answers).length ? "Continue survey" : "Start the survey"}
+          </button>
         </div>
       ) : (
         <div className="grid gap-6">
           <div className="rounded-[1.6rem] border border-line bg-white/60 p-6">
             <p className="eyebrow text-sand-deep">Only for you</p>
-            <h2 className="mt-2 font-display text-2xl font-light">Thank you, {mine.name}. Your perspective is safe.</h2>
-            <button className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-sea underline" onClick={() => { setView("profile"); window.scrollTo({ top: 0 }); }}>
+            <h2 className="mt-2 font-display text-2xl font-light">Thank you, {name}. Your perspective is safe.</h2>
+            <button className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-sea underline" onClick={() => go("profile")}>
               See my private top 3 →
             </button>
           </div>
-          <div className="rounded-[1.6rem] bg-sea-deep p-7 text-ivory">
-            <p className="eyebrow text-champagne">Our shared reveal</p>
-            {result ? (
-              <>
-                <h2 className="mt-3 font-display text-3xl font-light">
-                  Your summer destination <span className="italic text-champagne">is waiting.</span>
-                </h2>
-                <button
-                  className="mt-6 rounded-full bg-ivory px-7 py-4 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-sea-deep"
-                  onClick={() => { setView("reveal"); window.scrollTo({ top: 0 }); }}
-                >
-                  Open the reveal
-                </button>
-              </>
-            ) : sharedReady ? (
-              <>
-                <h2 className="mt-3 font-display text-3xl font-light">Both perspectives are in.</h2>
-                <p className="mt-3 text-sm text-ivory/75">Die Auswertung wird vorbereitet und erscheint hier, sobald Kewin die Seite öffnet.</p>
-              </>
-            ) : (
-              <>
-                <h2 className="mt-3 font-display text-3xl font-light">
-                  One more perspective <span className="italic text-champagne">is missing.</span>
-                </h2>
-                <p className="mt-3 text-sm text-ivory/75">Sobald beide fertig sind, öffnet sich die gemeinsame Auswertung hier automatisch.</p>
-              </>
+
+          <div className="rounded-[1.6rem] border border-line bg-white/60 p-6">
+            <p className="eyebrow text-sand-deep">Schritt 1 · Dein Code für {partner}</p>
+            <p className="mt-2 text-sm leading-relaxed text-ink-soft">Kopiere deinen Code und schick ihn {partner} (z. B. per WhatsApp). Er enthält deine Antworten verschlüsselt – die Seite zeigt sie niemandem an.</p>
+            {code && (
+              <textarea id="se-code" readOnly value={code} rows={3} onFocus={(e) => e.currentTarget.select()} className="mt-4 w-full resize-none rounded-xl border border-line bg-white px-3 py-2 font-mono text-[0.65rem] break-all" />
             )}
+            <button className={`${btn} mt-4`} onClick={copy}>
+              {copied ? "✓ Kopiert" : "Code kopieren"}
+            </button>
           </div>
+
+          {!s.partner ? (
+            <div className="rounded-[1.6rem] bg-sea-deep p-6 text-ivory">
+              <p className="eyebrow text-champagne">Schritt 2 · Code von {partner}</p>
+              <h2 className="mt-2 font-display text-3xl font-light">
+                One more perspective <span className="italic text-champagne">is missing.</span>
+              </h2>
+              <label htmlFor="se-partner" className="mt-4 block text-sm text-ivory/75">
+                Sobald {partner} fertig ist und dir den Code schickt, hier einfügen:
+              </label>
+              <textarea id="se-partner" value={input} onChange={(e) => setInput(e.target.value)} rows={3} placeholder="SE2.…" className="mt-3 w-full resize-none rounded-xl bg-ivory px-3 py-2 font-mono text-[0.7rem] text-ink" />
+              {err && <p className="mt-2 text-sm text-champagne">{err}</p>}
+              <button className="mt-4 rounded-full bg-ivory px-7 py-4 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-sea-deep disabled:opacity-40" disabled={!input.trim()} onClick={addPartner}>
+                Auswertung freischalten
+              </button>
+            </div>
+          ) : (
+            <div className="rounded-[1.6rem] bg-sea-deep p-6 text-ivory">
+              <p className="eyebrow text-champagne">Our shared reveal</p>
+              <h2 className="mt-2 font-display text-3xl font-light">
+                Your summer destination <span className="italic text-champagne">is waiting.</span>
+              </h2>
+              <button className="mt-6 rounded-full bg-ivory px-7 py-4 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-sea-deep" onClick={() => go("reveal")}>
+                Open the reveal
+              </button>
+            </div>
+          )}
         </div>
       )}
-      <button className="mt-12 text-left text-[0.68rem] uppercase tracking-[0.2em] text-ink-soft underline" onClick={() => setView("demo")}>
+      <button className="mt-12 text-left text-[0.68rem] uppercase tracking-[0.2em] text-ink-soft underline" onClick={() => go("demo")}>
         Demo mit Beispieldaten
       </button>
     </Shell>
