@@ -47,6 +47,7 @@ export function LivePanel({ destinationId, token }: { destinationId: string; tok
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [data, setData] = useState<Live | null>(null);
 
+  if (!token) return null;
   const load = async () => {
     if (!token) return;
     setState("loading");

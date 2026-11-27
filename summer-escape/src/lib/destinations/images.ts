@@ -81,6 +81,9 @@ export const IMAGES: Record<string, LibraryImage> = {
 };
 
 export function imageUrl(key: string, width = 1200): string {
+  // Self-contained builds (Claude artifact) inline images as data URIs.
+  const inlined = (globalThis as { __SE_IMAGES?: Record<string, string> }).__SE_IMAGES;
+  if (inlined) return inlined[key] ?? inlined.clearbeach;
   const img = IMAGES[key] ?? IMAGES.clearbeach;
   return `https://images.unsplash.com/${img.id}?w=${width}&q=72&auto=format&fit=crop`;
 }

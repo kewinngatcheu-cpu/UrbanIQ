@@ -16,6 +16,8 @@ export interface SurveyProps {
   name?: string;
   initial: Answers;
   onSubmitted: (answers: Answers) => void;
+  /** Alternative persistence (e.g. Claude artifact database) instead of the HTTP API. */
+  persist?: { saveDraft: (a: Answers) => Promise<boolean>; submit: (a: Answers) => Promise<boolean> };
 }
 
 const TOTAL = QUESTIONS.length;
@@ -56,7 +58,7 @@ function summary(qIndex: number, a: Answers): string {
   return bits.filter(Boolean).join(" · ") || "—";
 }
 
-export function Survey({ mode, token, name, initial, onSubmitted }: SurveyProps) {
+export function Survey({ mode, token, name, initial, onSubmitted, persist }: SurveyProps) {
   const reduce = useReducedMotion();
   const key = storageKey(mode, token);
   const [answers, setAnswers] = useState<Answers>(initial);
@@ -86,7 +88,15 @@ export function Survey({ mode, token, name, initial, onSubmitted }: SurveyProps)
     } catch {
       /* storage may be unavailable (private mode) – server draft still works */
     }
-    if (mode !== "live" || !token || !dirty.current) return;
+    if (mode !== "live" || !dirty.current) return;
+    if (persist) {
+      const t = setTimeout(async () => {
+        setSave("saving");
+        setSave((await persist.saveDraft(answers).catch(() => false)) ? "saved" : "error");
+      }, 700);
+      return () => clearTimeout(t);
+    }
+    if (!token) return;
     const t = setTimeout(async () => {
       setSave("saving");
       try {
@@ -105,7 +115,7 @@ export function Survey({ mode, token, name, initial, onSubmitted }: SurveyProps)
       }
     }, 700);
     return () => clearTimeout(t);
-  }, [answers, key, mode, token]);
+  }, [answers, key, mode, token, persist]);
 
   const set = useCallback((field: string, value: unknown) => {
     dirty.current = true;
@@ -146,7 +156,14 @@ export function Survey({ mode, token, name, initial, onSubmitted }: SurveyProps)
     setSubmitting(true);
     setError(null);
     try {
-      if (mode === "live" && token) {
+      if (mode === "live" && persist) {
+        if (!(await persist.submit(answers).catch(() => false))) {
+          setError("Abschicken fehlgeschlagen – bitte nochmal versuchen.");
+          setSubmitting(false);
+          setConfirming(false);
+          return;
+        }
+      } else if (mode === "live" && token) {
         const res = await fetch(`/api/p/${token}/submit`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

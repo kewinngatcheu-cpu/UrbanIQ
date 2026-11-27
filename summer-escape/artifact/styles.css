@@ -1,0 +1,5 @@
+@import "../src/app/globals.css";
+@source "../src";
+@source "./";
+:root { --font-cormorant: "Cormorant Garamond"; --font-manrope: "Manrope"; }
+body { background: var(--color-ivory); }
