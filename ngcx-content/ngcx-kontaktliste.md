@@ -21,6 +21,21 @@ Jede Zeile = eine Person. Keine Duplikate (vor dem Eintragen per Name + Unterneh
 | 13 | Philipp Moser | Co-Founder & Managing Partner | andamp | https://www.linkedin.com/in/philipp-moser-6ab2351b2 | Tägliche Recherche 26.11.2026 (Fit A) | | | | | neu | Wien, AT |
 | 14 | Andreas Zallmann | CEO | In&Out AG | https://www.linkedin.com/in/andreas-zallmann-0b501614 | Tägliche Recherche 26.11.2026 (Fit B) | | | | | neu | Risch, Zug, CH |
 | 15 | Harry Kraus | Geschäftsführer | AlogO GmbH | https://www.linkedin.com/in/harry-kraus-98ba2567 | Tägliche Recherche 26.11.2026 (Fit C) | | | | | neu | Berlin, DE |
+| 16 | Milan Radman | Geschäftsführender Gesellschafter | fuseki | https://www.linkedin.com/in/milan-radman-bb4654b2 | Tägliche Recherche 27.11.2026 (Fit A) | | | | | neu | Essen, NRW, DE |
+| 17 | Peter Wunderlich | Geschäftsführer | nerdware GmbH | https://www.linkedin.com/in/peter-wunderlich-50b227210 | Tägliche Recherche 27.11.2026 (Fit A) | | | | | neu | Nürnberg, Bayern, DE |
+| 18 | Ingo Düppe | CEO & Founder | CROWDCODE GmbH & Co. KG | https://www.linkedin.com/in/ingodueppe | Tägliche Recherche 27.11.2026 (Fit A) | | | | | neu | Münster, NRW, DE (Firmensitz Montabaur) |
+| 19 | Dr. Hubert Weid | CEO | mobivention GmbH | https://www.linkedin.com/in/hubertweid | Tägliche Recherche 27.11.2026 (Fit A) | | | | | neu | Köln, NRW, DE |
+| 20 | Mathias Kowalzik | Geschäftsführer | xapling GmbH | https://www.linkedin.com/in/mathias-kowalzik | Tägliche Recherche 27.11.2026 (Fit A) | | | | | neu | Evingsen/Altena, NRW, DE |
+| 21 | Roland Baum | Founder | umbrella.associates GmbH | https://www.linkedin.com/in/roland-baum | Tägliche Recherche 27.11.2026 (Fit A) | | | | | neu | Frankfurt/Rhein-Main, DE |
+| 22 | Daniel Holweg | Geschäftsführer | CADMAP Consulting Ingenieurgesellschaft mbH | https://www.linkedin.com/in/daniel-holweg-826734a | Tägliche Recherche 27.11.2026 (Fit B) | | | | | neu | München, DE (Firmensitz Essen) |
+| 23 | Harald Dittmar | Geschäftsführer | sys-pro GmbH | https://www.linkedin.com/in/haralddittmar | Tägliche Recherche 27.11.2026 (Fit B) | | | | | neu | Berlin, DE |
+| 24 | Thomas Seebauer | CEO | SBS seebauer business solutions GmbH | https://www.linkedin.com/in/thomas-seebauer-6481ba246 | Tägliche Recherche 27.11.2026 (Fit B) | | | | | neu | Weyarn, Bayern, DE |
+| 25 | Nicolas Leiser | Geschäftsführer | Cyber Samurai GmbH | https://www.linkedin.com/in/nicolas-leiser-44432631 | Tägliche Recherche 27.11.2026 (Fit B) | | | | | neu | Vaterstetten, Bayern, DE |
+| 26 | Carsten Falk | Geschäftsführer b-imtec | b-imtec GmbH | https://www.linkedin.com/in/carsten-falk-868169100 | Tägliche Recherche 27.11.2026 (Fit B) | | | | | neu | Saarbrücken, Saarland, DE |
+| 27 | Joachim Stelzer | CEO / Vorstand | BRANDAD Group AG | https://www.linkedin.com/in/joachimstelzer | Tägliche Recherche 27.11.2026 (Fit B) | | | | | neu | Fürth, Bayern, DE |
+| 28 | Yunus Saylan | CEO & Founder | Dolpheen IT | https://www.linkedin.com/in/yunussaylan | Tägliche Recherche 27.11.2026 (Fit A) | | | | | neu | Wien, AT |
+| 29 | Martin Böck | Geschäftsführer ZELMION | ZELMION | https://www.linkedin.com/in/martin-boeck-33398684 | Tägliche Recherche 27.11.2026 (Fit B) | | | | | neu | Wien, AT |
+| 30 | Nik Widmann | CEO | PRISMA solutions | https://www.linkedin.com/in/nik-widmann-15a7a5203 | Tägliche Recherche 27.11.2026 (Fit B) | | | | | neu | Mödling, Niederösterreich, AT |
 
 ## Status-Werte
 - `neu` – recherchiert, noch kein Kontakt

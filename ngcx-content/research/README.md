@@ -22,5 +22,5 @@ Jeden Morgen eine LinkedIn-Networking-Liste mit 15 neuen, verifizierten Entschei
 7. **Weniger als 15 verifiziert?** Nur die echten liefern. Niemals auffüllen.
 
 ## Offene Hinweise aus früheren Läufen
-- fuseki (Essen, 36 MA): aktuelle Geschäftsführung recherchieren. Heiko Dietz ist nur noch Partner.
+- Reserve (verifiziert, zuerst prüfen): Roland Graber (activeIT, CH), Eric Gutmann (mcs software, CH). Status `reserve` ist von der Domain-Sperre ausgenommen.
 - HeptaSphere (Hamburg): Geschäftsmodell klären, bevor die Firma aufgenommen wird.

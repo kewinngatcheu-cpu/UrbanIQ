@@ -32,7 +32,8 @@ def save(db):
 def is_dup(db, rec):
     for r in db["contacts"]:
         if rec.get("linkedin_url") and norm_url(r.get("linkedin_url")) == norm_url(rec["linkedin_url"]): return "linkedin_url", r
-        if rec.get("domain") and norm_dom(r.get("domain")) == norm_dom(rec["domain"]): return "company_domain", r
+        # Domain block applies unless the earlier record is a reserve or marked revisit (company re-check allowed)
+        if rec.get("domain") and norm_dom(r.get("domain")) == norm_dom(rec["domain"]) and not (r.get("revisit") or r.get("status") == "reserve"): return "company_domain", r
         if norm_name(r.get("name")) == norm_name(rec.get("name")) and norm_name(r.get("company")) == norm_name(rec.get("company")): return "name+company", r
     return None
 
@@ -51,7 +52,7 @@ if __name__ == "__main__":
         save(db); print("added", added)
     elif cmd != "report":
         c = db["contacts"]
-        print("total", len(c), "| daily_list", sum(r["status"] == "daily_list" for r in c), "| excluded", sum(r["status"] == "excluded" for r in c))
+        print("total", len(c), "| daily_list", sum(r["status"] == "daily_list" for r in c), "| reserve", sum(r["status"] == "reserve" for r in c), "| excluded", sum(r["status"] == "excluded" for r in c))
 
 def report(date):
     db = load(); rows = sorted([r for r in db["contacts"] if r["date"] == date and r["status"] == "daily_list"], key=lambda r: r.get("nr", 99))
