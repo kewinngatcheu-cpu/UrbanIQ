@@ -36,6 +36,21 @@ Jede Zeile = eine Person. Keine Duplikate (vor dem Eintragen per Name + Unterneh
 | 28 | Yunus Saylan | CEO & Founder | Dolpheen IT | https://www.linkedin.com/in/yunussaylan | Tägliche Recherche 27.11.2026 (Fit A) | | | | | neu | Wien, AT |
 | 29 | Martin Böck | Geschäftsführer ZELMION | ZELMION | https://www.linkedin.com/in/martin-boeck-33398684 | Tägliche Recherche 27.11.2026 (Fit B) | | | | | neu | Wien, AT |
 | 30 | Nik Widmann | CEO | PRISMA solutions | https://www.linkedin.com/in/nik-widmann-15a7a5203 | Tägliche Recherche 27.11.2026 (Fit B) | | | | | neu | Mödling, Niederösterreich, AT |
+| 31 | Jörg Ernst | Geschäftsführer | Cpro Strategy Process & Integration GmbH | https://www.linkedin.com/in/jörg-ernst-7b817721 | Tägliche Recherche 28.11.2026 (Fit A) | | | | | neu | Heide, Schleswig-Holstein, DE (Büro Hamburg) |
+| 32 | Jan Rommeley | Geschäftsführer | Navimatix GmbH | https://www.linkedin.com/in/jan-rommeley-41b1b481 | Tägliche Recherche 28.11.2026 (Fit A) | | | | | neu | Jena, Thüringen, DE |
+| 33 | Tobias Bley | CEO | onexip GmbH | https://www.linkedin.com/in/tobias-bley-779b8129 | Tägliche Recherche 28.11.2026 (Fit A) | | | | | neu | Dresden, Sachsen, DE |
+| 34 | Gunnar Kurtz | Founder & CEO | ACID21 | https://www.linkedin.com/in/gunnarkurtz | Tägliche Recherche 28.11.2026 (Fit A) | | | | | neu | Heidelberg, BW, DE (Firmensitz Berlin) |
+| 35 | Dirk Becker | Geschäftsführender Gesellschafter | optimIT GmbH | https://www.linkedin.com/in/dirk-becker-a44b9313b | Tägliche Recherche 28.11.2026 (Fit A) | | | | | neu | Saarbrücken, Saarland, DE |
+| 36 | Eike Kortz | CEO | The Modern Engineers GmbH | https://www.linkedin.com/in/eike-kortz | Tägliche Recherche 28.11.2026 (Fit A) | | | | | neu | Frankfurt am Main, DE |
+| 37 | Wilhelm Schoening | Gesellschafter & Geschäftsführer | savvytec | https://www.linkedin.com/in/wilhelm-schoening-65bbb377 | Tägliche Recherche 28.11.2026 (Fit A) | | | | | neu | Paderborn, NRW, DE |
+| 38 | Gökhan Cirag | Geschäftsführer | B.IT Solutions GmbH | https://www.linkedin.com/in/gökhan-cirag-4099511a5 | Tägliche Recherche 28.11.2026 (Fit A) | | | | | neu | Heiligenroth, Rheinland-Pfalz, DE |
+| 39 | Björn Mänken | CEO / Geschäftsführer | Maenken Systems | https://www.linkedin.com/in/björn-mänken-0a0808b1 | Tägliche Recherche 28.11.2026 (Fit B) | | | | | neu | Wuppertal, NRW, DE |
+| 40 | Ole Langbehn | Co-Owner | inoio gmbh | https://www.linkedin.com/in/olelangbehn | Tägliche Recherche 28.11.2026 (Fit B) | | | | | neu | Hamburg, DE |
+| 41 | Milen Koychev | CEO & Founder | DATA Passion GmbH | https://www.linkedin.com/in/milen-koychev-07a46476 | Tägliche Recherche 28.11.2026 (Fit B) | | | | | neu | Hamburg, DE |
+| 42 | Matthias Moritz | Geschäftsführer | MEKmedia GmbH | https://www.linkedin.com/in/matthias-moritz-5402846b | Tägliche Recherche 28.11.2026 (Fit B) | | | | | neu | Bayern, DE (Furth im Wald) |
+| 43 | Dr. Peter Geißler | CEO | Communardo Smart Work GmbH | https://www.linkedin.com/in/petergeissler1 | Tägliche Recherche 28.11.2026 (Fit B) | | | | | neu | Dresden, Sachsen, DE |
+| 44 | Roland Graber | CEO | activeIT Solutions GmbH | https://www.linkedin.com/in/roland-graber-9709915 | Tägliche Recherche 28.11.2026 (Fit B) | | | | | neu | Zürich/Rubigen, CH |
+| 45 | Eric Gutmann | Geschäftsführender Inhaber | mcs software ag | https://www.linkedin.com/in/eric-gutmann-b5412758 | Tägliche Recherche 28.11.2026 (Fit B) | | | | | neu | Bern, CH |
 
 ## Status-Werte
 - `neu` – recherchiert, noch kein Kontakt

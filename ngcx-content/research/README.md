@@ -22,5 +22,6 @@ Jeden Morgen eine LinkedIn-Networking-Liste mit 15 neuen, verifizierten Entschei
 7. **Weniger als 15 verifiziert?** Nur die echten liefern. Niemals auffüllen.
 
 ## Offene Hinweise aus früheren Läufen
-- Reserve (verifiziert, zuerst prüfen): Roland Graber (activeIT, CH), Eric Gutmann (mcs software, CH). Status `reserve` ist von der Domain-Sperre ausgenommen.
+- Reserve (verifiziert, zuerst prüfen): Torben Keck (make better, Fit C). Status `reserve` ist von der Domain-Sperre ausgenommen; beim Übernehmen den Datensatz auf `daily_list` umstellen statt neu anzulegen.
+- Jonas Jungmann: neue Firma Jungmann Consulting GmbH (Leipzig, gegr. 07/2026) prüfen, sobald Firmendaten verfügbar sind.
 - HeptaSphere (Hamburg): Geschäftsmodell klären, bevor die Firma aufgenommen wird.
