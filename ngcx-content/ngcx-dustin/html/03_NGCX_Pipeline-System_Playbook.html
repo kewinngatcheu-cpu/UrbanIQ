@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>NGCX Pipeline-System – Playbook</title>
+<link rel="stylesheet" href="ngcx.css">
+<style>
+  body{font-size:9pt}
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:8px 0 12px}
+  .flow div{background:var(--black);color:#fff;padding:9px 10px 8px 18px;font-weight:600;font-size:9pt;position:relative;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%,10px 50%)}
+  .flow div:first-child{clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%);border-radius:7px 0 0 7px;padding-left:12px}
+  .flow div:nth-child(even){background:var(--blue)}
+  .flow div small{display:block;font-weight:500;font-size:7.2pt;color:#AEB5C0;letter-spacing:.12em;text-transform:uppercase}
+  .flow div:nth-child(even) small{color:#D6E2FF}
+  .bb{border:1px solid var(--line);border-radius:10px;padding:9px 12px 8px;margin-bottom:8px;break-inside:avoid}
+  .bb .head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+  .bb .head .num{font-family:"Inter Display","Inter",sans-serif;font-size:15pt;font-weight:700;color:var(--blue);line-height:1}
+  .bb .head h3{margin:0;font-size:11pt}
+  .bb .head .goal{color:var(--muted);font-size:8.5pt}
+  .bb .cols{display:grid;grid-template-columns:1.25fr 1fr 1.15fr;gap:12px;font-size:8.4pt}
+  .bb .cols h4{font-size:7.2pt;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:3px 0 2px;font-weight:600}
+  .bb .cols ul{margin:0;padding-left:13px}
+  .bb .ex{margin-top:6px;font-size:8.3pt;background:var(--tint);border-radius:6px;padding:5px 8px}
+  .bb .ex b{color:var(--blue)}
+  .cc{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:7px;break-inside:avoid}
+  .cc .head{display:flex;gap:9px;align-items:baseline;margin-bottom:3px}
+  .cc .head .num{font-family:"Inter Display","Inter",sans-serif;font-weight:700;color:var(--blue);font-size:12pt}
+  .cc .head h3{margin:0;font-size:10.2pt}
+  .cc .meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:8.3pt;margin-bottom:4px}
+  .cc .meta b{color:var(--black)}
+  .cc pre{margin:4px 0 2px;font-size:7.4pt}
+  td,th{font-size:8.3pt}
+  pre.tree{white-space:pre;font-size:7.2pt;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="eyebrow">Nur intern · Playbook · Stand 28.11.2026</div>
+  <h1>Das NGCX Pipeline-System<br><span class="dim">Wiederverwendbar. Praxisfall: Roland AI.</span></h1>
+  <p class="lead">Wie NGCX für Kunden ein eigenes Vertriebssystem aufbaut: Positionierung, Mehrwert, die fünf Bausteine, der Tool-Stack und der technische Bauplan. Roland AI ist „Pilot 0“, also der erste Praxisfall, an dem das System getestet und dieses Playbook geschärft wird. Roland AI ist keine Branchenreferenz.</p>
+  <div class="meta">
+    <div><b>Zielgruppe</b>IT-Beratungen &amp; Softwareagenturen, DACH, 10–50 MA</div>
+    <div><b>Ansprechpartner</b>GF / Gründer</div>
+    <div><b>Prinzip</b>NGCX baut, der Kunde verkauft</div>
+  </div>
+  <div class="sig">Know. Decide. Grow.</div>
+</div>
+
+<!-- ===================== 01 POSITIONIERUNG ===================== -->
+<section>
+  <div class="eyebrow">01 · Positionierung &amp; USP</div>
+  <h2>Abgrenzung zur 0815-Masse</h2>
+  <table>
+    <tr><th style="width:19%">Anbietertyp</th><th style="width:27%">Was sie liefern</th><th style="width:27%">Typisches Problem für den Kunden</th><th>NGCX-Gegenentwurf</th></tr>
+    <tr><td><strong>Terminierungs&shy;agenturen</strong></td><td>Termine pro Stück, oft per Kaltakquise</td><td>Termine ohne Passung, das Wissen bleibt bei der Agentur, rechtlich oft grenzwertig</td><td>Gespräche mit passenden Zielkunden, das System gehört dem Kunden</td></tr>
+    <tr><td><strong>LinkedIn-Automatisierer</strong></td><td>Massen-Vernetzung und automatisierte Nachrichtenketten</td><td>Spam-Image, gesperrte Profile, Reichweite statt Gesprächen</td><td>Wenige, recherchierte Kontakte mit echtem Bezug</td></tr>
+    <tr><td><strong>Generalisten</strong> (Marketing-/Growth-Agenturen)</td><td>„Leads“ für jede Branche</td><td>Keine Ahnung, wie IT-Entscheider kaufen und wann eine Beratung Kapazität hat</td><td>Radikale Spezialisierung auf IT-Beratungen und Softwareagenturen</td></tr>
+    <tr><td><strong>Reine Tools</strong> (Apollo, Lusha &amp; Co.)</td><td>Daten und Software</td><td>Niemand baut das System, niemand sorgt für Verbindlichkeit, die Tools verstauben</td><td>Fertiges System mit Begleitung, Tools sind nur Mittel</td></tr>
+  </table>
+
+  <h3>Die 5 Unterscheidungsmerkmale</h3>
+  <div class="grid g5">
+    <div class="card"><div class="num">1</div><h4>Akquise nach Auslastung</h4><p>Neukunden dann, wenn Kapazität frei wird, nicht nach Gießkanne.</p></div>
+    <div class="card"><div class="num">2</div><h4>Radikale Spezialisierung</h4><p>Nur IT-Beratungen und Softwareagenturen. Wir sprechen deren Sprache und kennen ihre Käufer.</p></div>
+    <div class="card"><div class="num">3</div><h4>System gehört dem Kunden</h4><p>Daten, Pipeline, Texte und Prozesse bleiben beim Kunden, auch nach dem Ende der Zusammenarbeit.</p></div>
+    <div class="card"><div class="num">4</div><h4>Proof-First</h4><p>Erst beweisen, dann skalieren. Ehrlich ohne Umsatzgarantie, mit klaren Meilensteinen.</p></div>
+    <div class="card"><div class="num">5</div><h4>Langfristiger Partner</h4><p>Sales → Operations → Intelligence: wächst mit dem Kunden mit.</p></div>
+  </div>
+  <div class="note dark"><strong>USP-Satz:</strong> „NGCX baut für IT-Beratungen und Softwareagenturen ein eigenes Vertriebssystem auf, das Neukunden genau dann bringt, wenn Kapazität frei wird – planbar, branchenspezifisch und im Besitz des Kunden.“</div>
+  <div class="note grey"><strong>Ehrlicher Hinweis:</strong> Der USP ist heute eine Behauptung, kein Beweis. Er gilt erst, wenn die ersten IT-Kunden messbar zeigen: passende Gespräche zum richtigen Zeitpunkt, ein System, das sie selbst bedienen, und ein Ergebnis, das sie weiterempfehlen. Bis dahin gilt die Kommunikation „Problem zeigen“ statt „Leistung versprechen“. Roland AI beweist nur die Methode, nicht den Branchen-USP.</div>
+</section>
+
+<!-- ===================== 02 MEHRWERT ===================== -->
+<section class="avoid">
+  <div class="eyebrow">02 · Mehrwert-Logik</div>
+  <h2>Was der Kunde allein nicht kann</h2>
+  <p>Prinzipien: <strong>Problem vor Produkt · Mehrwert vor Technologie · Vertrauen vor Integration · Proof vor Skalierung.</strong></p>
+  <table>
+    <tr><th style="width:17%">Fehlt dem Kunden</th><th style="width:30%">Warum er es allein nicht schafft</th><th style="width:26%">Was NGCX liefert</th><th>Am Beispiel Roland AI</th></tr>
+    <tr><td><strong>Vertriebs&shy;erfahrung</strong></td><td>Gründer sind Fachexperten. Sie wissen nicht, welche Kanäle, Sequenzen und Botschaften funktionieren.</td><td>Erprobter Ablauf von Zielkunde bis Demo, Gesprächsleitfaden</td><td>2 Kaltanrufe ohne Erfolg, danach Stillstand. Kein Plan B.</td></tr>
+    <tr><td><strong>Käufer&shy;perspektive</strong></td><td>Wer sein Produkt gebaut hat, beschreibt Funktionen statt Probleme.</td><td>Botschaft aus Sicht des Käufers, gefiltert nach echtem Schmerz</td><td>Ca. 15 Funktionen auf der Website. Makler kaufen aber „schneller antworten, weniger Abtippen“.</td></tr>
+    <tr><td><strong>Struktur</strong></td><td>Leads liegen in Listen, keine Pipeline, kein Überblick.</td><td>ICP, A/B/C-Scoring, Pipeline mit Stufen, Reporting</td><td>250 Leads mäßiger Qualität, unsortiert, ohne Priorität.</td></tr>
+    <tr><td><strong>Verbind&shy;lichkeit</strong></td><td>Vertrieb verliert immer gegen Tagesgeschäft und Produktentwicklung.</td><td>Fester Wochenrhythmus, Meilensteine, externer Sparringspartner</td><td>„Fokus bisher auf Technik“. Der Code gewinnt gegen den Vertrieb.</td></tr>
+    <tr><td><strong>Fokus</strong></td><td>Zu viele Zielgruppen gleichzeitig, deshalb trifft die Botschaft nirgends.</td><td>Ein Segment zuerst, klare Ausschlusskriterien</td><td>Einzelmakler und Büros mit 5–25 MA, ganz Deutschland. Ein Startsegment fehlt.</td></tr>
+  </table>
+</section>
+
+<!-- ===================== 03 BAUSTEINE ===================== -->
+<section class="pb">
+  <div class="eyebrow">03 · Die 5 Bausteine</div>
+  <h2>Daten → Qualifizierung → Ansprache → Pipeline → Reporting</h2>
+  <div class="flow">
+    <div><small>Baustein 1</small>Daten</div>
+    <div><small>Baustein 2</small>Qualifizierung</div>
+    <div><small>Baustein 3</small>Ansprache</div>
+    <div><small>Baustein 4</small>Pipeline</div>
+    <div><small>Baustein 5</small>Reporting</div>
+  </div>
+  <p class="small muted">Zeitaufwände sind Richtwerte für ein Kundenprojekt mit ca. 4 Std./Woche auf NGCX-Seite. Mit jedem Kunden genauer kalibrieren.</p>
+
+  <div class="bb">
+    <div class="head"><span class="num">1</span><h3>Daten</h3><span class="goal">Ziel: die richtigen Firmen und Entscheider finden, rechtssauber und mit Signalen</span></div>
+    <div class="cols">
+      <div><h4>Ergebnis / Deliverable</h4><ul><li>ICP-Dokument mit Merkmalen, Signalen und Ausschlüssen</li><li>Rohliste (CSV) mit Firma, Website, Entscheider, Quelle und Datum</li></ul>
+        <h4>Tools · Zeit</h4><ul><li>Apollo/Lusha, Firecrawl, Claude</li><li>Aufbau 4–6 Std., danach ca. 1 Std./Woche</li></ul></div>
+      <div><h4>Signale (Beispiele)</h4><ul><li>Stellenanzeigen, Projektende, Teamwachstum</li><li>Neue Leistungen, Website-Änderungen</li><li>Aktivität von GF/Gründer auf LinkedIn</li></ul></div>
+      <div><h4>Typische Fehler</h4><ul><li>Masse statt Passung („10.000 Kontakte“)</li><li>Keine Quelle und kein Datum dokumentiert (DSGVO)</li><li>Portale automatisiert auslesen, obwohl die AGB das verbieten</li><li>Credits auf C-Leads verbrennen</li></ul></div>
+    </div>
+    <div class="ex"><b>Roland AI:</b> Signale für „viele Anfragen“: viele aktive Inserate, mehrere Objekte parallel, Stellenanzeigen für Assistenz/Backoffice, Vermietungsschwerpunkt. Signale von der Makler-Website oder manuell prüfen, ImmoScout24 &amp; Co. nicht scrapen. Einzelmakler sind in Apollo/Lusha dünn abgedeckt, deshalb sind Website und Impressum die Hauptquelle.</div>
+  </div>
+
+  <div class="bb">
+    <div class="head"><span class="num">2</span><h3>Qualifizierung</h3><span class="goal">Ziel: Zeit nur in Leads stecken, die passen und gerade Bedarf haben</span></div>
+    <div class="cols">
+      <div><h4>Ergebnis / Deliverable</h4><ul><li>Scoring-Modell (Passung × Signal) mit Gewichtung</li><li>Liste nach A/B/C mit Begründung je Lead</li></ul>
+        <h4>Tools · Zeit</h4><ul><li>Scoring-Skript (Claude Code), Claude für die Begründung</li><li>Aufbau 3–4 Std., danach 30 Min./Woche</li></ul></div>
+      <div><h4>Logik</h4><ul><li><strong>A:</strong> passt und hat ein Signal, sofort ansprechen</li><li><strong>B:</strong> passt, aber kein Signal, beobachten oder Nurture</li><li><strong>C:</strong> passt nicht, raus</li></ul></div>
+      <div><h4>Typische Fehler</h4><ul><li>Bauchgefühl statt fester Kriterien</li><li>Zu viele A-Leads, weil der Filter zu weich ist</li><li>Kein Rückfluss: Ergebnisse aus Gesprächen fließen nicht ins Scoring zurück</li></ul></div>
+    </div>
+    <div class="ex"><b>Roland AI:</b> Seine 250 Leads laufen durch das Skript. Ziel ist eine A-Liste mit 30–50 Leads in Woche 2. A-Leads werden zuerst gezielt angereichert, um Credits zu sparen.</div>
+  </div>
+
+  <div class="bb">
+    <div class="head"><span class="num">3</span><h3>Ansprache</h3><span class="goal">Ziel: aus passenden Kontakten echte Gespräche machen</span></div>
+    <div class="cols">
+      <div><h4>Ergebnis / Deliverable</h4><ul><li>Botschaft aus Käufersicht (1 Problem, 1 Satz)</li><li>Ablauf mit Texten je Schritt</li><li>Lead Magnet, Pilotangebot, Gesprächsleitfaden, Demovideo</li></ul>
+        <h4>Tools · Zeit</h4><ul><li>LinkedIn, Claude, Loom, Calendly</li><li>Aufbau 6–8 Std., danach 1 Std./Woche</li></ul></div>
+      <div><h4>Rechtsrahmen</h4><ul><li>Werbe-E-Mails nur mit Einwilligung (§ 7 UWG, auch B2B)</li><li>Telefon B2B nur bei mutmaßlicher Einwilligung</li><li>Hinweis auf Datenherkunft und Widerspruchsrecht (Art. 14/21 DSGVO)</li></ul></div>
+      <div><h4>Typische Fehler</h4><ul><li>Feature-Liste statt Problem</li><li>Pitch in der ersten Nachricht</li><li>Kalt-Mails ohne Einwilligung</li><li>Kein klarer nächster Schritt (CTA)</li></ul></div>
+    </div>
+    <div class="ex"><b>Roland AI:</b> Erst LinkedIn, dann ein Gespräch, dann eine kurze Mail mit Zustimmung, dann die Demo. Lead Magnet ist der „Anfrage-Check“: Der Zeitrechner zeigt dem Makler, wie viele Stunden pro Woche in Anfragen fließen, und holt per Double-Opt-in die Einwilligung ein.</div>
+  </div>
+
+  <div class="bb">
+    <div class="head"><span class="num">4</span><h3>Pipeline</h3><span class="goal">Ziel: jeder Kontakt hat eine Stufe, einen nächsten Schritt und ein Datum</span></div>
+    <div class="cols">
+      <div><h4>Ergebnis / Deliverable</h4><ul><li>CRM in Notion mit Stufen, Feldern und Ansichten</li><li>Regeln: Wann wechselt ein Lead die Stufe?</li></ul>
+        <h4>Tools · Zeit</h4><ul><li>Notion, optional n8n/Make für automatische Einträge</li><li>Aufbau 2–3 Std., Pflege 5–10 Min./Tag (Kunde)</li></ul></div>
+      <div><h4>Stufen</h4><ul><li>Neu → Kontaktiert → Gespräch → Demo → Pilot → Kunde</li><li>Verloren (mit Grund als Pflichtfeld)</li></ul></div>
+      <div><h4>Typische Fehler</h4><ul><li>Kein Pflichtfeld „Nächster Schritt + Datum“</li><li>Zu viele Felder, deshalb pflegt niemand das CRM</li><li>Verlustgründe nicht erfasst, dadurch kein Lernen</li></ul></div>
+    </div>
+  </div>
+
+  <div class="bb">
+    <div class="head"><span class="num">5</span><h3>Reporting</h3><span class="goal">Ziel: jede Woche entscheiden statt raten (Know. Decide. Grow.)</span></div>
+    <div class="cols">
+      <div><h4>Ergebnis / Deliverable</h4><ul><li>Wochenreport auf 1 Seite mit Kennzahlen, Learnings und nächsten 3 Schritten</li><li>Auswertung nach Woche 6 und Woche 12</li></ul>
+        <h4>Tools · Zeit</h4><ul><li>Report-Skript (Claude Code) aus Notion-Export</li><li>Aufbau 2 Std., danach 30 Min./Woche</li></ul></div>
+      <div><h4>Kennzahlen</h4><ul><li>Kontaktiert → Antwortquote → Gespräche → Demos → Piloten</li><li>Dauer je Stufe, Verlustgründe</li><li>Welche Botschaft, welcher Kanal funktioniert</li></ul></div>
+      <div><h4>Typische Fehler</h4><ul><li>Eitelkeits-Zahlen (Vernetzungen, Aufrufe)</li><li>Report ohne Entscheidung</li><li>Zu spät messen, erst wenn es schon nicht läuft</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 04 TOOL-STACK ===================== -->
+<section class="pb">
+  <div class="eyebrow">04 · Tool-Stack</div>
+  <h2>Budget: max. 150 € pro Monat</h2>
+  <table>
+    <tr><th style="width:15%">Tool</th><th style="width:29%">Zweck</th><th style="width:11%">Baustein</th><th style="width:19%">Kosten (ca.)</th><th>Hinweis</th></tr>
+    <tr><td><strong>Apollo</strong> <em>oder</em> <strong>Lusha</strong></td><td>Firmen- und Entscheiderdaten, E-Mail/Telefon anreichern</td><td>1</td><td>Free-Tarif, bezahlt ca. 30–60 $</td><td>Nur eins von beiden. Credits begrenzt, nur A-Leads anreichern. Abdeckung kleiner DACH-Firmen prüfen.</td></tr>
+    <tr><td><strong>Firecrawl</strong></td><td>Website-Signale auslesen (Team, Leistungen, Stellen, Impressum)</td><td>1–2</td><td>Free-Kontingent, bezahlt ca. 16–20 $</td><td>Nur öffentliche Firmenwebsites. AGB von Portalen beachten.</td></tr>
+    <tr><td><strong>Claude</strong></td><td>Texte, Botschaften, Analysen, Gesprächs-Auswertung</td><td>2–5</td><td>Pro ca. 20 $</td><td>Keine sensiblen personenbezogenen Daten in Prompts, wenn es nicht nötig ist.</td></tr>
+    <tr><td><strong>Claude Code</strong></td><td>Skripte: Scoring, Anreicherung, Lead Magnet, Reports</td><td>1–5</td><td>im Claude-Abo enthalten</td><td>Projekt „ngcx-pipeline-system“ (siehe 05)</td></tr>
+    <tr><td><strong>Notion</strong></td><td>CRM/Pipeline, Wochenprotokolle, Wissensbasis</td><td>4–5</td><td>Free, Plus ca. 10–12 $</td><td>Ein Workspace pro Kunde, damit das System dem Kunden gehört.</td></tr>
+    <tr><td><strong>Calendly</strong></td><td>Terminbuchung für Gespräche und Demos</td><td>3</td><td>Free, Standard ca. 10–12 $</td><td>Free reicht für einen Termintyp.</td></tr>
+    <tr><td><strong>Loom</strong></td><td>Demovideo, persönliche Video-Nachrichten</td><td>3</td><td>Free-Tarif, bezahlt ca. 15 $</td><td>Free hat eine Längenbegrenzung, für 2-Min-Videos reicht das.</td></tr>
+    <tr><td><strong>n8n</strong> / <strong>Make</strong></td><td>Automatisierung: Formular → Notion, Erinnerungen, Report-Versand</td><td>4–5</td><td>n8n selbst gehostet ca. 5 €, Make ca. 10 $</td><td>Erst automatisieren, wenn der Prozess manuell funktioniert.</td></tr>
+  </table>
+  <div class="grid g3">
+    <div class="kpi"><div class="v">ca. 20–40 €</div><div class="l">Start-Setup: Claude Pro + Free-Tarife. Reicht für Pilot 0.</div></div>
+    <div class="kpi"><div class="v">ca. 90–140 €</div><div class="l">Standard für zahlende Kunden: + Apollo/Lusha, Firecrawl, Notion Plus, Calendly, n8n</div></div>
+    <div class="kpi"><div class="v">≤ 150 €</div><div class="l">Obergrenze. Jedes Tool muss einen Baustein messbar verbessern.</div></div>
+  </div>
+  <p class="small muted">Preise sind Richtwerte nach letztem Kenntnisstand und ändern sich häufig. Vor jedem Abo aktuelle Preise und Credit-Kontingente prüfen. USD/EUR je nach Anbieter.</p>
+</section>
+
+<!-- ===================== 05 CLAUDE CODE ===================== -->
+<section class="pb">
+  <div class="eyebrow">05 · Claude-Code-Bauplan</div>
+  <h2>Projekt „ngcx-pipeline-system“ als Vorlage</h2>
+  <div class="grid g2">
+<pre class="tree"><span class="c"># pro Kunde ein Ordner unter clients/</span>
+ngcx-pipeline-system/
+├─ CLAUDE.md      <span class="c"># Regeln: DSGVO, nichts committen</span>
+├─ .env.example   <span class="c"># Keys nur als Platzhalter</span>
+├─ .gitignore     <span class="c"># clients/*/data/ + .env</span>
+├─ templates/icp.yaml
+├─ scripts/
+│  ├─ score_leads.py
+│  ├─ enrich_websites.py
+│  ├─ notion_sync.py
+│  └─ weekly_report.py
+├─ lead-magnet/   <span class="c"># Anfrage-Check</span>
+└─ clients/roland-ai/
+   ├─ icp.yaml
+   ├─ data/       <span class="c"># Leads – nie ins Git</span>
+   └─ reports/</pre>
+    <div>
+      <h4>Grundregeln für jedes Projekt</h4>
+      <ul class="check">
+        <li><strong>Kundendaten nie ins Git</strong>: <code>data/</code> und <code>.env</code> in <code>.gitignore</code></li>
+        <li>API-Keys nur in <code>.env</code>, nie im Code oder im Prompt</li>
+        <li>Jede Lead-Zeile hat <code>quelle</code> und <code>erfasst_am</code> (DSGVO-Nachweis)</li>
+        <li>Skripte idempotent: lassen sich gefahrlos mehrfach ausführen, mit Cache für Web-Abrufe</li>
+        <li>Erst manuell beweisen, dann automatisieren (Proof vor Skalierung)</li>
+        <li>Jeder Schritt hat eine „Definition of Done“ und einen Test mit 10 Beispiel-Leads</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cc">
+    <div class="head"><span class="num">1</span><h3>ICP-Vorlage</h3></div>
+    <div class="meta"><div><b>Input → Output:</b> Gesprächsnotizen → <code>icp.yaml</code></div><div><b>Aufwand:</b> 1–2 Std.</div>
+      <div><b>Inhalt:</b> Branche, Größe, Region, Entscheider, Signale mit Gewicht, Ausschlüsse</div><div><b>Fertig, wenn:</b> der Kunde das Profil freigegeben hat</div></div>
+<pre>Erstelle templates/icp.yaml mit Feldern für Zielsegment, Firmengröße, Region, Entscheiderrollen,
+Signale (Name, Beschreibung, Gewicht 1–5, Datenquelle) und Ausschlusskriterien. Fülle danach
+clients/roland-ai/icp.yaml aus diesen Notizen: [NOTIZEN]. Markiere Annahmen mit "# Annahme".</pre>
+  </div>
+
+  <div class="cc">
+    <div class="head"><span class="num">2</span><h3>Scoring-Skript (CSV → A/B/C)</h3></div>
+    <div class="meta"><div><b>Input → Output:</b> <code>leads.csv</code> + <code>icp.yaml</code> → <code>leads_scored.csv</code></div><div><b>Aufwand:</b> 2–3 Std.</div>
+      <div><b>Logik:</b> Passungs-Score × Signal-Score → A/B/C, Begründung je Zeile</div><div><b>Fertig, wenn:</b> 10 Test-Leads manuell gegengeprüft sind</div></div>
+<pre>Schreibe scripts/score_leads.py: liest eine CSV (Spaltennamen flexibel zuordnen), lädt icp.yaml,
+berechnet fit_score und signal_score (0–100), vergibt A/B/C nach Schwellenwerten aus der YAML,
+schreibt Spalten score, klasse, begruendung. Dubletten nach Domain entfernen. Mit pytest-Tests.</pre>
+  </div>
+
+  <div class="cc">
+    <div class="head"><span class="num">3</span><h3>Website-Anreicherung</h3></div>
+    <div class="meta"><div><b>Input → Output:</b> A/B-Leads mit Domain → Signale als Spalten</div><div><b>Aufwand:</b> 3–4 Std.</div>
+      <div><b>Signale:</b> Teamgröße, Leistungen, offene Stellen, Impressum-Daten, Aktualität</div><div><b>Fertig, wenn:</b> der Cache greift, Fehler protokolliert werden und keine Portale abgerufen werden</div></div>
+<pre>Schreibe scripts/enrich_websites.py: nutzt die Firecrawl-API (Key aus .env), ruft je Domain
+Startseite, /team, /karriere, /impressum ab, extrahiert die Signale aus icp.yaml mit Claude als JSON,
+cached Ergebnisse 30 Tage, max. 2 Requests/Sek. Blockliste für Portal-Domains.</pre>
+  </div>
+
+  <div class="cc">
+    <div class="head"><span class="num">4</span><h3>Notion-CRM-Struktur</h3></div>
+    <div class="meta"><div><b>Input → Output:</b> <code>leads_scored.csv</code> → Notion-Datenbank „Pipeline“</div><div><b>Aufwand:</b> 2–3 Std.</div>
+      <div><b>Felder:</b> Firma, Kontakt, Klasse, Stufe, Nächster Schritt, Datum, Quelle, Verlustgrund</div><div><b>Fertig, wenn:</b> Ansichten „Diese Woche“ und „Nach Stufe“ stehen</div></div>
+<pre>Schreibe scripts/notion_sync.py: legt per Notion-API eine Datenbank mit diesen Feldern an
+(Stufe: Neu, Kontaktiert, Gespräch, Demo, Pilot, Kunde, Verloren), importiert A- und B-Leads
+ohne Dubletten (Schlüssel: Domain) und aktualisiert vorhandene Einträge statt sie zu überschreiben.</pre>
+  </div>
+
+  <div class="cc">
+    <div class="head"><span class="num">5</span><h3>Lead Magnet („Anfrage-Check“)</h3></div>
+    <div class="meta"><div><b>Input → Output:</b> 4–5 Fragen → persönliches Ergebnis + Kontakt mit Einwilligung</div><div><b>Aufwand:</b> 4–6 Std.</div>
+      <div><b>Logik:</b> Anfragen/Woche × Minuten je Anfrage → Stunden/Monat, dazu Einordnung</div><div><b>Fertig, wenn:</b> Double-Opt-in, Datenschutzhinweis und der Eintrag in Notion funktionieren</div></div>
+<pre>Baue in lead-magnet/ eine einseitige, mobile Web-App "Anfrage-Check" für Makler: Eingaben
+(Anfragen/Woche, Minuten je Antwort, Reaktionszeit, Teamgröße), Ergebnis in Std./Monat mit 3 Tipps.
+E-Mail-Feld optional, mit Einwilligungs-Checkbox und Double-Opt-in; Übergabe per Webhook an n8n.</pre>
+  </div>
+
+  <div class="cc">
+    <div class="head"><span class="num">6</span><h3>Wochenreport</h3></div>
+    <div class="meta"><div><b>Input → Output:</b> Notion-Pipeline → <code>reports/JJJJ-KW.md</code> + PDF</div><div><b>Aufwand:</b> 2 Std.</div>
+      <div><b>Inhalt:</b> Zahlen je Stufe, Veränderung zur Vorwoche, Verlustgründe, 3 Learnings, 3 nächste Schritte</div><div><b>Fertig, wenn:</b> der Report in &lt; 5 Min. erstellt ist und im Wochen-Check genutzt wird</div></div>
+<pre>Schreibe scripts/weekly_report.py: liest die Notion-Pipeline, zählt Leads je Stufe, berechnet
+Übergangsquoten und Veränderung zur Vorwoche, listet Verlustgründe, lässt Claude 3 Learnings und
+3 nächste Schritte vorschlagen (als Entwurf markiert) und erzeugt Markdown + PDF im NGCX-Design.</pre>
+  </div>
+</section>
+
+<!-- ===================== 06 PILOT 0 ===================== -->
+<section class="avoid">
+  <div class="eyebrow">06 · Pilot 0: Roland AI</div>
+  <h2>Was wir aus dem Praxisfall mitnehmen</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h4>Proof-Kriterien für das Playbook</h4>
+      <ul class="check">
+        <li>Woche 4: System steht, A-Leads sind qualifiziert (Bausteine 1–4 funktionieren)</li>
+        <li>Woche 8: mind. 10 echte Gespräche (Ansprache funktioniert)</li>
+        <li>Woche 12: 1 aktiver Pilotkunde (Gesamtsystem funktioniert)</li>
+        <li>Aufwand je Baustein in Stunden gemessen, Richtwerte oben aktualisiert</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Übertrag auf IT-Beratungen</h4>
+      <ul>
+        <li><strong>Gleich bleibt:</strong> 5 Bausteine, Skripte, Notion-Struktur, Report, Wochenrhythmus</li>
+        <li><strong>Anders sind:</strong> Signale (Kapazität, Projektende, Stellen), Entscheider (GF/Gründer), längerer Verkaufszyklus, höherer Auftragswert</li>
+        <li><strong>Nicht übertragen:</strong> Roland AI als Branchenreferenz. Es zählt nur als Beleg für die Methode.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note"><strong>Wöchentlich festhalten (5 Min.):</strong> Was hat Zeit gekostet? Welcher Schritt war unklar? Welche Vorlage hat gefehlt? Daraus wird nach Woche 12 Version 1.1 dieses Playbooks.</div>
+  <div class="sig-end">Know. Decide. Grow. · NGCX Intelligence · intern</div>
+</section>
+
+</body>
+</html>

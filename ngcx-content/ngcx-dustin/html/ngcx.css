@@ -1,0 +1,126 @@
+/* NGCX Intelligence – Dokument-Stylesheet (Print, A4)
+   Farben aus dem NGCX-Content-Ökosystem: Schwarz #08090B, Blau #2F6BFF, Hellblau #5AAAFF, Weiß, Silber */
+:root{
+  --black:#08090B; --navy:#0B1223; --blue:#2F6BFF; --sky:#5AAAFF;
+  --silver:#C9CED6; --line:#E3E6EB; --muted:#5E6675; --ink:#1A1F2B;
+  --tint:#EEF3FF; --tint2:#F5F7FA;
+}
+*{box-sizing:border-box}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;font-family:"Inter",sans-serif;font-size:9.6pt;line-height:1.5;color:var(--ink);font-feature-settings:"ss01","cv11"}
+p{margin:0 0 6px}
+strong{font-weight:600;color:var(--black)}
+a{color:var(--blue);text-decoration:none}
+
+/* ---------- Hero ---------- */
+.hero{background:radial-gradient(120% 140% at 100% 0%,#13244a 0%,var(--navy) 38%,var(--black) 75%);color:#fff;border-radius:14px;padding:26px 28px 22px;margin-bottom:18px}
+.hero .eyebrow{color:var(--sky)}
+.hero h1{font-family:"Inter Display","Inter",sans-serif;font-weight:700;font-size:25pt;line-height:1.08;margin:8px 0 10px;letter-spacing:-.01em}
+.hero h1 .dim{color:#8E96A3}
+.hero .lead{color:#D5D9E0;font-size:10.5pt;max-width:150mm;margin:0}
+.hero .meta{display:flex;gap:22px;margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,.14);font-size:8.4pt;color:#AEB5C0}
+.hero .meta b{display:block;color:#fff;font-weight:600;font-size:9.2pt}
+.hero .sig{margin-top:12px;font-size:7.6pt;letter-spacing:.22em;text-transform:uppercase;color:var(--sky);font-weight:600}
+
+/* ---------- Typografie ---------- */
+.eyebrow{font-size:7.4pt;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--blue)}
+section{margin:0 0 16px}
+h2{font-family:"Inter Display","Inter",sans-serif;font-size:14.5pt;font-weight:700;color:var(--black);margin:3px 0 8px;letter-spacing:-.005em;break-after:avoid}
+h3{font-size:10.4pt;font-weight:600;color:var(--black);margin:10px 0 5px;break-after:avoid}
+h4{font-size:9.4pt;font-weight:600;margin:6px 0 3px;color:var(--black)}
+.muted{color:var(--muted)}
+.small{font-size:8.4pt}
+.pb{break-before:page}
+.avoid{break-inside:avoid}
+ul,ol{margin:3px 0 7px;padding-left:17px}
+li{margin:1.5px 0}
+ul.clean{list-style:none;padding-left:0}
+
+/* ---------- Tabellen ---------- */
+table{width:100%;border-collapse:separate;border-spacing:0;margin:6px 0 10px;font-size:8.7pt;break-inside:auto}
+tr{break-inside:avoid}
+th{background:var(--black);color:#fff;font-weight:600;text-align:left;padding:6px 8px;font-size:8.2pt;letter-spacing:.01em}
+th:first-child{border-top-left-radius:7px} th:last-child{border-top-right-radius:7px}
+td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:nth-child(even) td{background:var(--tint2)}
+td.c,th.c{text-align:center}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--blue)}
+.ring{display:inline-block;width:9px;height:9px;border-radius:50%;border:1.6px solid var(--silver)}
+
+/* ---------- Karten / Grids ---------- */
+.grid{display:grid;gap:9px}
+.g2{grid-template-columns:1fr 1fr} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g5{grid-template-columns:repeat(5,1fr)}
+.card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;break-inside:avoid}
+.card .num{font-family:"Inter Display","Inter",sans-serif;font-size:17pt;font-weight:700;color:var(--blue);line-height:1;margin-bottom:5px}
+.card h4{margin-top:0}
+.card p,.card li{font-size:8.6pt}
+.card.dark{background:var(--black);color:#D5D9E0;border-color:var(--black)}
+.card.dark h4,.card.dark strong{color:#fff}
+.card.tint{background:var(--tint);border-color:#D6E2FF}
+
+/* ---------- Kennzahlen ---------- */
+.kpi{border-left:3px solid var(--blue);padding:4px 0 4px 10px}
+.kpi .v{font-family:"Inter Display","Inter",sans-serif;font-size:16pt;font-weight:700;color:var(--black);line-height:1.1}
+.kpi .l{font-size:8.2pt;color:var(--muted)}
+
+/* ---------- Zeitleiste ---------- */
+.timeline{display:grid;gap:0;margin:8px 0 6px;position:relative}
+.timeline.t3{grid-template-columns:1fr 1fr 1.25fr}
+.phase{padding:0 10px 0 0}
+.phase .bar{height:6px;border-radius:3px;background:var(--blue);margin-bottom:8px}
+.phase:nth-child(2) .bar{background:var(--sky)}
+.phase:nth-child(3) .bar{background:var(--black)}
+.phase .wk{font-size:7.4pt;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.phase h4{font-size:10pt;margin:2px 0 4px}
+.phase ul{font-size:8.5pt;padding-left:14px;margin:0}
+.phase .out{margin-top:6px;font-size:8.3pt;background:var(--tint);border-radius:6px;padding:5px 7px}
+.phase .out b{color:var(--blue)}
+
+/* Meilenstein-Leiste */
+.miles{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:8px 0}
+.mile{border:1px solid var(--line);border-top:3px solid var(--blue);border-radius:8px;padding:8px 10px;break-inside:avoid}
+.mile .wk{font-size:7.4pt;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+.mile b{display:block;font-size:10pt;margin-top:2px}
+.mile span{font-size:8.3pt;color:var(--muted)}
+
+/* ---------- Hinweise ---------- */
+.note{background:var(--tint);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:8px 11px;margin:7px 0 10px;font-size:8.8pt;break-inside:avoid}
+.note.dark{background:var(--black);color:#D5D9E0;border-left-color:var(--sky)}
+.note.dark strong{color:#fff}
+.note.grey{background:var(--tint2);border-left-color:var(--silver)}
+.tag{display:inline-block;font-size:7pt;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border-radius:20px;background:var(--black);color:#fff;vertical-align:middle}
+.tag.blue{background:var(--blue)}
+
+/* ---------- Gesprächsleitfaden ---------- */
+.say{background:var(--tint2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:6px 10px;margin:5px 0;font-size:9pt;break-inside:avoid}
+.say::before{content:"„";color:var(--blue);font-weight:700;margin-right:1px}
+.say::after{content:"“";color:var(--blue);font-weight:700}
+.dir{color:var(--muted);font-size:8.4pt;margin:3px 0 5px}
+.dir::before{content:"[";} .dir::after{content:"]";}
+.step{display:grid;grid-template-columns:62px 1fr;gap:12px;padding:9px 0;border-top:1px solid var(--line);break-inside:avoid}
+.step .t{font-family:"Inter Display","Inter",sans-serif;font-weight:700;color:var(--blue);font-size:10pt;line-height:1.25}
+.step .t small{display:block;color:var(--muted);font-weight:500;font-size:7.6pt;letter-spacing:.08em}
+.step h3{margin-top:0}
+.obj{border:1px solid var(--line);border-radius:9px;padding:8px 11px;margin:0 0 7px;break-inside:avoid}
+.obj h4{margin:0 0 3px;color:var(--blue)}
+
+/* ---------- Checklisten ---------- */
+ul.check{list-style:none;padding-left:0;margin:4px 0 8px}
+ul.check li{position:relative;padding-left:20px;margin:3px 0}
+ul.check li::before{content:"";position:absolute;left:0;top:2.5px;width:10px;height:10px;border:1.5px solid var(--blue);border-radius:3px}
+ul.flags{list-style:none;padding-left:0;margin:3px 0}
+ul.flags li{padding-left:14px;position:relative;margin:3px 0;font-size:8.7pt}
+ul.flags li::before{content:"";position:absolute;left:0;top:5px;width:7px;height:7px;border-radius:50%}
+ul.flags.green li::before{background:#1F9D63} ul.flags.red li::before{background:#D64545}
+
+/* ---------- Mail ---------- */
+.mail{border:1px solid var(--silver);border-radius:10px;padding:12px 14px;font-size:8.8pt;background:#fff}
+.mail .subj{font-weight:600;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
+.mail p{margin:0 0 6px}
+.mail ul{margin:2px 0 6px}
+
+/* ---------- Code ---------- */
+code,.mono{font-family:"DejaVu Sans Mono",monospace;font-size:7.9pt;background:var(--tint2);padding:1px 4px;border-radius:4px}
+pre{font-family:"DejaVu Sans Mono",monospace;font-size:7.6pt;line-height:1.45;background:var(--black);color:#D5D9E0;border-radius:8px;padding:9px 11px;margin:5px 0 8px;white-space:pre-wrap;break-inside:avoid}
+pre .c{color:#7D8796}
+.sig-end{margin-top:14px;font-size:7.6pt;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);font-weight:600}
